@@ -1,37 +1,32 @@
-let linkRegex = /(https?:\/\/(?:www\.)?(?:t\.me|telegram\.me|whatsapp\.com)\/\S+)|(https?:\/\/chat\.whatsapp\.com\/\S+)|(https?:\/\/whatsapp\.com\/channel\/\S+)/i;
+const linkRegex = /chat.whatsapp.com\/(?:invite\/)?([0-9A-Za-z]{20,24})/i
 
-export async function before(m, { isAdmin, isBotAdmin }) {
-    if (m.isBaileys && m.fromMe) return true;
-    if (!m.isGroup) return false;
-
-    let chat = global.db.data.chats[m.chat];
-    let bot = global.db.data.settings[this.user.jid] || {};
-    const isGroupLink = linkRegex.exec(m.text);
-    const grupo = `https://chat.whatsapp.com`;
-
-    if (isAdmin && chat.antiLink && m.text.includes(grupo)) {
-        return conn.reply(m.chat, `🌸 E-eh... el anti-link está activado, pero como eres admin... ¡e-estás a salvo! >//<`, m);
-    }
+export async function before(m, { conn, isAdmin, isBotAdmin }) {
+    if (m.isBaileys && m.fromMe) return !0
+    if (!m.isGroup) return !1
+    
+    let chat = global.db?.data?.chats?.[m.chat] || {}
+    let bot = global.db?.data?.settings?.[conn.user.jid] || {}
+    const isGroupLink = linkRegex.exec(m.text)
 
     if (chat.antiLink && isGroupLink && !isAdmin) {
-        if (!isBotAdmin) {
-            return conn.reply(m.chat, `🥺 U-uhm... no soy admin... n-no puedo hacer nada...`, m);
+        if (isBotAdmin) {
+            const linkThisGroup = `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+            if (m.text.includes(linkThisGroup)) return !0
         }
+        
+        await conn.reply(
+            m.chat, 
+            `𓂃 𓈒 𓏸✿ 𝑨𝒉... gomen~ 🫧 pero no se pueden compartir enlaces de otros grupos aquí, *${m.sender.split('@')[0]}-chan*... ( •́ㅿ•̀ ) 💔
 
-        const linkThisGroup = `https://chat.whatsapp.com/${await this.groupInviteCode(m.chat)}`;
-        if (m.text.includes(linkThisGroup)) return true;
-
-        // **Expulsar al usuario antes de enviar cualquier mensaje**
-        await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
-
-        // **Eliminar el mensaje**
-        await conn.sendMessage(m.chat, { delete: m.key });
-
-        // **Enviar advertencia después de la expulsión**
-        await conn.reply(m.chat, `😖 L-lo siento... ¡pero los enlaces no están permitidos!\n\n*${await this.getName(m.sender)}* envió un enlace prohibido... a-ahora ya no está aquí...`, m);
-
-        return false;
+            𝑬𝒉... tendrás que irte... ${isBotAdmin ? 'G-Gomenasai... 😖💞' : '\n\nUhm... demo... no soy admin, así que no puedo hacer nada... (｡>﹏<｡)'} `, 
+            null, 
+            { mentions: [m.sender] }
+        )
+        
+        if (isBotAdmin && chat.antiLink) {
+            await conn.sendMessage(m.chat, { delete: m.key })
+            await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+        } else if (!chat.antiLink) return 
     }
-
-    return true;
+    return !0
 }
