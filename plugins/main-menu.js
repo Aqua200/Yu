@@ -11,7 +11,8 @@ let handler = async (m, { conn, args }) => {
     
     let txt = `
 ♡✧･ﾟ: *✧･ﾟ: *♡
-¡Konnichiwa! Soy ${botname}
+¡Konnichiwa! Soy
+${botname}
 Es un placer estar aquí contigo. Aquí tienes la lista de comandos para que podamos disfrutar juntos.
 *･ﾟ✧: *･ﾟ✧♡
 Arigatou gozaimasu por estar aquí.
