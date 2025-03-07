@@ -1,15 +1,15 @@
 import PhoneNumber from 'awesome-phonenumber';
 
-const suittag = '584125014674'; // Número del owner
-const botname = 'Anika Dm'; // Nombre del bot
-const packname = 'Anika Dm Bot';
-const dev = 'Desarrollador: Onyx';
-const correo = 'example@email.com'; // Cambia esto por tu correo
-const md = 'https://github.com/OnyxBot'; // URL del proyecto
-const channel = 'https://youtube.com/OnyxBot'; // URL del canal
+const suittag = '5216631079388'; // Número del owner
+const botname = '𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵'; // Nombre del bot
+const packname = '𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵';
+const dev = 'Desarrollador: Neykoor💜';
+const correo = 'chiquepapa@gmail.com'; // Cambia esto por tu correo
+const md = 'https://github.com/Yu'; // URL del proyecto
+const channel = 'https://youtube.com/Yu'; // URL del canal
 
 let handler = async (m, { conn }) => {
-  m.react?.('👋'); // Asegura que m.react exista antes de usarlo
+  m.react?.('🤍'); // Asegura que m.react exista antes de usarlo
 
   let who = m.mentionedJid && m.mentionedJid[0] 
     ? m.mentionedJid[0] 
@@ -27,8 +27,8 @@ let handler = async (m, { conn }) => {
   let name = await conn.getName(who);
 
   await sendContactArray(conn, m.chat, [
-    [`${suittag}`, `ᰔᩚ Propietario`, botname, `❀ No Hacer Spam`, correo, `⊹˚• Venezuela •˚⊹`, md, bio],
-    [`${conn.user.jid.split('@')[0]}`, `✦ Es Un Bot`, packname, dev, correo, `Sabrá Dios 🫏`, channel, biobot]
+    [`${suittag}`, `ᰔᩚ Propietario`, botname, `❀ No Hacer Spam`, correo, `⊹˚• Mexico •˚⊹`, md, bio],
+    [`${conn.user.jid.split('@')[0]}`, `✦ Es Un Bot`, packname, dev, correo, `Mexicana 🖤`, channel, biobot]
   ], m);
 }
 
