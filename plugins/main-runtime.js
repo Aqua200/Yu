@@ -4,24 +4,24 @@ let handler = async (m, { usedPrefix, command }) => {
 
   let runtime = `
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
-🌸  𝓦𝓮𝓵𝓬𝓸𝓶𝓮 𝓬𝓱𝓮𝓻𝓮! 🌸
+🌸  Welcome ! 🌸
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-⛩️【 𝓢𝓽𝓪𝓽𝓾𝓼 𝓬𝓸𝓶𝓹𝓵𝓮𝓽𝓸 】⛩️
+⛩️【 status completo 】⛩️
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 
-🌷 **Fecha:** ${new Date().toLocaleDateString()}
-🌸 **Hora actual:** ${time}
+🌷 *Fecha:*${new Date().toLocaleDateString()}
+🌸 *Hora actual:* ${time}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-💖 **Tiempo activo:** ${rTime(uptime)}
+🤍 *Tiempo activa:** ${rTime(uptime)}
 
-🌙 **Estatus:** El bot está funcionando con mucha energía y felicidad.
+🌙 *Estatus:* La bot está funcionando con mucha energía y felicidad.
 
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 
-🎀 *Gracias por estar aquí, ¡espero que tu día sea hermoso!* 🎀
+🖤 *Gracias por estar aquí, ¡espero que tu día sea tan hermoso como la mia !* 🤍
   
 💬 Si quieres saber más sobre el estado, escribe *${usedPrefix}status*.
 
