@@ -1,18 +1,34 @@
 import PhoneNumber from 'awesome-phonenumber';
 
+const suittag = '584125014674'; // Número del owner
+const botname = 'Anika Dm'; // Nombre del bot
+const packname = 'Anika Dm Bot';
+const dev = 'Desarrollador: Onyx';
+const correo = 'example@email.com'; // Cambia esto por tu correo
+const md = 'https://github.com/OnyxBot'; // URL del proyecto
+const channel = 'https://youtube.com/OnyxBot'; // URL del canal
+
 let handler = async (m, { conn }) => {
-  m.react('👋');
-  let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender;
+  m.react?.('👋'); // Asegura que m.react exista antes de usarlo
+
+  let who = m.mentionedJid && m.mentionedJid[0] 
+    ? m.mentionedJid[0] 
+    : m.fromMe 
+      ? conn.user.jid 
+      : m.sender;
+
   let pp = await conn.profilePictureUrl(who).catch(_ => 'https://qu.ax/PRgfc.jpg');
-  let biografia = await conn.fetchStatus(`${suittag}@s.whatsapp.net`).catch(_ => 'Sin Biografía');
-  let biografiaBot = await conn.fetchStatus(`${conn.user.jid.split('@')[0]}@s.whatsapp.net`).catch(_ => 'Sin Biografía');
-  let bio = biografia.status?.toString() || 'Sin Biografía';
-  let biobot = biografiaBot.status?.toString() || 'Sin Biografía';
+  
+  let biografia = await conn.fetchStatus(`${suittag}@s.whatsapp.net`).catch(_ => ({ status: 'Sin Biografía' }));
+  let biografiaBot = await conn.fetchStatus(`${conn.user.jid.split('@')[0]}@s.whatsapp.net`).catch(_ => ({ status: 'Sin Biografía' }));
+
+  let bio = biografia?.status?.toString() || 'Sin Biografía';
+  let biobot = biografiaBot?.status?.toString() || 'Sin Biografía';
   let name = await conn.getName(who);
 
   await sendContactArray(conn, m.chat, [
     [`${suittag}`, `ᰔᩚ Propietario`, botname, `❀ No Hacer Spam`, correo, `⊹˚• Venezuela •˚⊹`, md, bio],
-    [`${conn.user.jid.split('@')[0]}`, `✦ Es Un Bot`, packname, dev, correo, `Sabra Dios 🫏`, channel, biobot]
+    [`${conn.user.jid.split('@')[0]}`, `✦ Es Un Bot`, packname, dev, correo, `Sabrá Dios 🫏`, channel, biobot]
   ], m);
 }
 
@@ -34,7 +50,7 @@ VERSION:3.0
 N:;${name.replace(/\n/g, '\\n')};;;
 FN:${name.replace(/\n/g, '\\n')}
 item.ORG:${isi}
-item1.TEL;waid=${number}:${PhoneNumber('+' + number).getNumber('international')}
+item1.TEL;waid=${number}:${new PhoneNumber('+' + number).getNumber('international')}
 item1.X-ABLabel:${isi1}
 item2.EMAIL;type=INTERNET:${isi2}
 item2.X-ABLabel:Email
@@ -49,7 +65,7 @@ END:VCARD`.trim();
   }
   return await conn.sendMessage(jid, {
     contacts: {
-      displayName: (contacts.length > 1 ? `Contactos` : contacts[0].displayName) || null,
+      displayName: contacts.length > 1 ? `Contactos` : contacts[0].displayName,
       contacts,
     }
   }, {
