@@ -74,13 +74,13 @@ global.photoSity = [catalogo]
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
-global.gp1 = 'https://chat.whatsapp.com/Ecz881bBgqPIWjDOaKkp7E'
-global.comunidad1 = 'https://chat.whatsapp.com/EwrwcGvpLf1BnMhP3B4axD'
-global.channel = 'https://whatsapp.com/channel/0029VapSIvR5EjxsD1B7hU3T'
-global.channel2 = 'https://whatsapp.com/channel/0029VavzewJLikg78gILRn1o'
-global.md = 'https://github.com/The-King-Destroy/Yuki_Suou-Bot'
-global.correo = 'thekingdestroy507@gmail.com'
-global.cn ='https://whatsapp.com/channel/0029VapSIvR5EjxsD1B7hU3T';
+global.gp1 = 'https://chat.whatsapp.com/K3rqbZKilulGHBZBzAW1Jh'
+global.comunidad1 = 'https://chat.whatsapp.com/Lf5b8iMlbCbEvYlDQC6SgC'
+global.channel = 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24'
+global.channel2 = 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24'
+global.md = 'https://github.com/Aqua200/Yu'
+global.correo = 'chiquepapa@gmail.com'
+global.cn ='https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24';
 
 //*─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─⭒─ׄ─ׅ─ׄ─*
 
