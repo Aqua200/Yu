@@ -10,12 +10,12 @@ let handler = async (m, { usedPrefix, command }) => {
 ⛩️【 status completo 】⛩️
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 
-🌷 *Fecha:*${new Date().toLocaleDateString()}
+🌷 *Fecha:* ${new Date().toLocaleDateString()}
 🌸 *Hora actual:* ${time}
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-🤍 *Tiempo activa:** ${rTime(uptime)}
+🤍 *Tiempo activa:*${rTime(uptime)}
 
 🌙 *Estatus:* La bot está funcionando con mucha energía y felicidad.
 
