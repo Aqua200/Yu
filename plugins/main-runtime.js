@@ -7,7 +7,7 @@ let handler = async (m, { usedPrefix, command }) => {
 🌸  Welcome ! 🌸
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-⛩️【 status completo 】⛩️
+⛩️【 conoce mi info basica 】⛩️
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 
 🌷 *Fecha:* ${new Date().toLocaleDateString()}
@@ -23,7 +23,7 @@ let handler = async (m, { usedPrefix, command }) => {
 
 🖤 *Gracias por estar aquí, ¡espero que tu día sea tan hermoso como la mia !* 🤍
   
-💬 Si quieres saber más sobre el estado, escribe *${usedPrefix}status*.
+💬 Si quieres saber más sobre el estado completo, escribe *${usedPrefix}status*.
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 `;
