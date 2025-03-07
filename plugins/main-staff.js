@@ -24,7 +24,7 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 
           agradecimientos:
 
-━━━━━━━[ Agradecimiento ]━━━━━━━
+━━━━[ Agradecimiento ]━━━━━
 ᥫ᭡ *ᰔᩚ ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜*
 > ✰ *Rol* » *creador*
 > ✦ *GitHub* » https://github.com/The-King-Destroy
