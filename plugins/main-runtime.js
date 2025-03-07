@@ -7,7 +7,7 @@ let handler = async (m, { usedPrefix, command }) => {
 🌸  Welcome ! 🌸
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-⛩️【 conoce mi info basica 】⛩️
+⛩️【 Mi servidor  】⛩️
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
 
 🌷 *Fecha:* ${new Date().toLocaleDateString()}
