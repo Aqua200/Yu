@@ -29,7 +29,7 @@ let handler = async (m, { usedPrefix, command }) => {
 `;
 
   // Enviar la imagen junto con el mensaje
-  conn.reply(m.chat, { image: { url: imageUrl }, caption: runtime }, m);
+  conn.sendMessage(m.chat, { image: { url: imageUrl }, caption: runtime }, { quoted: m });
 };
 
 handler.help = ['runtime'];
