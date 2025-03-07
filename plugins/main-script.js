@@ -5,7 +5,9 @@ let handler = async (m, { conn }) => {
   txt += `✩  *Número para conectar* : ${numeroFijo}\n`
   txt += `✩  Usa este número en WhatsApp MD para conectarte como *Jadibot*.\n`
   txt += `✩  No compartas este número con desconocidos.\n`
+  txt += `✩  Este comando fue echo con el fin de no afectar al bot principal y hacer que ustedes tengan la opción de conectarse .\n`
 
+  //
   // Aquí se envía la imagen antes del texto
   let imageUrl = 'https://qu.ax/RsBya.jpeg' // Sustituye con la URL de la imagen que quieres usar
   await conn.sendMessage(m.chat, { image: { url: imageUrl }, caption: txt })
