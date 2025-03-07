@@ -75,9 +75,9 @@ global.waitttt = '❍ Espera un momento, soy lenta...';
 //Enlaces
 var canal = 'https://whatsapp.com/channel/0029VapSIvR5EjxsD1B7hU3T'  
 let canal2 = 'https://whatsapp.com/channel/0029VavzewJLikg78gILRn1o'
-var git = 'https://github.com/The-King-Destroy'
-var github = 'https://github.com/The-King-Destroy/Yuki_Suou-Bot' 
-let correo = 'thekingdestroy507@gmail.com'
+var git = 'https://github.com/Aqua200'
+var github = 'https://github.com/Aqua200/Yu' 
+let correo = 'chiquepapa@gmail.com'
 
 global.redes = [canal, canal2, git, github, correo].getRandom()
 
