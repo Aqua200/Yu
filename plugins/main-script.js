@@ -1,5 +1,5 @@
 let handler = async (m, { conn }) => {
-  let urlFija = "https://www.ejemplo.com" // Cambia esta URL por la que deseas usar
+  let urlFija = "https://qu.ax/RsBya.jpeg" // Cambia esta URL por la que deseas usar
 
   let txt = `*乂  J A D I B O T 乂*\n\n`
   txt += `✩  *Conéctate aquí* : ${urlFija}\n`
