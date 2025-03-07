@@ -1,12 +1,14 @@
 let handler = async (m, { conn }) => {
-  let urlFija = "https://qu.ax/RsBya.jpeg" // Cambia esta URL por la que deseas usar
+  let numeroFijo = "+57 1234567890" // Cambia este número por el que quieres usar
 
   let txt = `*乂  J A D I B O T 乂*\n\n`
-  txt += `✩  *Conéctate aquí* : ${urlFija}\n`
-  txt += `✩  Usa esta URL en tu navegador para conectarte como *Jadibot*.\n`
-  txt += `✩  No compartas este enlace con desconocidos.\n`
+  txt += `✩  *Número para conectar* : ${numeroFijo}\n`
+  txt += `✩  Usa este número en WhatsApp MD para conectarte como *Jadibot*.\n`
+  txt += `✩  No compartas este número con desconocidos.\n`
 
-  await conn.sendMessage(m.chat, { text: txt })
+  // Aquí se envía la imagen antes del texto
+  let imageUrl = 'https://qu.ax/RsBya.jpeg' // Sustituye con la URL de la imagen que quieres usar
+  await conn.sendMessage(m.chat, { image: { url: imageUrl }, caption: txt })
 }
 
 handler.help = ['jadi']
