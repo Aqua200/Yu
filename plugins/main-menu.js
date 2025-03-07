@@ -35,8 +35,8 @@ Crea un *Sub-Bot* con tu número utilizando *#qr* o *#code*
 > ✦ Ver la lista de comandos de la Bot.
 ᰔᩚ *#uptime • #runtime*
 > ✦ Ver tiempo activo o en linea de la Bot.
-ᰔᩚ *#sc • #script*
-> ✦ Link del repositorio oficial de la Bot
+ᰔᩚ *.jadi • #jadi*
+> ✦ Mensaje oficial de la Bot para convertirse en jadi
 ᰔᩚ *#staff • #colaboradores*
 > ✦ Ver la lista de desarrolladores de la Bot.
 ᰔᩚ *#serbot • #serbot code*
