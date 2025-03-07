@@ -26,7 +26,7 @@ Arigatou gozaimasu por estar aquí.
 │✧ Comandos » ${totalCommands}
 │🜸 Baileys » Multi Device
 ╰─────────────────
-Crea un *Sub-Bot* con tu número utilizando *#qr* o *#code*
+Crea un *Sub-Bot* con tu número utilizando *.jadi* o *#jadi*
 
 • :･ﾟ⊹˚• \`『 Info-Bot 』\` •˚⊹:･ﾟ•
 
