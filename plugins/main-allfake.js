@@ -28,9 +28,9 @@ console.log(`Error : ${e}`)
 }}
   
 //creador y otros
-global.creador = 'Wa.me/584120346669'
+global.creador = 'Wa.me/5216631079388'
 global.ofcbot = `${conn.user.jid.split('@')[0]}`
-global.asistencia = 'Wa.me/584120346669'
+global.asistencia = 'Wa.me/5216631079388'
 global.namechannel = 'ᥫ᭡ 𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵 ❀'
 global.namechannel2 = 'ᥫ᭡ 𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵'
 global.namegrupo = '.•♫•♬• 𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵  •♬•♫•.'
