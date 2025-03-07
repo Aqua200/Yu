@@ -1,6 +1,6 @@
 let handler = async (m, { conn, command, usedPrefix }) => {
   // Reemplazar la ruta de la imagen por una URL
-  let img = 'https://ejemplo.com/imagen.jpg'; // Coloca aquí tu URL de imagen
+  let img = 'https://qu.ax/kjnVx.jpeg'; // Coloca aquí tu URL de imagen
 
   let staff = `
 ━━━━━━━━━━━━━━━━━━━━━
