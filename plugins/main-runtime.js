@@ -15,7 +15,7 @@ let handler = async (m, { usedPrefix, command }) => {
 
 ╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━╯
 
-🤍 *Tiempo activa:*${rTime(uptime)}
+🤍 *Tiempo activa:* ${rTime(uptime)}
 
 🌙 *Estatus:* La bot está funcionando con mucha energía y felicidad.
 
