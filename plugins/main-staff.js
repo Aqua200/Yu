@@ -1,68 +1,47 @@
 let handler = async (m, { conn, command, usedPrefix }) => {
-  // Definir las variables con los símbolos
-  const symbol1 = 'ᥫ᭡';  // ᥫ᭡
-  const symbol2 = '✰';    // ✰
-  const symbol3 = '✦';    // ✦
-  const symbol4 = '⚘';    // ⚘
-  const symbol5 = '❖';    // ❖
-  const symbol6 = '✧';    // ✧
+  // Reemplazar la ruta de la imagen por una URL
+  let img = 'https://ejemplo.com/imagen.jpg'; // Coloca aquí tu URL de imagen
 
-  let img = './src/catalogo.jpg'
   let staff = `
 ━━━━━━━━━━━━━━━━━━━━━
-      𝓔𝓺𝓾𝓲𝓹𝓸 𝓭𝓮 𝓐𝓎𝓾𝓭𝓪𝓷𝓽𝓮𝓼
+       equipo de ayudante 
 ━━━━━━━━━━━━━━━━━━━━━
 
-${symbol6} *Dueño:* ➣ ${creador}
-${symbol6} *Bot:* ➣ ${botname}
-${symbol6} *Versión:* ➣ ${vs}
-${symbol6} *Librería:* ➣ ${libreria} ${baileys}
+✧ *Dueño:* ➣ ${creador}
+✧ *Bot:* ➣ ${botname}
+✧ *Versión:* ➣ ${vs}
+✧ *Librería:* ➣ ${libreria} ${baileys}
 
 ━━━━━━━━━━━━━━━━━━━━━
 
-           𝓒𝓻𝓮𝓪𝓭𝓸𝓻:
+   creador de la bot:
 
-━━━━━━━[ 𝓒𝓻𝓮𝓪𝓭𝓸𝓻 ]━━━━━━━
-${symbol1} *ᰔᩚ ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜*
-> ${symbol2} *Rol* » *Creador*
-> ${symbol3} *GitHub* » https://github.com/The-King-Destroy
-━━━━━━━━━━━━━━━━━━━━━
-
-           𝓒𝓸𝓵𝓪𝓫𝓸𝓻𝓪𝓭𝓸𝓻𝓮𝓼:
-
-━━━━━━━━━━━━━━━━━━━━━
-${symbol1} *ᰔᩚ 𝓔𝓶𝓶𝓪 𝓥𝓲𝓸𝓵𝓮𝓽𝓼 𝓥𝓮𝓻𝓼𝓲ó𝓷*
-> ${symbol2} *Rol* » *Developer*
-> ${symbol3} *GitHub* » https://github.com/Elpapiema
+━━━━━━━[ creador ]━━━━━━━
+ᥫ᭡ *Neykoor💜*
+> ✰ *Rol* » *Creador*
+> ✦ *GitHub* » por el momento no esta disponible 
 ━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━
-${symbol1} *ᰔᩚ Niño Piña*
-> ${symbol2} *Rol* » *Developer*
-> ${symbol3} *GitHub* » https://github.com/WillZek
+           colaboradores:
+
+━━━━━━━[ colaboradores ]━━━━━━━
+ᥫ᭡ *no hay *
+> ✰ *Rol* » *Developer*
+> ✦ *GitHub* » 
 ━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━
-${symbol1} *✧ ☆꧁༒ĹєǤ𝒆𝐧𝐃༒꧂*  
-> ${symbol2} *Rol* » *Developer*
-> ${symbol3} *GitHub* » https://github.com/Diomar-s
+          agradecimientos:
+
+━━━━━━━[ Agradecimiento ]━━━━━━━
+ᥫ᭡ *ᰔᩚ ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜*
+> ✰ *Rol* » *creador*
+> ✦ *GitHub* » https://github.com/The-King-Destroy
 ━━━━━━━━━━━━━━━━━━━━━
 
-━━━━━━━━━━━━━━━━━━━━━
-${symbol1} *ᰔᩚ I'm Fz' (Tesis)*
-> ${symbol2} *Rol* » *Developer*
-> ${symbol3} *GitHub* » https://github.com/FzTeis
-━━━━━━━━━━━━━━━━━━━━━
-
-━━━━━━━━━━━━━━━━━━━━━
-${symbol1} *ᰔᩚ Legna*
-> ${symbol2} *Rol* » *Mini-Dev*
-> ${symbol3} *GitHub* » https://github.com/Legna-chan
-━━━━━━━━━━━━━━━━━━━━━
-
-━━━━━━━━━━━━━━━━━━━━━
+quieres formar parte del staff? solo necesitas creatividad 
+poco conocimiento y asegurar que le echaras ganas
 `
-  await conn.sendFile(m.chat, img, 'yuki.jpg', staff.trim(), fkontak)
+  await conn.sendFile(m.chat, img, 'imagen.jpg', staff.trim(), fkontak)
 }
 
 handler.help = ['staff']
