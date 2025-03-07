@@ -73,8 +73,8 @@ global.waittt = '❍ Espera un momento, soy lenta...';
 global.waitttt = '❍ Espera un momento, soy lenta...';
 
 //Enlaces
-var canal = 'https://whatsapp.com/channel/0029VapSIvR5EjxsD1B7hU3T'  
-let canal2 = 'https://whatsapp.com/channel/0029VavzewJLikg78gILRn1o'
+var canal = 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24'  
+let canal2 = 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24'
 var git = 'https://github.com/Aqua200'
 var github = 'https://github.com/Aqua200/Yu' 
 let correo = 'chiquepapa@gmail.com'
