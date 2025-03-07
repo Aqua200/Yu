@@ -1,6 +1,6 @@
 let handler = async (m, { usedPrefix, command }) => {
   let uptime = await process.uptime();
-  let imageUrl = 'https://example.com/your-image.jpg';  // Reemplaza esta URL con la que quieras usar
+  let imageUrl = 'https://qu.ax/HGPmS.jpeg';  // Reemplaza esta URL con la que quieras usar
 
   let runtime = `
 ╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━╮
