@@ -22,14 +22,6 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 > ✦ *GitHub* » por el momento no esta disponible 
 ━━━━━━━━━━━━━━━━━━━━━
 
-           colaboradores:
-
-━━━━━━━[ colaboradores ]━━━━━━━
-ᥫ᭡ *no hay *
-> ✰ *Rol* » *Developer*
-> ✦ *GitHub* » 
-━━━━━━━━━━━━━━━━━━━━━
-
           agradecimientos:
 
 ━━━━━━━[ Agradecimiento ]━━━━━━━
@@ -37,9 +29,6 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 > ✰ *Rol* » *creador*
 > ✦ *GitHub* » https://github.com/The-King-Destroy
 ━━━━━━━━━━━━━━━━━━━━━
-
-quieres formar parte del staff? solo necesitas creatividad 
-poco conocimiento y asegurar que le echaras ganas
 `
   await conn.sendFile(m.chat, img, 'imagen.jpg', staff.trim(), fkontak)
 }
