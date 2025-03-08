@@ -1,24 +1,45 @@
 import { tmpdir } from 'os'
-import path, { join } from 'path'
-import {
-readdirSync,
-statSync,
-unlinkSync,
-existsSync,
-readFileSync,
-watch
-} from 'fs'
-let handler = async (m, { conn, usedPrefix: _p, __dirname, args }) => { 
+import { join } from 'path'
+import { readdirSync, statSync, unlinkSync, existsSync, rmSync } from 'fs'
 
-conn.reply(m.chat, `${emoji} Realizado, ya se ha eliminado los archivos de la carpeta tmp`, m)
+let handler = async (m, { conn, __dirname }) => {
+  try {
+    const tmp = [tmpdir(), join(__dirname, '../tmp')]
+    let archivosEliminados = 0
+    let carpetasEliminadas = 0
 
-const tmp = [tmpdir(), join(__dirname, '../tmp')]
-const filename = []
-tmp.forEach(dirname => readdirSync(dirname).forEach(file => filename.push(join(dirname, file))))
-return filename.map(file => {
-const stats = statSync(file)
-unlinkSync(file)
-})}
+    tmp.forEach(dirname => {
+      if (existsSync(dirname)) {
+        readdirSync(dirname).forEach(file => {
+          const filePath = join(dirname, file)
+          if (existsSync(filePath)) {
+            try {
+              const stats = statSync(filePath)
+              if (stats.isFile()) {
+                unlinkSync(filePath)
+                archivosEliminados++
+              } else if (stats.isDirectory()) {
+                rmSync(filePath, { recursive: true, force: true })
+                carpetasEliminadas++
+              }
+            } catch (err) {
+              console.error(`No se pudo eliminar: ${filePath} - ${err.message}`)
+            }
+          }
+        })
+      }
+    })
+
+    conn.reply(
+      m.chat,
+      `✅ Se han eliminado ${archivosEliminados} archivos y ${carpetasEliminadas} carpetas de la carpeta tmp`,
+      m
+    )
+  } catch (error) {
+    console.error(`Error en cleartmp: ${error.message}`)
+    conn.reply(m.chat, `⚠️ Ocurrió un error al limpiar la carpeta tmp`, m)
+  }
+}
 
 handler.help = ['cleartmp']
 handler.tags = ['owner']
