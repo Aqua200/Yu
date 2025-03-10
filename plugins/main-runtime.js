@@ -1,6 +1,11 @@
 let handler = async (m) => {
     let muptime = clockString(process.uptime() * 1000) // Convierte a milisegundos
-    m.reply(`🏮 *Tiempo activo:* \n\n${muptime}`)
+    let diseño = `╭──────────────────╮\n` +
+                 `┃  🏮  *TIEMPO ACTIVO*  🏮  ┃\n` +
+                 `╰──────────────────╯\n\n` +
+                 `📌 *Duración:* ${muptime}`
+    
+    m.reply(diseño)
 }
 
 handler.help = ['runtime']
