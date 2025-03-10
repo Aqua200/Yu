@@ -1,26 +1,28 @@
+let handler = async (m, { conn, usedPrefix, command }) => {
+    let _uptime = process.uptime() * 1000
+    let tio = clockString(_uptime)
+    let time = require('moment-timezone').tz('Asia/Jakarta').format('HH:mm:ss')
 
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-	
-	let _muptime
-    if (process.send) {
-      process.send('uptime')
-      _muptime = await new Promise(resolve => {
-        process.once('message', resolve)
-        setTimeout(resolve, 1000)
-      }) * 1000
-    }
-    let muptime = clockString(_muptime)
-   m.reply(`🏮 *${mssg.uptime}*  \n\n${muptime}`) 
+var ct = `
+*───「 RUNTIME BOT 」───*
+
+Runtime : ${tio}
+    `
+m.reply(ct)
 }
-handler.help = ['runtime'] 
-handler.tags = ['main']
-handler.command = ['runtime', 'uptime']
-export default handler 
+handler.help = ['runtime']
+handler.tags = ['info']
+handler.command = /^(uptime|runtime)$/i
+
+module.exports = handler
 
 function clockString(ms) {
-  let d = isNaN(ms) ? '--' : Math.floor(ms / 86400000)
-  let h = isNaN(ms) ? '--' : Math.floor(ms / 3600000) % 24
-  let m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60
-  let s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60
-  return [d, 'd ', h, 'h ', m, 'm ', s, 's '].map(v => v.toString().padStart(2, 0)).join('')
+    let days = Math.floor(ms / (24 * 60 * 60 * 1000));
+    let daysms = ms % (24 * 60 * 60 * 1000);
+    let hours = Math.floor((daysms) / (60 * 60 * 1000));
+    let hoursms = ms % (60 * 60 * 1000);
+    let minutes = Math.floor((hoursms) / (60 * 1000));
+    let minutesms = ms % (60 * 1000);
+    let sec = Math.floor((minutesms) / (1000));
+    return days + " Day " + hours + " Hour " + minutes + " Minute " + sec + " Second ";
 }
