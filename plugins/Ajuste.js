@@ -2,7 +2,7 @@ import db from '../lib/database.js' // Asegúrate de que tu bot tenga una base d
 
 let handler = async (m, { command, text }) => {
     if (!db.data) db.data = {} // Asegurar que db.data exista
-    if (!db.data.ajuste) db.data.ajuste = "⚠️ No hay ningún ajuste configurado."
+    if (!db.data.ajuste) db.data.ajuste = "⚠️ Proxima update jadibot."
 
     if (text) {
         db.data.ajuste = text
