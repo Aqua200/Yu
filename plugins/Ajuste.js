@@ -1,7 +1,8 @@
 import db from '../lib/database.js' // Asegúrate de que tu bot tenga una base de datos compatible
 
 let handler = async (m, { command, text }) => {
-    db.data.ajuste = db.data.ajuste || "⚠️ No hay ningún ajuste configurado."
+    if (!db.data) db.data = {} // Asegurar que db.data exista
+    if (!db.data.ajuste) db.data.ajuste = "⚠️ No hay ningún ajuste configurado."
 
     if (text) {
         db.data.ajuste = text
