@@ -1,26 +1,28 @@
-let buyPickaxeHandler = async (m, { conn }) => {
+let handler = async (m, { conn }) => {
     let user = global.db.data.users[m.sender];
     if (!user) return;
 
-    let costYen = 50;  // Costo en yenes para comprar un pico
-    if (user.pickaxe === 1) {
-        return conn.reply(m.chat, '❌ Ya tienes una picota.', m);
+    let costDiamonds = 1;  // Cantidad de diamantes necesarios para comprar una picota
+
+    if (user.diamonds < costDiamonds) {
+        return conn.reply(m.chat, `❌ No tienes suficientes diamantes para comprar una picota.\n💎 *Diamantes necesarios:* ${costDiamonds}`, m);
     }
 
-    if (user.yen < costYen) {
-        return conn.reply(m.chat, `❌ No tienes suficientes yenes para comprar el pico.\n💴 *Yenes necesarios:* ${costYen}`, m);
+    // Si el usuario no tiene picota, se le asigna una nueva picota con durabilidad máxima
+    if (!user.pickaxe) {
+        user.pickaxe = true;  // El usuario ahora tiene una picota
+        user.pickaxedurability = 100;  // Durabilidad inicial de la picota
     }
 
-    user.yen -= costYen;
-    user.pickaxe = 1;  // Compra la picota
-    user.pickaxedurability = 100; // Durabilidad inicial de la picota
-    conn.reply(m.chat, `✅ Has comprado un *pico* por *${costYen}* yenes. Ahora tienes *${user.pickaxe}* pico(s).`, m);
-};
+    user.diamonds -= costDiamonds;  // Restar los diamantes
 
-buyPickaxeHandler.help = ['comprarpicota'];
-buyPickaxeHandler.tags = ['economy'];
-buyPickaxeHandler.command = ['comprarpicota'];
-buyPickaxeHandler.register = true;
-buyPickaxeHandler.group = true;
+    conn.reply(m.chat, `✅ Has comprado una picota con éxito.\n🔧 *Durabilidad de la picota:* 100`, m);
+}
 
-export default buyPickaxeHandler;
+handler.help = ['comprarpicota'];
+handler.tags = ['economy'];
+handler.command = ['comprarpicota', 'buyaxe'];
+handler.register = true;
+handler.group = true;
+
+export default handler;
