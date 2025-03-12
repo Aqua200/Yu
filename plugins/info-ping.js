@@ -1,19 +1,188 @@
-import speed from 'performance-now'
-import { spawn, exec, execSync } from 'child_process'
+import { totalmem, freemem } from 'os';
+import os from 'os';
+import util from 'util';
+import osu from 'node-os-utils';
+import { performance } from 'perf_hooks';
+import { sizeFormatter } from 'human-readable';
 
-let handler = async (m, { conn }) => {
-         let timestamp = speed();
-         let latensi = speed() - timestamp;
-         exec(`neofetch --stdout`, (error, stdout, stderr) => {
-          let child = stdout.toString("utf-8");
-          let ssd = child.replace(/Memory:/, "Ram:");
+const format = sizeFormatter({
+  std: "JEDEC", // 'SI' (default) | 'IEC' | 'JEDEC'
+  decimalPlaces: 2,
+  keepTrailingZeroes: false,
+  render: (literal, symbol) => `${literal} ${symbol}B`,
+});
 
-          conn.reply(m.chat, `✰ *¡Pong!*\n> Tiempo ⴵ ${latensi.toFixed(4)}ms`, m);
-            });
+const handler = async (m, { conn }) => {
+  const chats = Object.entries(conn.chats).filter(([id, data]) => id && data.isChats);
+  const gruposEn = chats.filter(([id]) => id.endsWith('@g.us')); // grupos.filter(v => !v.read_only)
+  const usado = process.memoryUsage();
+  const cpus = os.cpus().map(cpu => {
+    cpu.total = Object.keys(cpu.times).reduce((last, type) => last + cpu.times[type], 0);
+    return cpu;
+  });
+
+  const cpu = cpus.reduce(
+    (last, cpu, _, { length }) => {
+      last.total += cpu.total;
+      last.speed += cpu.speed / length;
+      last.times.user += cpu.times.user;
+      last.times.nice += cpu.times.nice;
+      last.times.sys += cpu.times.sys;
+      last.times.idle += cpu.times.idle;
+      last.times.irq += cpu.times.irq;
+      return last;
+    },
+    {
+      speed: 0,
+      total: 0,
+      times: {
+        user: 0,
+        nice: 0,
+        sys: 0,
+        idle: 0,
+        irq: 0,
+      },
+    }
+  );
+
+  let _muptime;
+  if (process.send) {
+    process.send('uptime');
+    _muptime = await new Promise(resolve => {
+      process.once('message', resolve);
+      setTimeout(resolve, 1000);
+    }) * 1000;
+  }
+
+  const muptime = clockString(_muptime);
+  const old = performance.now();
+  const neww = performance.now();
+  const velocidad = neww - old;
+
+  const cpux = osu.cpu;
+  const cpuCore = cpux.count();
+  const drive = osu.drive;
+  const mem = osu.mem;
+  const netstat = osu.netstat;
+  const HostN = osu.os.hostname();
+  const OS = osu.os.platform();
+  const modeloCpu = cpux.model();
+  
+  const d = new Date(new Date + 3600000);
+  const locale = 'es';
+  const semana = d.toLocaleDateString(locale, { weekday: 'long' });
+  const fechas = d.toLocaleDateString(locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+  const tiempos = d.toLocaleTimeString(locale, {
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric'
+  });
+
+  await m.reply('_Probando velocidad..._');
+
+  const texto = `*ᴘ ɪ ɴ ɢ*
+  ${Math.round(neww - old)} ms
+  ${velocidad} ms
+
+  *ᴛɪᴇᴍᴘᴏ ᴅᴇ ᴇxɪsᴛᴇɴᴄɪᴀ* 
+  ${muptime}
+
+  *ᴄʜᴀᴛs*
+  • *${gruposEn.length}* Chats de grupo
+  • *${gruposEn.length}* Grupos unidos
+  • *${gruposEn.length - gruposEn.length}* Grupos abandonados
+  • *${chats.length - gruposEn.length}* Chats personales
+  • *${chats.length}* Chats totales
+
+  *sᴇʀᴠɪᴄɪᴏ*
+  *🛑 ʀᴀᴍ:* ${format(totalmem() - freemem())} / ${format(totalmem())}
+  *🔵 ʀᴀᴍ ᴀʙɪᴇʀᴛᴀ:* ${format(freemem())}
+  *🔴 ᴄᴘᴜ ᴛɪᴘᴏ:* ${require('os').cpus()[0].model}
+  *🔭 ᴘʟᴀᴛғᴏʀᴍᴀ:* ${os.platform()}
+  *🧿 sᴇʀᴠᴇʀ:* ${os.hostname()}
+  *💻 ᴏs:* ${OS}
+  *⏰ ᴛɪᴇᴍᴘᴏ ᴅᴇ sᴇʀᴠɪᴄɪᴏ:* ${tiempos}
+
+  _Uso de memoria en NodeJS_
+  ${
+    "```" +
+    Object.keys(usado)
+      .map(
+        (key, _, arr) =>
+          `${key.padEnd(Math.max(...arr.map((v) => v.length)), " ")}: ${format(
+            usado[key]
+          )}`
+      )
+      .join("\n") +
+    "```"
+  }
+
+  ${
+    cpus[0]
+      ? `_Uso total de CPU_
+  ${cpus[0].model.trim()} (${cpu.speed} MHZ)\n${Object.keys(cpu.times)
+          .map(
+            (type) =>
+              `- *${(type + "*").padEnd(6)}: ${(
+                (100 * cpu.times[type]) /
+                cpu.total
+              ).toFixed(2)}%`
+          )
+          .join("\n")}
+
+  _Uso de núcleos de CPU (${cpus.length} núcleos)_
+  ${cpus
+    .map(
+      (cpu, i) =>
+        `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Object.keys(
+          cpu.times
+        )
+          .map(
+            (type) =>
+              `- *${(type + "*").padEnd(6)}: ${(
+                (100 * cpu.times[type]) /
+                cpu.total
+              ).toFixed(2)}%`
+          )
+          .join("\n")}`
+    )
+    .join("\n\n")}`
+      : ""
+  }
+  `;
+
+  conn.relayMessage(m.chat, {
+    extendedTextMessage: {
+      text: texto,
+      contextInfo: {
+        externalAdReply: {
+          title: `${require('os').cpus()[0].model}`,
+          mediaType: 1,
+          previewType: 0,
+          renderLargerThumbnail: true,
+          thumbnailUrl: 'https://telegra.ph/file/ec8cf04e3a2890d3dce9c.jpg',
+          sourceUrl: ''
+        }
+      },
+      mentions: [m.sender]
+    }
+  }, {});
+};
+
+handler.help = ['ping', 'speed'];
+handler.tags = ['info'];
+handler.command = /^(ping|speed|pong|ingfo)$/i;
+
+export default handler;
+
+function clockString(ms) {
+  const d = isNaN(ms) ? '--' : Math.floor(ms / 86400000);
+  const h = isNaN(ms) ? '--' : Math.floor(ms / 3600000) % 24;
+  const m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60;
+  const s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60;
+  return [d, 'D ', h, 'H ', m, 'M ', s, 'S '].map(v => v.toString().padStart(2, 0)).join('');
 }
-handler.help = ['ping']
-handler.tags = ['info']
-handler.command = ['ping', 'p']
-handler.register = true
-
-export default handler
