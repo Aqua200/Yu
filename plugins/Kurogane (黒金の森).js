@@ -19,7 +19,7 @@ let handler = async (m, { conn }) => {
     }
 
     // Enviar mensaje con imagen del lugar
-    await conn.sendFile(m.chat, "https://qu.ax/YOUR_IMAGE_URL", 'kurogane.jpg', info, fkontak);
+    await conn.sendFile(m.chat, "https://qu.ax/GtiGX.jpeg", 'kurogane.jpg', info, fkontak);
     await m.react('🌳');
 
     // Sumar el oro, hierro y diamante a los recursos del usuario
