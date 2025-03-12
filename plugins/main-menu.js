@@ -212,6 +212,8 @@ Crea un *Sub-Bot* con tu número utilizando *.jadi* o *#jadi*
 > ✦ Reclama tu dulce o truco (Solo en Halloween).
 ᰔᩚ *#christmas • #navidad*
 > ✦ Reclama tu regalo navideño (Solo en Navidad).
+ᰔᩚ *#kurogane*
+> ✦ para recoger materiales oro y hierro
 
 • :･ﾟ⊹˚• \`『 Gacha 』\` •˚⊹:･ﾟ•
 
