@@ -3,6 +3,11 @@ import { default as WAMessageStubType } from '@whiskeysockets/baileys';
 let handler = m => m;
 handler.before = async function (m, { conn, participants, groupMetadata }) {
     try {
+        // Verificación de los datos entrantes para depuración
+        console.log('Mensaje recibido:', m);
+        console.log('Tipo de mensaje:', m.messageStubType);
+        console.log('Parametros del mensaje:', m.messageStubParameters);
+
         if (!m.messageStubType || !m.isGroup) return;
 
         const fkontak = {
@@ -20,7 +25,9 @@ handler.before = async function (m, { conn, participants, groupMetadata }) {
             "participant": "0@s.whatsapp.net"
         };
 
+        // Verificar si la configuración de chats está correcta
         let chat = global.db.data.chats[m.chat];
+        console.log('Configuración de chat:', chat);
         let usuario = `@${m.sender.split`@`[0]}`;
         let pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => null) || 'https://files.catbox.moe/xr2m6u.jpg';
 
@@ -34,6 +41,7 @@ handler.before = async function (m, { conn, participants, groupMetadata }) {
         noadmingp = `《✦》@${m.messageStubParameters[0].split`@`[0]} Deja de ser admin del grupo.\n\n> ✧ Acción hecha por:\n> » ${usuario}`;
         aceptar = `✦ Ha llegado un nuevo participante al grupo.\n\n> ◦ ✐ Grupo: *${groupMetadata.subject}*\n\n> ◦ ⚘ Bienvenido/a: @${m.messageStubParameters[0].split('@')[0]}\n\n> ◦ ✧ Aceptado por: @${m.sender.split('@')[0]}`;
 
+        // Asegúrate de que chat.detect está correctamente configurado
         if (chat.detect && m.messageStubType == 21) {
             await conn.sendMessage(m.chat, { text: nombre, mentions: [m.sender] }, { quoted: fkontak });
         } else if (chat.detect && m.messageStubType == 22) {
