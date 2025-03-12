@@ -26,6 +26,9 @@ Arigatou gozaimasu por estar aquí.
 │✧ Comandos » ${totalCommands}
 │🜸 Baileys » Multi Device
 ╰─────────────────
+
+Hola, querido!✨ ¿Quieres ver mis nuevos ajustes?  Solo escribe .changelog y te los mostraré con mucho gusto 💕
+
 Crea un *Sub-Bot* con tu número utilizando *.jadi* o *#jadi*
 
 • :･ﾟ⊹˚• \`『 Info-Bot 』\` •˚⊹:･ﾟ•
