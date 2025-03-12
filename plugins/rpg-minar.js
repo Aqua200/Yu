@@ -68,27 +68,9 @@ let handler = async (m, { conn }) => {
     }
 
     if (user.pickaxedurability <= 0) {
-        conn.reply(m.chat, '❌ Tu picota se ha roto. Usa el comando *reparar* para arreglarla o compra una nueva usando *!comprar*.', m);
+        conn.reply(m.chat, '❌ Tu picota se ha roto. Usa el comando *reparar* para arreglarla.', m);
     }
 }
-
-// Comando .comprar
-let comprarHandler = async (m, { conn }) => {
-    let user = global.db.data.users[m.sender];
-    let precioPicota = 100;  // Precio de la picota nueva en monedas
-
-    if (user.coin >= precioPicota) {
-        user.coin -= precioPicota;  // Descontar las monedas
-        user.pickaxedurability = 100;  // Restablecer durabilidad de la picota
-        conn.reply(m.chat, `✅ ¡Has comprado una nueva picota! Durabilidad restaurada a 100.`, m);
-    } else {
-        conn.reply(m.chat, `❌ No tienes suficientes monedas para comprar una picota. Necesitas ${precioPicota} monedas.`, m);
-    }
-}
-
-comprarHandler.help = ['comprar'];
-comprarHandler.tags = ['economy'];
-comprarHandler.command = ['comprar'];
 
 handler.help = ['minar'];
 handler.tags = ['economy'];
@@ -129,4 +111,4 @@ function msToTime(duration) {
     seconds = (seconds < 10) ? '0' + seconds : seconds;
 
     return minutes + 'm y ' + seconds + 's';
-}
+                                                                                                                               }
