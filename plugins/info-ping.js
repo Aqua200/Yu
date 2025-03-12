@@ -1,7 +1,4 @@
-import { totalmem, freemem } from 'os';
-import os from 'os';
-import util from 'util';
-import osu from 'node-os-utils';
+import { totalmem, freemem, cpus, platform, hostname } from 'os';
 import { performance } from 'perf_hooks';
 import { sizeFormatter } from 'human-readable';
 
@@ -16,12 +13,12 @@ const handler = async (m, { conn }) => {
   const chats = Object.entries(conn.chats).filter(([id, data]) => id && data.isChats);
   const gruposEn = chats.filter(([id]) => id.endsWith('@g.us')); // grupos.filter(v => !v.read_only)
   const usado = process.memoryUsage();
-  const cpus = os.cpus().map(cpu => {
+  const cpusInfo = cpus().map(cpu => {
     cpu.total = Object.keys(cpu.times).reduce((last, type) => last + cpu.times[type], 0);
     return cpu;
   });
 
-  const cpu = cpus.reduce(
+  const cpu = cpusInfo.reduce(
     (last, cpu, _, { length }) => {
       last.total += cpu.total;
       last.speed += cpu.speed / length;
@@ -59,15 +56,10 @@ const handler = async (m, { conn }) => {
   const neww = performance.now();
   const velocidad = neww - old;
 
-  const cpux = osu.cpu;
-  const cpuCore = cpux.count();
-  const drive = osu.drive;
-  const mem = osu.mem;
-  const netstat = osu.netstat;
-  const HostN = osu.os.hostname();
-  const OS = osu.os.platform();
-  const modeloCpu = cpux.model();
-  
+  const modeloCpu = cpus()[0]?.model || 'Desconocido';  // Si no se puede obtener el modelo, se usa 'Desconocido'
+  const plataforma = platform();
+  const servidor = hostname();
+
   const d = new Date(new Date + 3600000);
   const locale = 'es';
   const semana = d.toLocaleDateString(locale, { weekday: 'long' });
@@ -101,10 +93,10 @@ const handler = async (m, { conn }) => {
   *sᴇʀᴠɪᴄɪᴏ*
   *🛑 ʀᴀᴍ:* ${format(totalmem() - freemem())} / ${format(totalmem())}
   *🔵 ʀᴀᴍ ᴀʙɪᴇʀᴛᴀ:* ${format(freemem())}
-  *🔴 ᴄᴘᴜ ᴛɪᴘᴏ:* ${require('os').cpus()[0].model}
-  *🔭 ᴘʟᴀᴛғᴏʀᴍᴀ:* ${os.platform()}
-  *🧿 sᴇʀᴠᴇʀ:* ${os.hostname()}
-  *💻 ᴏs:* ${OS}
+  *🔴 ᴄᴘᴜ ᴛɪᴘᴏ:* ${modeloCpu}
+  *🔭 ᴘʟᴀᴛғᴏʀᴍᴀ:* ${plataforma}
+  *🧿 sᴇʀᴠᴇʀ:* ${servidor}
+  *💻 ᴏs:* ${plataforma}
   *⏰ ᴛɪᴇᴍᴘᴏ ᴅᴇ sᴇʀᴠɪᴄɪᴏ:* ${tiempos}
 
   _Uso de memoria en NodeJS_
@@ -122,9 +114,9 @@ const handler = async (m, { conn }) => {
   }
 
   ${
-    cpus[0]
+    cpusInfo[0]
       ? `_Uso total de CPU_
-  ${cpus[0].model.trim()} (${cpu.speed} MHZ)\n${Object.keys(cpu.times)
+  ${cpusInfo[0].model.trim()} (${cpu.speed} MHZ)\n${Object.keys(cpu.times)
           .map(
             (type) =>
               `- *${(type + "*").padEnd(6)}: ${(
@@ -134,8 +126,8 @@ const handler = async (m, { conn }) => {
           )
           .join("\n")}
 
-  _Uso de núcleos de CPU (${cpus.length} núcleos)_
-  ${cpus
+  _Uso de núcleos de CPU (${cpusInfo.length} núcleos)_
+  ${cpusInfo
     .map(
       (cpu, i) =>
         `${i + 1}. ${cpu.model.trim()} (${cpu.speed} MHZ)\n${Object.keys(
@@ -160,7 +152,7 @@ const handler = async (m, { conn }) => {
       text: texto,
       contextInfo: {
         externalAdReply: {
-          title: `${require('os').cpus()[0].model}`,
+          title: `${cpus()[0]?.model}`,
           mediaType: 1,
           previewType: 0,
           renderLargerThumbnail: true,
