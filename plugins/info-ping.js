@@ -7,7 +7,7 @@ import { spawn, exec, execSync } from 'child_process'
 
 const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
 
-var handler = async (m, { conn }) => {
+var handler = async (m, { conn, args }) => {
     let timestamp = speed()
     let latensi = speed() - timestamp
 
@@ -16,6 +16,9 @@ var handler = async (m, { conn }) => {
 
     let chats = Object.entries(conn.chats).filter(([id, data]) => id && data.isChats)
     let groups = Object.entries(conn.chats).filter(([jid, chat]) => jid.endsWith('@g.us') && chat.isChats && !chat.metadata?.read_only && !chat.metadata?.announce).map(v => v[0])
+
+    // Si el usuario proporcionó una URL, la incluirá en el texto.
+    let url = args.length > 0 ? args.join(' ') : '' // La URL recibida como argumento
 
     let texto = `*🚀 Velocidad*
 • ${latensi.toFixed(4)}
@@ -28,10 +31,15 @@ var handler = async (m, { conn }) => {
 • ${groups.length} *Grupos*
 
 *💻 Servidor*
-• *Ram:* ${format(totalmem() - freemem())} / ${format(totalmem())}`.trim()
+• *Ram:* ${format(totalmem() - freemem())} / ${format(totalmem())}
 
-    await conn.sendMessage(m.chat, { text: texto.trim() }) // 🔥 Corrección aquí
+${url ? `\n*🌐 URL:* ${url}` : ''}`.trim()
 
+    // Enviar el mensaje con la imagen del lugar Kurogane
+    await conn.sendFile(m.chat, "https://qu.ax/GtiGX.jpeg", 'kurogane.jpg', texto, null)
+
+    // Reaccionar al mensaje con un emoji
+    await m.react('🤍')
 }
 
 handler.help = ['ping']
