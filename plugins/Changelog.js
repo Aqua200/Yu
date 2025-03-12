@@ -1,4 +1,4 @@
-export async function handler(m) {
+const handler = async (m) => {
   const changelog = `*✦ 𝐂𝐇𝐀𝐍𝐆𝐄𝐋𝐎𝐆 ✦*\n
 [ ✅ ] Comando agregado para cerrar la conexión de los subbots (*close*)
 [ 🔄 ] Se nerfeó el dinero que se gana al ganar (-80%) (*ppt*)
@@ -10,8 +10,7 @@ export async function handler(m) {
 [ 🔄 ] Ahora el trabajo de minero da menos dinero y más materiales (+20%) (*work*)`;
 
   m.reply(changelog);
-}
+};
 
-handler.command = /^changelog$/i;
-
+handler.command = /^changelog$/i; // Comando activador
 export default handler;
