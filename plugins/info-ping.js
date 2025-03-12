@@ -42,16 +42,9 @@ const handler = async (m, { conn }) => {
     }
   );
 
-  let _muptime;
-  if (process.send) {
-    process.send('uptime');
-    _muptime = await new Promise(resolve => {
-      process.once('message', resolve);
-      setTimeout(resolve, 1000);
-    }) * 1000;
-  }
+  const uptimeSeconds = process.uptime();  // Obtiene el tiempo de ejecución del proceso en segundos
+  const muptime = clockString(uptimeSeconds * 1000); // Convertimos segundos a milisegundos
 
-  const muptime = clockString(_muptime);
   const old = performance.now();
   const neww = performance.now();
   const velocidad = neww - old;
