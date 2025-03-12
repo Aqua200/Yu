@@ -10,14 +10,18 @@ let handler = async (m, { conn }) => {
         if (user.diamonds < costDiamonds) {
             return conn.reply(m.chat, `❌ No tienes suficientes diamantes para comprar una picota.\n💎 *Diamantes necesarios:* ${costDiamonds}`, m);
         }
-        
+
         // Si el usuario no tiene picota, se le asigna una nueva picota con durabilidad máxima
         if (!user.pickaxe) {
             user.pickaxe = true;  // El usuario ahora tiene una picota
-            user.pickaxedurability = 100;  // Durabilidad inicial de la picota
         }
 
-        user.diamonds -= costDiamonds;  // Restar los diamantes
+        // Restablecer la durabilidad de la picota a 100 cuando se compra
+        user.pickaxedurability = 100;
+
+        // Restar los diamantes
+        user.diamonds -= costDiamonds;
+
         return conn.reply(m.chat, `✅ Has comprado una picota con éxito.\n🔧 *Durabilidad de la picota:* 100`, m);
     }
 
@@ -131,4 +135,4 @@ function msToTime(duration) {
     seconds = (seconds < 10) ? '0' + seconds : seconds;
 
     return minutes + 'm y ' + seconds + 's';
-} 
+}
