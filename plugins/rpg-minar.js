@@ -21,7 +21,7 @@ let handler = async (m, { conn }) => {
         return conn.reply(m.chat, `✅ Has comprado una picota con éxito.\n🔧 *Durabilidad de la picota:* 100`, m);
     }
 
-    // Si el usuario no tiene picota, lo redirige a comprar una
+    // Si el usuario no tiene picota o su durabilidad es 0, lo redirige a comprar una nueva
     if (!user.pickaxe || user.pickaxedurability <= 0) {
         return conn.reply(m.chat, '⚒️ No tienes una picota o tu picota está rota. Compra una picota antes de seguir minando.', m);
     }
@@ -131,4 +131,4 @@ function msToTime(duration) {
     seconds = (seconds < 10) ? '0' + seconds : seconds;
 
     return minutes + 'm y ' + seconds + 's';
-}
+} 
