@@ -14,7 +14,14 @@ handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
     let chat = global.db.data.chats[m.chat];
     let bot = global.db.data.settings[this.user.jid] || {};
     let img = 'https://telegra.ph/file/516ff7b7c47cbf5b58a38.png';
+
+    // Depuración: Verifica el texto del mensaje recibido
+    console.log("Texto del mensaje: ", m.text);
+
     const isToxic = toxicRegex.exec(m.text);
+    if (isToxic) {
+        console.log("Palabra tóxica detectada: ", isToxic[0]);  // Muestra qué palabra tóxica fue detectada
+    }
 
     if (isToxic && chat.antiToxic && !isOwner && !isAdmin) {
         user.warn += 1;
@@ -32,4 +39,5 @@ handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
         return !1;
     }
 };
+
 export default handler;
