@@ -36,7 +36,7 @@ var handler = async (m, { conn, args }) => {
 ${url ? `\n*🌐 URL:* ${url}` : ''}`.trim()
 
     // Enviar el mensaje con la imagen del lugar Kurogane
-    await conn.sendFile(m.chat, "https://qu.ax/GtiGX.jpeg", 'kurogane.jpg', texto, null)
+    await conn.sendFile(m.chat, "https://files.catbox.moe/fzdw07.jpeg", '2B.jpg', texto, null)
 
     // Reaccionar al mensaje con un emoji
     await m.react('🤍')
