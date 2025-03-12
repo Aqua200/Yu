@@ -6,30 +6,23 @@ if (m.isBaileys && m.fromMe)
 return !0
 if (!m.isGroup)
 return !1
-let delet = m.key.participant
-let bang = m.key.id
-let user = global.db.data.users[m.sender]
-let chat = global.db.data.chats[m.chat]
-let bot = global.db.data.settings[this.user.jid] || {}
-let img = 'https://telegra.ph/file/94f45d76340fc61982bb7.jpg'
-const isToxic = toxicRegex.exec(m.text)
-    
-if (isToxic && chat.antitoxic && !isOwner && !isAdmin && isBotAdmin) {
-if (chat.delete) return conn.reply(m.chat, mid.mAdvertencia + mid.mAntiDelete, m)
+  let user = global.db.data.users[m.sender]
+  let chat = global.db.data.chats[m.chat]
+  let bot = global.db.data.settings[this.user.jid] || {}
+  let img = 'https://telegra.ph/file/516ff7b7c47cbf5b58a38.png'
+ const isToxic = toxicRegex.exec(m.text)
+
+if (isToxic && chat.antiToxic && !isOwner && !isAdmin) {
 user.warn += 1
-if (!(user.warn >= 4)) {
-await conn.reply(m.chat, mid.antitoxic1(isToxic, m, user), m)
-await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet }})
-}
+if (!(user.warn >= 4)) await m.reply(`${user.warn == 1 ? `*@${m.sender.split`@`[0]}*` : `*@${m.sender.split`@`[0]}*`}, 𝙏𝙞𝙚𝙣𝙚𝙨: (${isToxic}) 𝙖𝙙𝙫𝙚𝙧𝙩𝙚𝙣𝙘𝙞𝙖𝙨... 𝙏𝙞𝙚𝙣𝙚𝙨: *${user.warn}/4*\n\n𝙙𝙚 𝙖𝙙𝙫𝙚𝙧𝙩𝙚𝙣𝙘𝙞𝙖𝙨.`, false, { mentions: [m.sender] })}
 
 if (user.warn >= 4) {
-if (chat.delete) return conn.reply(m.chat, mid.mAdvertencia + mid.mAntiDelete, m)
 user.warn = 0
-await conn.reply(m.chat, mid.antitoxic2(isToxic, m, user), m)
-await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet }})
-await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
+await m.reply(`'𝙎𝙚𝙧𝙖𝙨 𝙚𝙡𝙞𝙢𝙞𝙣𝙖𝙙𝙤  \n*@${m.sender.split`@`[0]}*`, false, { mentions: [m.sender] })
+user.banned = true
+await this.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
 //await this.updateBlockStatus(m.sender, 'block')
-}}
+}
 return !1
 }
 export default handler
