@@ -2,8 +2,9 @@ import db from '../lib/database.js' // Asegúrate de que tu bot tenga una base d
 
 let handler = async (m, { command, text }) => {
     if (!db.data) db.data = {} // Asegurar que db.data exista
-    if (!db.data.ajuste) db.data.ajuste = "⚠️ Proxima update jadibot."
-
+    if (!db.data.ajuste) db.data.ajuste = "⚠️ update de 11/mar/2025 se esta actualizando jadi minimo 5 secione ."
+"se actualizo minar con el nuevo sistema."
+    "Prixma update pesca🎣."
     if (text) {
         db.data.ajuste = text
         m.reply('✅ Ajuste actualizado correctamente.')
