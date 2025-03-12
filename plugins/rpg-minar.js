@@ -4,30 +4,8 @@ let handler = async (m, { conn }) => {
     let user = global.db.data.users[m.sender];
     if (!user) return;
 
-    // Proceso de compra de la picota
-    if (m.text && m.text.toLowerCase().startsWith("comprar picota")) {
-        let costDiamonds = 50;  // Cantidad de diamantes necesarios para comprar una picota
-        if (user.diamonds < costDiamonds) {
-            return conn.reply(m.chat, `❌ No tienes suficientes diamantes para comprar una picota.\n💎 *Diamantes necesarios:* ${costDiamonds}`, m);
-        }
-
-        // Si el usuario no tiene picota, se le asigna una nueva picota con durabilidad máxima
-        if (!user.pickaxe) {
-            user.pickaxe = true;  // El usuario ahora tiene una picota
-        }
-
-        // Restablecer la durabilidad de la picota a 100 cuando se compra
-        user.pickaxedurability = 100;
-
-        // Restar los diamantes
-        user.diamonds -= costDiamonds;
-
-        return conn.reply(m.chat, `✅ Has comprado una picota con éxito.\n🔧 *Durabilidad de la picota:* 100`, m);
-    }
-
-    // Si el usuario no tiene picota o su durabilidad es 0, lo redirige a comprar una nueva
-    if (!user.pickaxe || user.pickaxedurability <= 0) {
-        return conn.reply(m.chat, '⚒️ No tienes una picota o tu picota está rota. Compra una picota antes de seguir minando.', m);
+    if (!user.pickaxedurability || user.pickaxedurability <= 0) {
+        return conn.reply(m.chat, '⚒️ Tu picota está rota. Repara o compra una nueva antes de seguir minando.', m);
     }
 
     let lugares = [
@@ -74,7 +52,7 @@ let handler = async (m, { conn }) => {
     await m.react('⛏️');
 
     user.health -= 50;
-    user.pickaxedurability -= 30; // Se reduce la durabilidad con cada uso
+    user.pickaxedurability -= 30;
     user.coin += coin;
     user.iron += iron;
     user.gold += gold;
@@ -84,21 +62,19 @@ let handler = async (m, { conn }) => {
     user.diamond += diamond;
     user.lastmiming = new Date() * 1;
 
-    // Avisar cuando la picota esté a punto de romperse
     if (user.pickaxedurability <= 20 && user.pickaxedurability > 0) {
         conn.reply(m.chat, '⚠️ Tu picota está a punto de romperse. Repara o compra una nueva.', m);
         await m.react('⚠️');
     }
 
-    // Si la picota se rompe, notificar
     if (user.pickaxedurability <= 0) {
         conn.reply(m.chat, '❌ Tu picota se ha roto. Usa el comando *reparar* para arreglarla.', m);
     }
 }
 
-handler.help = ['minar', 'comprar picota'];
+handler.help = ['minar'];
 handler.tags = ['economy'];
-handler.command = ['minar', 'miming', 'mine', 'comprar picota'];
+handler.command = ['minar', 'miming', 'mine'];
 handler.register = true;
 handler.group = true;
 
