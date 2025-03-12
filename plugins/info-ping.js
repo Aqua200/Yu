@@ -1,6 +1,4 @@
 import { totalmem, freemem } from 'os'
-import os from 'os'
-import util from 'util'
 import osu from 'node-os-utils'
 import { performance } from 'perf_hooks'
 import { sizeFormatter } from 'human-readable'
