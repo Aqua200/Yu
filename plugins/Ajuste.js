@@ -1,23 +1,17 @@
-import db from '../lib/database.js' // Asegúrate de que tu bot tenga una base de datos compatible
+export async function handler(m) {
+  const changelog = `*✦ 𝐂𝐇𝐀𝐍𝐆𝐄𝐋𝐎𝐆 ✦*\n
+[ ✅ ] Comando agregado para cerrar la conexión de los subbots (*close*)
+[ 🔄 ] Se nerfeó el dinero que se gana al ganar (-80%) (*ppt*)
+[ 🔄 ] Ahora puedes revisar el perfil de cualquier usuario junto a su inventario RPG (*profile*)
+[ 🔄 ] Ahora puedes renombrar tus objetos (*rename*)
+[ 🔄 ] Ahora puedes reparar tus objetos (*repair*)
+[ ✅ ] Comando funcional nuevamente (*serbot*)
+[ ✅ ] Ahora puedes mejorar tu armamento (*upgrade*)
+[ 🔄 ] Ahora el trabajo de minero da menos dinero y más materiales (+20%) (*work*)`;
 
-let handler = async (m, { command, text }) => {
-    if (!db.data) db.data = {};
-    if (!db.data.ajuste) db.data.ajuste = "⚠️ Actualización del 11/mar/2025 en curso, se requieren al menos 5 sesiones.";
-
-    if (text) {
-        db.data.ajuste = text;
-        m.reply('✅ Ajuste actualizado correctamente.');
-    } else {
-        let aviso = `╭──────────────────╮\n` +
-                    `┃  🌸 *AJUSTE ACTUAL* 🌸 ┃\n` +
-                    `╰──────────────────╯\n\n` +
-                    `💬 *Mensaje:* ${db.data.ajuste}`;
-        m.reply(aviso);
-    }
+  m.reply(changelog);
 }
 
-handler.help = ['ajuste']
-handler.tags = ['main']
-handler.command = ['ajuste']
+handler.command = /^changelog$/i;
 
-export default handler
+export default handler;
