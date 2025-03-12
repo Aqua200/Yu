@@ -25,12 +25,19 @@ handler.before = async function (m, { conn, isAdmin, isBotAdmin, isOwner }) {
 
     if (isToxic && chat.antiToxic && !isOwner && !isAdmin) {
         user.warn += 1;
+        console.log("Número de advertencias del usuario: ", user.warn);  // Verifica las advertencias
+
         if (!(user.warn >= 4)) {
+            // Depuración: Verifica si el mensaje de advertencia se va a enviar
+            console.log(`Enviando advertencia al usuario ${m.sender}: (${user.warn}/4)`);
+
             await m.reply(`${user.warn == 1 ? `*@${m.sender.split`@`[0]}*` : `*@${m.sender.split`@`[0]}*`}, 𝙏𝙞𝙚𝙣𝙚𝙨: (${isToxic}) 𝙖𝙙𝙫𝙚𝙧𝙩𝙚𝙣𝙘𝙞𝙖𝙨... 𝙏𝙞𝙚𝙣𝙚𝙨: *${user.warn}/4*\n\n𝙙𝙚 𝙖𝙙𝙫𝙚𝙧𝙩𝙚𝙣𝙘𝙞𝙖𝙨.`, false, { mentions: [m.sender] });
         }
 
         if (user.warn >= 4) {
             user.warn = 0;
+            console.log(`El usuario ${m.sender} ha alcanzado el límite de advertencias, enviando ban.`);
+
             await m.reply(`'𝙎𝙚𝙧𝙖𝙨 𝙚𝙡𝙞𝙢𝙞𝙣𝙖𝙙𝙤  \n*@${m.sender.split`@`[0]}*`, false, { mentions: [m.sender] });
             user.banned = true;
             await this.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
