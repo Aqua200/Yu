@@ -2,7 +2,7 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 
 let handler = async (m, { text }) => {
-    if (!text) return m.reply('⚠️ Ingresa lo que quieres buscar en Wikipedia.')
+    if (!text) return m.reply('╭─⊷⚠️ *Aviso* ⊶─╮\n❥ Ingresa lo que quieres buscar en *Wikipedia*.\n╰───────────╯')
 
     try {
         // Reemplazar espacios con guiones bajos para que sea compatible con URLs de Wikipedia
@@ -15,9 +15,9 @@ let handler = async (m, { text }) => {
 
         if (!resulw) throw new Error('No se encontraron resultados relevantes.')
 
-        m.reply(`▢ *Wikipedia*\n\n‣ Buscado: ${wik}\n\n${resulw}`)
+        m.reply(`╭─⊷📖 *Wikipedia* ⊶─╮\n❥ *Búsqueda:* ${wik}\n\n❥ ${resulw}\n╰───────────╯`)
     } catch (e) {
-        m.reply('❌ No se encontraron resultados o hubo un error.')
+        m.reply('╭─⊷❌ *Error* ⊶─╮\n❥ No se encontraron resultados o hubo un problema.\n╰───────────╯')
     }
 }
 
