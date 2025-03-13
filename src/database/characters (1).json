@@ -967,19 +967,19 @@
     },
     {
         "id": "52",
-        "name": "Hilda De Polaris",
+        "name": "Ogata, Shuu",
         "gender": "Mujer",
         "value": "100",
-        "source": "Los Caballeros Del Zodiaco",
+        "source": "Engage Kiss",
         "img": [
-            "https://qu.ax/ZOtdp.jpg",
-            "https://qu.ax/ySNrp.jpg",
-            " https://qu.ax/osvBt.jpg"
+            "",
+            "",
+            ""
         ],
         "vid": [
-            "https://files.catbox.moe/video1_light.mp4",
-            "https://files.catbox.moe/video2_light.mp4"
-        ],
+            "",
+            ""
+        ], 
         "user": null,
         "status": "Libre",
         "votes": 0
