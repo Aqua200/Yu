@@ -899,13 +899,13 @@
         "value": "2000",
         "source": "Oreimo",
         "img": [
-            "",
-            "",
-            ""
+            "https://files.catbox.moe/pkz5vq.jpeg",
+            "https://files.catbox.moe/kq7c45.jpg",
+            "https://files.catbox.moe/0uf4sj.jpeg"
         ],
         "vid": [
-            "",
-            ""
+            "https://files.catbox.moe/3xepj0.gif",
+            "https://files.catbox.moe/v7f0u8.gif"
         ],
         "user": null,
         "status": "Libre",
