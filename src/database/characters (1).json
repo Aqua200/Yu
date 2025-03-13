@@ -929,18 +929,18 @@
     },
     {
         "id": "50",
-        "name": "Michael Kaiser",
-        "gender": "Masculino",
+        "name": "Ogata, Kanna",
+        "gender": "mujer",
         "value": "100",
-        "source": "Blue Lock",
+        "source": "Engage Kiss",
         "img": [
-            "https://qu.ax/JuQkt.jpg",
-            "https://qu.ax/rsqkm.jpg",
-            "https://qu.ax/DfrHo.jpg"
+            "https://files.catbox.moe/d9hp42.jpeg",
+            "https://files.catbox.moe/wszgi8.jpeg",
+            "https://files.catbox.moe/owdue9.jpeg"
         ],
         "vid": [
-            "https://files.catbox.moe/video1_light.mp4",
-            "https://files.catbox.moe/video2_light.mp4"
+            "",
+            ""
         ],
         "user": null,
         "status": "Libre",
