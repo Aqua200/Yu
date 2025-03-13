@@ -896,7 +896,7 @@
         "id": "48",
         "name": "Ayase Aragaki",
         "gender": "Mujer",
-        "value": "2000",
+        "value": "100",
         "source": "Oreimo",
         "img": [
             "https://files.catbox.moe/pkz5vq.jpeg",
@@ -913,18 +913,18 @@
     },
     {
         "id": "49",
-        "name": "Shidou fem",
+        "name": "Santo Grial, Sharon",
         "gender": "Mujer",
         "value": "100",
-        "source": "Blue lock",
+        "source": "Engage Kiss",
         "img": [
-            "https://qu.ax/XduTu.jpg",
-            "https://qu.ax/QguJn.jpg",
-            "https://qu.ax/iUElR.jpg"
+            "",
+            "",
+            ""
         ],
         "vid": [
-            "https://files.catbox.moe/video1_light.mp4",
-            "https://files.catbox.moe/video2_light.mp4"
+            "",
+            ""
         ],
         "user": null,
         "status": "Libre",
