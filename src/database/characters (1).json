@@ -1124,13 +1124,13 @@
         "value": "100",
         "source": "Violet Evergarden",
         "img": [
-            "",
-            "",
-            ""
+            "https://files.catbox.moe/s56t63.jpeg",
+            "https://files.catbox.moe/sjj4js.jpeg",
+            "https://files.catbox.moe/hxsv7w.jpeg"
         ],
         "vid": [
-            "",
-            ""
+            "https://files.catbox.moe/9yhxar.gif",
+            "https://files.catbox.moe/qmx5ue.gif"
         ],
         "user": null,
         "status": "Libre",
@@ -1143,13 +1143,13 @@
         "value": "100",
         "source": "Dan Dan, Dan",
         "img": [
-            "https://qu.ax/VGpmR.jpg",
-            "https://qu.ax/XrZLb.jpg",
-            "https://qu.ax/BSmdo.jpg"
+            "",
+            "",
+            ""
         ],
         "vid": [
-            "https://files.catbox.moe/video1_light.mp4",
-            "https://files.catbox.moe/video2_light.mp4"
+            "",
+            ""
         ],
         "user": null,
         "status": "Libre",
