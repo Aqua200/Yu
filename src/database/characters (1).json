@@ -968,13 +968,13 @@
     {
         "id": "52",
         "name": "Ogata, Shuu",
-        "gender": "Mujer",
+        "gender": "Hombre",
         "value": "100",
         "source": "Engage Kiss",
         "img": [
-            "",
-            "",
-            ""
+            "https://files.catbox.moe/y8dsdf.jpeg",
+            "https://files.catbox.moe/3x1ziz.jpeg",
+            "https://files.catbox.moe/xd0wew.jpeg"
         ],
         "vid": [
             "",
