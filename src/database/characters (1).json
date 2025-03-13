@@ -894,18 +894,18 @@
     },
     {
         "id": "48",
-        "name": "Michael Kaiser Female",
+        "name": "Ayase Aragaki",
         "gender": "Mujer",
         "value": "2000",
-        "source": "Blue lock",
+        "source": "Oreimo",
         "img": [
-            "https://qu.ax/VmQpL.jpg",
-            "https://qu.ax/SDchK.jpg",
-            "https://qu.ax/Pzoie.jpg"
+            "",
+            "",
+            ""
         ],
         "vid": [
-            "https://files.catbox.moe/video1_light.mp4",
-            "https://files.catbox.moe/video2_light.mp4"
+            "",
+            ""
         ],
         "user": null,
         "status": "Libre",
