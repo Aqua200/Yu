@@ -1,77 +1,24 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys';
-import fetch from 'node-fetch';
+import {WAMessageStubType} from '@whiskeysockets/baileys'
+import fetch from 'node-fetch'
 
-export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.isGroup) return; // Asegurar que solo se ejecuta en grupos
+export async function before(m, {conn, participants, groupMetadata}) {
+  if (!m.messageStubType || !m.isGroup) return !0;
+  let pp = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => 'https://tinyurl.com/238t2yav')
+  let img = await (await fetch(`${pp}`)).buffer()
+  let chat = global.db.data.chats[m.chat]
 
-  try {
-    // Verificar que el mensaje pertenece al grupo correcto
-    if (m.chat !== groupMetadata.id) return;
+  if (chat.bienvenida && m.messageStubType == 27) {
+    let bienvenida = `\n ᪥ *Bienvenido* a\n ᪥ *${groupMetadata.subject}* \n \n ᪥ @${m.messageStubParameters[0].split`@`[0]}\n> ✎𝑷𝒖𝒆𝒅𝒆𝒔 𝒖𝒔𝒂𝒓 #𝒎𝒆𝒏𝒖/#𝒉𝒆𝒍𝒑 𝒑𝒂𝒓𝒂 𝒗𝒆𝒓 𝒍𝒂 𝒍𝒊𝒔𝒕𝒂 𝒅𝒆 𝒄𝒐𝒎𝒂𝒏𝒅𝒐𝒔\n> Link 2B:https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24`
     
-    console.log(`Evento en grupo: ${groupMetadata.subject} (${groupMetadata.id}) - Mensaje en chat: ${m.chat}`);
-
-    // Obtener la lista actualizada de participantes en el grupo
-    const updatedGroup = await conn.groupMetadata(groupMetadata.id);
-    const updatedParticipants = updatedGroup.participants.map(p => p.id);
-
-    const who = (m.messageStubParameters && m.messageStubParameters[0]) || (m.mentionedJid ? m.mentionedJid[0] : null);
-    if (!who) return;
-
-    const taguser = `@${who.split('@')[0]}`;
-    const chat = global.db.data.chats[groupMetadata.id] || {};
-    const groupName = groupMetadata.subject;
-
-    // Verificar si el bot es admin
-    const botIsAdmin = updatedParticipants.some(p => p === conn.user.jid && p.admin);
-    const canSendImage = botIsAdmin && chat.welcome;
-
-    // Obtener la imagen de perfil del usuario o usar una por defecto
-    let pp = 'https://files.catbox.moe/xr2m6u.jpg';
-    try {
-      pp = await conn.profilePictureUrl(who, 'image');
-    } catch {
-      console.error(`No se pudo obtener la imagen de ${who}, usando imagen por defecto.`);
-    }
-
-    let img = null;
-    try {
-      const res = await fetch(pp);
-      if (res.ok) img = await res.buffer();
-    } catch {
-      img = await fetch('https://files.catbox.moe/xr2m6u.jpg').then(res => res.buffer());
-    }
-
-    // Mensajes de bienvenida y despedida
-    const welcomeMessage = `❀ *Bienvenid@ a* ${groupName}\n✰ ${taguser}\n•(=^●ω●^=)• ¡Disfruta!\n> ✐ Usa *#help* para ver los comandos.`;
-    const goodbyeMessage = `❀ *Adiós de* ${groupName}\n✰ ${taguser}\n•(=^●ω●^=)• ¡Vuelve pronto!\n> ✐ Usa *#help* para ver los comandos.`;
-
-    // Detectar evento de bienvenida/salida
-    const eventType = m.messageStubType || (m.mentionedJid ? 'GROUP_PARTICIPANT_ADD' : null);
-
-    // Verificar si el usuario estaba antes en la lista y ahora no (para salidas)
-    const userWasHere = participants.some(p => p.id === who);
-    const userIsNowHere = updatedParticipants.includes(who);
-
-    if (!eventType) return;
-
-    // Manejo de eventos con detección más precisa
-    if ((eventType === WAMessageStubType.GROUP_PARTICIPANT_ADD || eventType === 'GROUP_PARTICIPANT_ADD' || (!userWasHere && userIsNowHere)) && chat.welcome) {
-      if (canSendImage && img) {
-        await conn.sendMessage(groupMetadata.id, { image: img, caption: welcomeMessage, mentions: [who] });
-      } else {
-        await conn.sendMessage(groupMetadata.id, { text: `¡Bienvenid@ ${taguser} a ${groupName}!` });
-      }
-    } else if (
-      (eventType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || eventType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE || (userWasHere && !userIsNowHere)) &&
-      chat.welcome
-    ) {
-      if (canSendImage && img) {
-        await conn.sendMessage(groupMetadata.id, { image: img, caption: goodbyeMessage, mentions: [who] });
-      } else {
-        await conn.sendMessage(groupMetadata.id, { text: `¡${taguser} ha salido de ${groupName}!` });
-      }
-    }
-  } catch (error) {
-    console.error('Error en el sistema de bienvenida/despedida:', error);
+await conn.sendAi(m.chat, botname, textbot, bienvenida, img, img, estilo)
   }
-}
+  
+  if (chat.bienvenida && m.messageStubType == 28) {
+    let bye = `\n᪥ *Adiós* de\n*${groupMetadata.subject}*\n \n♡ @${m.messageStubParameters[0].split`@`[0]}\n(づ ◕‿◕ )づ Esperamos verte pronto!\n\n> ✎𝑷𝒖𝒆𝒅𝒆𝒔 𝒖𝒔𝒂𝒓 #𝒎𝒆𝒏𝒖/#𝒉𝒆𝒍𝒑 𝒑𝒂𝒓𝒂 𝒗𝒆𝒓 𝒍𝒂 𝒍𝒊𝒔𝒕𝒂 𝒅𝒆 𝒄𝒐𝒎𝒂𝒏𝒅𝒐𝒔\n> Link 2B:https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24`
+await conn.sendAi(m.chat, botname, textbot, bye, img, img, estilo)
+  }
+  
+  if (chat.bienvenida && m.messageStubType == 32) {
+    let kick = `\n᪥ *Hasta pronto*\n᪥ *${groupMetadata.subject}*\n\n♡ @${m.messageStubParameters[0].split`@`[0]}\n(づ ◕‿◕ )づ Esperamos verte pronto!\n\n> ✎𝑷𝒖𝒆𝒅𝒆𝒔 𝒖𝒔𝒂𝒓 #𝒎𝒆𝒏𝒖/#𝒉𝒆𝒍𝒑 𝒑𝒂𝒓𝒂 𝒗𝒆𝒓 𝒍𝒂 𝒍𝒊𝒔𝒕𝒂 𝒅𝒆 𝒄𝒐𝒎𝒂𝒏𝒅𝒐𝒔\n> Link 2B:https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24`
+await conn.sendAi(m.chat, botname, textbot, kick, img, img, estilo)
+}}
