@@ -1,26 +1,48 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys'
-import fetch from 'node-fetch'
+import { WAMessageStubType } from '@whiskeysockets/baileys';
+import fetch from 'node-fetch';
 
 export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return !0;
+  if (!m.messageStubType || !m.isGroup || !m.messageStubParameters || !m.messageStubParameters[0]) return;
 
-  let who = m.messageStubParameters[0]
-  let taguser = `@${who.split('@')[0]}`
-  let chat = global.db.data.chats[m.chat]
-  let pp = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg')
-  let img = await (await fetch(`${pp}`)).buffer()
+  try {
+    const who = m.messageStubParameters[0];
+    const taguser = `@${who.split('@')[0]}`;
+    const chat = global.db.data.chats[m.chat] || {};
+    const groupName = groupMetadata.subject;
 
-    if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-      let bienvenida = `❀ *Bienvenido* a ${groupMetadata.subject}\n ✰ ${taguser}\n${global.welcom1}\n •(=^●ω●^=)• Disfruta tu estadía en el grupo!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
-      await conn.sendMessage(m.chat, { image: img, caption: bienvenida, mentions: [who] })
-    }
-       
-    if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
-      let bye = `❀ *Adiós* de ${groupMetadata.subject}\n ✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• Te esperamos pronto!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
-      await conn.sendMessage(m.chat, { image: img, caption: bye, mentions: [who] })
+    let pp = 'https://files.catbox.moe/xr2m6u.jpg'; // Imagen por defecto
+    try {
+      pp = await conn.profilePictureUrl(who, 'image');
+    } catch (error) {
+      console.error('Error al obtener imagen de perfil:', error);
     }
 
-    if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) { 
-      let kick = `❀ *Adiós* de ${groupMetadata.subject}\n ✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• Te esperamos pronto!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
-      await conn.sendMessage(m.chat, { image: img, caption: kick, mentions: [who] })
-  }}
+    let img = null;
+    try {
+      const res = await fetch(pp);
+      if (res.ok) img = await res.buffer();
+    } catch {
+      img = await fetch('https://files.catbox.moe/xr2m6u.jpg').then(res => res.buffer());
+    }
+
+    const welcomeMessage = `❀ *Bienvenida a* ${groupName}\n✰ ${taguser}\n${global.welcomeImage || ''}\n •(=^●ω●^=)• ¡Disfruta tu estadía!\n> ✐ Usa *#help* para ver los comandos.`;
+    const goodbyeMessage = `❀ *Adiós de* ${groupName}\n✰ ${taguser}\n${global.goodbyeImage || ''}\n •(=^●ω●^=)• ¡Vuelve pronto!\n> ✐ Usa *#help* para ver los comandos.`;
+
+    switch (m.messageStubType) {
+      case WAMessageStubType.GROUP_PARTICIPANT_ADD:
+        if (chat.welcome) {
+          await conn.sendMessage(m.chat, { image: img, caption: welcomeMessage, mentions: [who] });
+        }
+        break;
+
+      case WAMessageStubType.GROUP_PARTICIPANT_LEAVE:
+      case WAMessageStubType.GROUP_PARTICIPANT_REMOVE:
+        if (chat.welcome) {
+          await conn.sendMessage(m.chat, { image: img, caption: goodbyeMessage, mentions: [who] });
+        }
+        break;
+    }
+  } catch (error) {
+    console.error('Error en el sistema de bienvenida/despedida:', error);
+  }
+}
