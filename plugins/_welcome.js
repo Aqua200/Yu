@@ -2,20 +2,25 @@ import { WAMessageStubType } from '@whiskeysockets/baileys';
 import fetch from 'node-fetch';
 
 export async function before(m, { conn, participants, groupMetadata }) {
-  if ((!m.messageStubType || !m.messageStubParameters) && !m.mentionedJid) return;
+  if (!m.isGroup) return; // Asegurar que solo se ejecuta en grupos
 
   try {
+    // Verificar que el mensaje pertenece al grupo correcto
+    if (m.chat !== groupMetadata.id) return;
+    
+    console.log(`Evento en grupo: ${groupMetadata.subject} (${groupMetadata.id}) - Mensaje en chat: ${m.chat}`);
+
     // Obtener la lista actualizada de participantes en el grupo
-    const updatedGroup = await conn.groupMetadata(m.chat);
+    const updatedGroup = await conn.groupMetadata(groupMetadata.id);
     const updatedParticipants = updatedGroup.participants.map(p => p.id);
 
     const who = (m.messageStubParameters && m.messageStubParameters[0]) || (m.mentionedJid ? m.mentionedJid[0] : null);
     if (!who) return;
 
     const taguser = `@${who.split('@')[0]}`;
-    const chat = global.db.data.chats[m.chat] || {};
+    const chat = global.db.data.chats[groupMetadata.id] || {};
     const groupName = groupMetadata.subject;
-    
+
     // Verificar si el bot es admin
     const botIsAdmin = updatedParticipants.some(p => p === conn.user.jid && p.admin);
     const canSendImage = botIsAdmin && chat.welcome;
@@ -40,7 +45,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     const welcomeMessage = `❀ *Bienvenid@ a* ${groupName}\n✰ ${taguser}\n•(=^●ω●^=)• ¡Disfruta!\n> ✐ Usa *#help* para ver los comandos.`;
     const goodbyeMessage = `❀ *Adiós de* ${groupName}\n✰ ${taguser}\n•(=^●ω●^=)• ¡Vuelve pronto!\n> ✐ Usa *#help* para ver los comandos.`;
 
-    // Detectar evento de bienvenida/salida de forma más confiable
+    // Detectar evento de bienvenida/salida
     const eventType = m.messageStubType || (m.mentionedJid ? 'GROUP_PARTICIPANT_ADD' : null);
 
     // Verificar si el usuario estaba antes en la lista y ahora no (para salidas)
@@ -52,18 +57,18 @@ export async function before(m, { conn, participants, groupMetadata }) {
     // Manejo de eventos con detección más precisa
     if ((eventType === WAMessageStubType.GROUP_PARTICIPANT_ADD || eventType === 'GROUP_PARTICIPANT_ADD' || (!userWasHere && userIsNowHere)) && chat.welcome) {
       if (canSendImage && img) {
-        await conn.sendMessage(m.chat, { image: img, caption: welcomeMessage, mentions: [who] });
+        await conn.sendMessage(groupMetadata.id, { image: img, caption: welcomeMessage, mentions: [who] });
       } else {
-        await conn.sendMessage(m.chat, { text: `¡Bienvenid@ ${taguser} a ${groupName}!` });
+        await conn.sendMessage(groupMetadata.id, { text: `¡Bienvenid@ ${taguser} a ${groupName}!` });
       }
     } else if (
       (eventType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || eventType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE || (userWasHere && !userIsNowHere)) &&
       chat.welcome
     ) {
       if (canSendImage && img) {
-        await conn.sendMessage(m.chat, { image: img, caption: goodbyeMessage, mentions: [who] });
+        await conn.sendMessage(groupMetadata.id, { image: img, caption: goodbyeMessage, mentions: [who] });
       } else {
-        await conn.sendMessage(m.chat, { text: `¡${taguser} ha salido de ${groupName}!` });
+        await conn.sendMessage(groupMetadata.id, { text: `¡${taguser} ha salido de ${groupName}!` });
       }
     }
   } catch (error) {
