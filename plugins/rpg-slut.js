@@ -14,19 +14,37 @@ let handler = async (m, { conn, args, mentionedJid }) => {
 
     let senderCoin = users[senderId]?.coin || 0
 
-    // Asegurar que mentionedJid es un array antes de usar .length
-    mentionedJid = mentionedJid || []
+    // Verificar si hay menciones y son válidas
+    let targetUserId = null
+    
+    // Si hay usuarios mencionados, intentar usar el primero que sea válido
+    if (mentionedJid && mentionedJid.length > 0) {
+        // Iterar por todas las menciones para encontrar un usuario válido
+        for (let mentioned of mentionedJid) {
+            // Verificar que el usuario existe en la base de datos y no es el remitente
+            if (mentioned !== senderId && users[mentioned]) {
+                targetUserId = mentioned
+                break // Usar el primer usuario mencionado válido
+            }
+        }
+    }
+    
+    // Si no hay menciones válidas, elegir un usuario aleatorio
+    if (!targetUserId) {
+        // Filtramos usuarios válidos (que no sean el remitente)
+        let userKeys = Object.keys(users).filter(id => id !== senderId)
+        
+        if (userKeys.length === 0) {
+            return m.reply("⚠️ No hay suficientes usuarios registrados para usar este comando.")
+        }
+        
+        // Elegir un usuario aleatorio
+        targetUserId = userKeys[Math.floor(Math.random() * userKeys.length)]
+    }
 
-    // Filtramos usuarios válidos (que no sean el remitente)
-    let userKeys = Object.keys(users).filter(id => id !== senderId)
-
-    // Si mencionaron a alguien, usamos ese usuario. Si no, elegimos uno al azar.
-    let targetUserId = (mentionedJid.length > 0 && users[mentionedJid[0]]) 
-        ? mentionedJid[0] 
-        : (userKeys.length > 0 ? userKeys[Math.floor(Math.random() * userKeys.length)] : null)
-
-    if (!targetUserId || !users[targetUserId]) {
-        return m.reply("⚠️ No hay suficientes usuarios registrados para usar este comando.")
+    // Verificación final de que el usuario objetivo existe
+    if (!users[targetUserId]) {
+        return m.reply("⚠️ No se pudo encontrar un usuario válido para este comando.")
     }
 
     let targetUserCoin = users[targetUserId]?.coin || 0
@@ -78,5 +96,5 @@ export default handler
 function segundosAHMS(segundos) {
     let minutos = Math.floor(segundos / 60)
     let segundosRestantes = segundos % 60
-    return `${minutos} minutos y ${segundosRestantes} segundos`
+    return `${minutos} minutos y ${segundos} segundos`
 }
