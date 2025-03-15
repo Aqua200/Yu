@@ -18,7 +18,7 @@ let handler = async (m, { conn, text, command, usedPrefix, args, mentionedJid })
     let userKeys = Object.keys(users).filter(id => id !== senderId)
 
     // Si mentionedJid no existe o está vacío, elegimos un usuario aleatorio
-    let targetUserId = (Array.isArray(mentionedJid) && mentionedJid.length > 0 && users[mentionedJid[0]])
+    let targetUserId = (mentionedJid && mentionedJid.length > 0 && users[mentionedJid[0]])
         ? mentionedJid[0] 
         : (userKeys.length > 0 ? userKeys[Math.floor(Math.random() * userKeys.length)] : null)
 
