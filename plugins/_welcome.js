@@ -46,6 +46,14 @@ const getProfilePicture = async (jid) => {
 }
 
 export async function before(m, { conn, participants, groupMetadata }) {
+  // Registrar todos los tipos de eventos para depuración
+  if (m.messageStubType) {
+    fs.appendFileSync(
+      path.join(BOT_DIR, 'events.log'),
+      `[${new Date().toISOString()}] Evento tipo: ${m.messageStubType}, Grupo: ${m.isGroup ? 'Sí' : 'No'}, Chat ID: ${m.chat}\n`
+    )
+  }
+  
   if (!m.messageStubType || !m.isGroup) return !0
 
   try {
@@ -89,27 +97,60 @@ export async function before(m, { conn, participants, groupMetadata }) {
       }
     }
 
-    // Manejar diferentes tipos de eventos
-    if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
+    // Verificar explícitamente el tipo de evento y registrar para depuración
+    console.log(`Tipo de evento detectado: ${m.messageStubType}`)
+    
+    // Manejar evento de usuario que se une (código 27)
+    if (chat.welcome && m.messageStubType === 27) {
+      console.log("Detectado: Usuario añadido al grupo")
       let groupName = groupMetadata?.subject || 'este grupo'
       let bienvenida = `❀ *Bienvenido* a ${groupName}\n ✰ ${taguser}\n${global.welcom1}\n •(=^●ω●^=)• Disfruta tu estadía en el grupo!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
       
-      if (img) {
-        await conn.sendMessage(m.chat, { image: img, caption: bienvenida, mentions: [who] })
-      } else {
-        await conn.sendMessage(m.chat, { text: bienvenida, mentions: [who] })
+      try {
+        if (img) {
+          await conn.sendMessage(m.chat, { image: img, caption: bienvenida, mentions: [who] })
+        } else {
+          await conn.sendMessage(m.chat, { text: bienvenida, mentions: [who] })
+        }
+        console.log("Mensaje de bienvenida enviado con éxito")
+      } catch (error) {
+        console.log(`Error al enviar mensaje de bienvenida: ${error.message}`)
       }
     }
        
-    if (chat.welcome && (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || 
-                         m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE)) {
+    // Manejar evento de usuario que sale voluntariamente (código 28)
+    if (chat.welcome && m.messageStubType === 28) {
+      console.log("Detectado: Usuario salió del grupo voluntariamente")
       let groupName = groupMetadata?.subject || 'este grupo'
       let bye = `❀ *Adiós* de ${groupName}\n ✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• Te esperamos pronto!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
       
-      if (img) {
-        await conn.sendMessage(m.chat, { image: img, caption: bye, mentions: [who] })
-      } else {
-        await conn.sendMessage(m.chat, { text: bye, mentions: [who] })
+      try {
+        if (img) {
+          await conn.sendMessage(m.chat, { image: img, caption: bye, mentions: [who] })
+        } else {
+          await conn.sendMessage(m.chat, { text: bye, mentions: [who] })
+        }
+        console.log("Mensaje de despedida enviado con éxito (salida voluntaria)")
+      } catch (error) {
+        console.log(`Error al enviar mensaje de despedida: ${error.message}`)
+      }
+    }
+    
+    // Manejar evento de usuario que es eliminado (código 29)
+    if (chat.welcome && m.messageStubType === 29) {
+      console.log("Detectado: Usuario eliminado del grupo")
+      let groupName = groupMetadata?.subject || 'este grupo'
+      let kick = `❀ *Adiós* de ${groupName}\n ✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• Te esperamos pronto!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
+      
+      try {
+        if (img) {
+          await conn.sendMessage(m.chat, { image: img, caption: kick, mentions: [who] })
+        } else {
+          await conn.sendMessage(m.chat, { text: kick, mentions: [who] })
+        }
+        console.log("Mensaje de despedida enviado con éxito (usuario eliminado)")
+      } catch (error) {
+        console.log(`Error al enviar mensaje de eliminación: ${error.message}`)
       }
     }
     
