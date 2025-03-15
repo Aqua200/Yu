@@ -1,5 +1,3 @@
-//Codígo creado por Destroy wa.me/584120346669
-
 import fs from 'fs';
 import path from 'path';
 
@@ -20,25 +18,22 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     let str;
     if (m.mentionedJid.length > 0) {
-        str = `\`${name2}\` *tomá una tácita de café con* \`${name || who}\`.`;
+        str = `\`${name2}\` *está preparando un delicioso café para* \`${name || who}\`.`;
     } else if (m.quoted) {
-        str = `\`${name2}\` *esta tomándo una tácita de café con* \`${name || who}\`.`;
+        str = `\`${name2}\` *está compartiendo un café con* \`${name || who}\`.`;
     } else {
-        str = `\`${name2}\` *se toma una tácita de café.*`.trim();
+        str = `\`${name2}\` *se está preparando un café aromático.*`.trim();
     }
     
     if (m.isGroup) {
-        let pp = 'https://files.catbox.moe/k6bzj0.mp4'; 
-        let pp2 = 'https://files.catbox.moe/3pj3nx.mp4'; 
-        let pp3 = 'https://files.catbox.moe/wcpe4z.mp4';
-        let pp4 = 'https://files.catbox.moe/64t3cf.mp4';
-        let pp5 = 'https://files.catbox.moe/qy1qmo.mp4';
-        let pp6 = 'https://files.catbox.moe/va1mu7.mp4';
-        let pp7 = 'https://files.catbox.moe/zqqre3.mp4';
-        let pp8 = 'https://files.catbox.moe/duydzw.mp4';
-        let pp9 = 'https://files.catbox.moe/4mn95m.mp4';
+        // Videos de preparación de café (solo 5)
+        let pp1 = 'https://files.catbox.moe/cafevid1.mp4'; 
+        let pp2 = 'https://files.catbox.moe/cafevid2.mp4'; 
+        let pp3 = 'https://files.catbox.moe/cafevid3.mp4';
+        let pp4 = 'https://files.catbox.moe/cafevid4.mp4';
+        let pp5 = 'https://files.catbox.moe/cafevid5.mp4';
         
-        const videos = [pp, pp2, pp3, pp4, pp5, pp6, pp7, pp8, pp9];
+        const videos = [pp1, pp2, pp3, pp4, pp5];
         const video = videos[Math.floor(Math.random() * videos.length)];
 
         let mentions = [who];
@@ -46,9 +41,9 @@ let handler = async (m, { conn, usedPrefix }) => {
     }
 }
 
-handler.help = ['coffe/cafe @tag'];
-handler.tags = ['anime'];
-handler.command = ['coffe', 'cafe'];
+handler.help = ['barista @tag'];
+handler.tags = ['social', 'entretenimiento'];
+handler.command = ['barista'];
 handler.group = true;
 
 export default handler;
