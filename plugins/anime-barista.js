@@ -27,11 +27,11 @@ let handler = async (m, { conn, usedPrefix }) => {
     
     if (m.isGroup) {
         // Videos de preparación de café (solo 5)
-        let pp1 = 'https://files.catbox.moe/cafevid1.mp4'; 
-        let pp2 = 'https://files.catbox.moe/cafevid2.mp4'; 
-        let pp3 = 'https://files.catbox.moe/cafevid3.mp4';
-        let pp4 = 'https://files.catbox.moe/cafevid4.mp4';
-        let pp5 = 'https://files.catbox.moe/cafevid5.mp4';
+        let pp1 = 'https://files.catbox.moe/tvpxtr.gif'; 
+        let pp2 = 'https://files.catbox.moe/s9j5ec.gif'; 
+        let pp3 = 'https://files.catbox.moe/ql8p63.gif';
+        let pp4 = 'https://files.catbox.moe/xrkt1s.gif';
+        let pp5 = 'https://files.catbox.moe/4z9et0.gif';
         
         const videos = [pp1, pp2, pp3, pp4, pp5];
         const video = videos[Math.floor(Math.random() * videos.length)];
