@@ -1,6 +1,6 @@
 let cooldowns = {}
 
-let handler = async (m, { conn, text, command, usedPrefix, args, mentionedJid }) => {
+let handler = async (m, { conn, args, mentionedJid }) => {
     let users = global.db.data.users
     let senderId = m.sender
     let senderName = conn.getName(senderId)
@@ -17,8 +17,8 @@ let handler = async (m, { conn, text, command, usedPrefix, args, mentionedJid })
     // Filtramos usuarios válidos (que no sean el remitente)
     let userKeys = Object.keys(users).filter(id => id !== senderId)
 
-    // Si mentionedJid no existe o está vacío, elegimos un usuario aleatorio
-    let targetUserId = (mentionedJid && mentionedJid.length > 0 && users[mentionedJid[0]])
+    // Si mencionaron a alguien, usamos ese usuario. Si no, elegimos uno al azar.
+    let targetUserId = (mentionedJid.length > 0 && users[mentionedJid[0]]) 
         ? mentionedJid[0] 
         : (userKeys.length > 0 ? userKeys[Math.floor(Math.random() * userKeys.length)] : null)
 
