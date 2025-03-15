@@ -14,6 +14,9 @@ let handler = async (m, { conn, args, mentionedJid }) => {
 
     let senderCoin = users[senderId]?.coin || 0
 
+    // Asegurar que mentionedJid es un array antes de usar .length
+    mentionedJid = mentionedJid || []
+
     // Filtramos usuarios válidos (que no sean el remitente)
     let userKeys = Object.keys(users).filter(id => id !== senderId)
 
