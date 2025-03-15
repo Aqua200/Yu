@@ -15,8 +15,10 @@ let handler = async (m, { conn, text, command, usedPrefix, args, mentionedJid })
 
     let senderCoin = users[senderId].coin || 0
 
-    // Verificar si se mencionó a alguien o seleccionar al azar
-    let targetUserId = mentionedJid[0] || Object.keys(users).filter(id => id !== senderId)[Math.floor(Math.random() * Object.keys(users).length)]
+    // Si hay menciones, se usa la primera mención, de lo contrario se elige un usuario al azar
+    let userKeys = Object.keys(users).filter(id => id !== senderId)
+    let targetUserId = (mentionedJid.length > 0 && users[mentionedJid[0]]) ? mentionedJid[0] : userKeys[Math.floor(Math.random() * userKeys.length)]
+
     if (!targetUserId || !users[targetUserId]) {
         return m.reply("⚠️ No se encontró al usuario mencionado o no hay suficientes usuarios registrados.")
     }
@@ -71,4 +73,4 @@ function segundosAHMS(segundos) {
     let minutos = Math.floor(segundos / 60)
     let segundosRestantes = segundos % 60
     return `${minutos} minutos y ${segundosRestantes} segundos`
-}
+},
