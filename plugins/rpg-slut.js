@@ -8,22 +8,25 @@ let handler = async (m, { conn, text, command, usedPrefix, args, mentionedJid })
     let tiempo = 5 * 60
     if (cooldowns[senderId] && Date.now() - cooldowns[senderId] < tiempo * 1000) {
         let tiempo2 = segundosAHMS(Math.ceil((cooldowns[senderId] + tiempo * 1000 - Date.now()) / 1000))
-        m.reply(`⏳ Debes esperar *${tiempo2}* para usar *#slut* de nuevo.`)
-        return
+        return m.reply(`⏳ Debes esperar *${tiempo2}* para usar *#slut* de nuevo.`)
     }
     cooldowns[senderId] = Date.now()
 
-    let senderCoin = users[senderId].coin || 0
+    let senderCoin = users[senderId]?.coin || 0
 
-    // Si hay menciones, se usa la primera mención, de lo contrario se elige un usuario al azar
+    // Filtramos usuarios válidos (que no sean el remitente)
     let userKeys = Object.keys(users).filter(id => id !== senderId)
-    let targetUserId = (mentionedJid.length > 0 && users[mentionedJid[0]]) ? mentionedJid[0] : userKeys[Math.floor(Math.random() * userKeys.length)]
+
+    // Si mentionedJid no existe o está vacío, elegimos un usuario aleatorio
+    let targetUserId = (Array.isArray(mentionedJid) && mentionedJid.length > 0 && users[mentionedJid[0]])
+        ? mentionedJid[0] 
+        : (userKeys.length > 0 ? userKeys[Math.floor(Math.random() * userKeys.length)] : null)
 
     if (!targetUserId || !users[targetUserId]) {
-        return m.reply("⚠️ No se encontró al usuario mencionado o no hay suficientes usuarios registrados.")
+        return m.reply("⚠️ No hay suficientes usuarios registrados para usar este comando.")
     }
 
-    let targetUserCoin = users[targetUserId].coin || 0
+    let targetUserCoin = users[targetUserId]?.coin || 0
     let targetUserName = conn.getName(targetUserId)
 
     let minAmount = 15
@@ -73,4 +76,4 @@ function segundosAHMS(segundos) {
     let minutos = Math.floor(segundos / 60)
     let segundosRestantes = segundos % 60
     return `${minutos} minutos y ${segundosRestantes} segundos`
-},
+}
