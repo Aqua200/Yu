@@ -21,7 +21,6 @@ let handler = async (m, { conn, args, mentionedJid }) => {
     if (!mentionedJid) mentionedJid = []
     
     // Si hay texto que parece una mención pero no está en mentionedJid, intentar extraerlo
-    // Este bloque es para capturar menciones que podrían no estar siendo procesadas correctamente
     if (m.text) {
         const mentionRegex = /@(\d+)/g
         let match
@@ -51,14 +50,12 @@ let handler = async (m, { conn, args, mentionedJid }) => {
     
     // Solo si no hay menciones válidas, elegir un usuario aleatorio
     if (!targetUserId) {
-        // Filtramos usuarios válidos (que no sean el remitente)
         let userKeys = Object.keys(users).filter(id => id !== senderId && users[id])
         
         if (userKeys.length === 0) {
             return m.reply("⚠️ No hay suficientes usuarios registrados para usar este comando.")
         }
         
-        // Elegir un usuario aleatorio
         targetUserId = userKeys[Math.floor(Math.random() * userKeys.length)]
         console.log('Usuario objetivo seleccionado aleatoriamente:', targetUserId)
     }
