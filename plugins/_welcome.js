@@ -1,62 +1,25 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys'
 import fetch from 'node-fetch'
 
-// Mapa para evitar duplicados con caducidad automática
-const eventCache = new Map()
+export async function before(m, { conn, participants, groupMetadata }) {
+  if (!m.messageStubType || !m.isGroup) return;
 
-export async function before(m, { conn, groupMetadata }) {
-  if (!m.isGroup || !m.messageStubType) return !0
-
-  // Manejar solo eventos de entrada y salida
-  if (![WAMessageStubType.GROUP_PARTICIPANT_ADD, WAMessageStubType.GROUP_PARTICIPANT_LEAVE].includes(m.messageStubType)) return !0
-
-  const who = m.messageStubParameters?.[0]
-  if (!who) return !0
-  const chat = global.db?.data?.chats?.[m.chat] || { welcome: false }
-  const taguser = `@${who.split('@')[0]}`
-  const groupName = groupMetadata?.subject || 'el grupo'
-  const eventKey = `${m.chat}:${m.messageStubType}:${who}`
-
-  // Prevenir eventos repetidos en 5 segundos
-  if (eventCache.has(eventKey)) return !0
-  eventCache.set(eventKey, true)
-  setTimeout(() => eventCache.delete(eventKey), 5000)
-
-  // Obtener imagen de perfil con fallback
-  let profilePic = 'https://files.catbox.moe/xr2m6u.jpg'
-  try {
-    profilePic = await conn.profilePictureUrl(who, 'image')
-  } catch {
-    console.log(`[INFO] No se pudo obtener foto de ${who}, usando imagen por defecto.`)
-  }
-  const imgBuffer = await fetch(profilePic).then(res => res.buffer()).catch(_ => null)
-
-  const welcomeMsg = global.welcom1 || '¡Esperamos que la pases increíble aquí!'
-  const byeMsg = global.welcom2 || '¡Te esperamos pronto!'
+  let who = m.messageStubParameters[0];
+  let taguser = `@${who.split('@')[0]}`;
+  let chat = global.db.data.chats[m.chat];
+  let pp = await conn.profilePictureUrl(who, 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg');
+  let img = await fetch(pp).then(res => res.buffer()).catch(() => null);
+  
+  if (!img) return; // En caso de que no se pueda obtener la imagen, no enviar nada.
 
   if (chat.welcome) {
     if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-      const mensajeBienvenida = `
-╭─────────────╮
-┃ ✧ *¡Bienvenido!* ✧
-┃ ➥ ${taguser}
-┃ ➥ Grupo: *${groupName}*
-┃ ${welcomeMsg}
-┃ Usa *#help* para comandos
-╰─────────────╯`.trim()
-      await conn.sendMessage(m.chat, { image: imgBuffer, caption: mensajeBienvenida, mentions: [who] })
+      let bienvenida = `❀ *Bienvenido* a ${groupMetadata.subject}\n ✰ ${taguser}\n${global.welcom1}\n •(=^●ω●^=)• Disfruta tu estadía en el grupo!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`;
+      await conn.sendMessage(m.chat, { image: img, caption: bienvenida, mentions: [who] });
     }
 
-    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE) {
-      const mensajeDespedida = `
-╭─────────────╮
-┃ ✧ *Adiós...* ✧
-┃ ➥ ${taguser}
-┃ ➥ Grupo: *${groupName}*
-┃ ${byeMsg}
-┃ ¡Vuelve cuando quieras!
-╰─────────────╯`.trim()
-      await conn.sendMessage(m.chat, { image: imgBuffer, caption: mensajeDespedida, mentions: [who] })
+    if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE) {
+      let bye = `❀ *Adiós* de ${groupMetadata.subject}\n ✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• Te esperamos pronto!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`;
+      await conn.sendMessage(m.chat, { image: img, caption: bye, mentions: [who] });
     }
   }
 }
