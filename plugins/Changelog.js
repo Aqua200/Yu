@@ -3,7 +3,7 @@ let handler = async (m, { conn }) => {
 ⌜  ✦ 𝐂𝐇𝐀𝐍𝐆𝐄𝐋𝐎𝐆 ✦  ⌟
 
 ❀~  [ ✅ ] (El problema con el comando HD ha sido resuelto exitosamente.)
-❀~  [ 🔙 ] (Se volvio s implementar el sistema RPG de pesca 🎣.)
+❀~  [ 🔙 ] (Se volvio a implementar el sistema RPG de pesca 🎣.)
 ❀~  [ 🔄 ] No hay novedades()
 ❀~  [ 🔄 ] No hay novedades()
 ❀~  [ 🔄 ] No hay novedades()
