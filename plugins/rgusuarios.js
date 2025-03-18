@@ -1,19 +1,14 @@
 import db from '../lib/database.js'
 
 let handler = async function (m, { conn }) {
-  let totalRegistered = 0
+  const users = global.db.data.users
+  const totalRegistrados = Object.values(users).filter(u => u.registered === true).length
 
-  for (let user in global.db.data.users) {
-    if (global.db.data.users[user].registered === true) {
-      totalRegistered++
-    }
-  }
-
-  let message = `✿❀ 𝗨𝗦𝗨𝗔𝗥𝗜𝗢𝗦 𝗥𝗘𝗚𝗜𝗦𝗧𝗥𝗔𝗗𝗢𝗦 ❀✿\n`
-  message += `╭─────────────╮\n`
-  message += `✦ Total registrados: *${totalRegistered}*\n`
-  message += `╰─────────────╯\n`
-  message += `Con cariño, 2B.`
+  let message = `♡✧  𝗧𝗢𝗧𝗔𝗟 𝗗𝗘 𝗨𝗦𝗨𝗔𝗥𝗜𝗢𝗦 𝗥𝗘𝗚𝗜𝗦𝗧𝗥𝗔𝗗𝗢𝗦  ✧♡\n`
+  message += `╭───────────────╮\n`
+  message += `🌸 Total: *${totalRegistrados}* usuarios\n`
+  message += `╰───────────────╯\n`
+  message += `Gracias por confiar en 2B.`
 
   await m.reply(message)
 }
