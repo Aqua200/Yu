@@ -1,24 +1,16 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys'
-import fetch from 'node-fetch'
-
-export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return true
-
-  const chat = global.db.data.chats[m.chat]
-  if (!chat.welcome) return true
-
-  const who = m.messageStubParameters[0]
-  const taguser = `@${who.split('@')[0]}`
-  let pp = await conn.profilePictureUrl(who, 'image').catch(() => 'https://files.catbox.moe/xr2m6u.jpg')
-  const img = await (await fetch(pp)).buffer()
-
-  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-    const bienvenida = `❀ *Bienvenido* a ${groupMetadata.subject}\n✰ ${taguser}\n${global.welcom1}\n •(=^●ω●^=)• ¡Disfruta tu estadía!\n> ✐ Usa *#help* para comandos.`
-    await conn.sendMessage(m.chat, { image: img, caption: bienvenida, mentions: [who] })
+conn.ev.on('group-participants.update', async (update) => {
+  const { id, participants, action } = update
+  for (const user of participants) {
+    let pp = await conn.profilePictureUrl(user, 'image').catch(() => 'https://files.catbox.moe/xr2m6u.jpg')
+    const img = await (await fetch(pp)).buffer()
+    const taguser = `@${user.split('@')[0]}`
+    const metadata = await conn.groupMetadata(id)
+    if (action === 'add') {
+      const bienvenida = `❀ *Bienvenido* a ${metadata.subject}\n✰ ${taguser}\n${global.welcom1}\n •(=^●ω●^=)• ¡Disfruta tu estadía!\n> ✐ Usa *#help* para comandos.`
+      await conn.sendMessage(id, { image: img, caption: bienvenida, mentions: [user] })
+    } else if (action === 'remove') {
+      const despedida = `❀ *Adiós* de ${metadata.subject}\n✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• ¡Te esperamos pronto!\n> ✐ Usa *#help* para comandos.`
+      await conn.sendMessage(id, { image: img, caption: despedida, mentions: [user] })
+    }
   }
-
-  if ([WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) {
-    const despedida = `❀ *Adiós* de ${groupMetadata.subject}\n✰ ${taguser}\n${global.welcom2}\n •(=^●ω●^=)• ¡Te esperamos pronto!\n> ✐ Usa *#help* para comandos.`
-    await conn.sendMessage(m.chat, { image: img, caption: despedida, mentions: [who] })
-  }
-}
+})
