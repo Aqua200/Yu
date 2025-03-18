@@ -1,25 +1,25 @@
 import db from '../lib/database.js'
 
 let handler = async function (m, { conn }) {
-  let totalVerified = 0
+  let totalRegistered = 0
 
   for (let user in global.db.data.users) {
-    if (global.db.data.users[user].verified === true) {
-      totalVerified++
+    if (global.db.data.users[user].registered === true) {
+      totalRegistered++
     }
   }
 
-  let message = `✿❀ 𝗨𝗦𝗨𝗔𝗥𝗜𝗢𝗦 𝗩𝗘𝗥𝗜𝗙𝗜𝗖𝗔𝗗𝗢𝗦 ❀✿\n`
+  let message = `✿❀ 𝗨𝗦𝗨𝗔𝗥𝗜𝗢𝗦 𝗥𝗘𝗚𝗜𝗦𝗧𝗥𝗔𝗗𝗢𝗦 ❀✿\n`
   message += `╭─────────────╮\n`
-  message += `✦ Total verificados: *${totalVerified}*\n`
+  message += `✦ Total registrados: *${totalRegistered}*\n`
   message += `╰─────────────╯\n`
-  message += `Con cariño, Kaneko.`
+  message += `Con cariño, 2B.`
 
   await m.reply(message)
 }
 
-handler.help = ['usuariosverificados']
+handler.help = ['usuariosregistrados']
 handler.tags = ['owner']
-handler.command = ['usuariosverificados', 'verificados']
+handler.command = ['usuariosregistrados', 'registrados']
 
 export default handler
