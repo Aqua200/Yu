@@ -1,60 +1,80 @@
-import { readdirSync, unlinkSync, existsSync, promises as fs, rmSync } from 'fs';
+import { readdir, unlink, stat, rmdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import path from 'path';
 
-var handler = async (m, { conn, usedPrefix }) => {
-    const emoji = '✅';  // Definir los emojis
-    const emoji2 = '⚙️';
-    const msm = '⚠️';
+const handler = async (m, { conn }) => {
+    const emojiOk = '✅';
+    const emojiGear = '⚙️';
+    const emojiWarn = '⚠️';
+    const emojiWait = '⏳';
 
-    // Verificar que el comando se ejecute en el número principal del Bot
     if (global.conn.user.jid !== conn.user.jid) {
-        return conn.reply(m.chat, `${emoji} Utiliza este comando directamente en el número principal del Bot.`, m);
+        return conn.reply(m.chat, `${emojiOk} Usa este comando directamente desde el número principal del bot.`, m);
     }
 
-    // Informar al usuario sobre el inicio del proceso
-    await conn.reply(m.chat, `${emoji2} Iniciando proceso de eliminación de todos los archivos de sesión, excepto el archivo creds.json...`, m);
-    m.react('⏳');  // Indicador de proceso en espera
+    await conn.reply(m.chat, `${emojiGear} Iniciando limpieza de sesiones, excepto *creds.json*...`, m);
+    m.react(emojiWait);
 
-    // Obtener la ruta de la carpeta de sesiones
-    let sessionPath = path.join(process.cwd(), 'sessions');  // Usar la ruta absoluta del directorio de trabajo
+    const sessionPath = path.resolve(process.cwd(), 'sessions');
+
+    if (!existsSync(sessionPath)) {
+        return await conn.reply(m.chat, `${emojiOk} La carpeta *sessions* no existe o ya está vacía.`, m);
+    }
+
+    let filesDeleted = 0;
 
     try {
-        // Verificar si la carpeta de sesiones existe
-        if (!existsSync(sessionPath)) {
-            return await conn.reply(m.chat, `${emoji} La carpeta está vacía o no existe.`, m);
+        const files = await readdir(sessionPath);
+
+        if (files.length === 0) {
+            return conn.reply(m.chat, `${emojiOk} La carpeta *sessions* está vacía.`, m);
         }
 
-        // Leer los archivos de la carpeta de sesiones
-        let files = await fs.readdir(sessionPath);
-        let filesDeleted = 0;
-
-        // Eliminar archivos que no sean 'creds.json'
         for (const file of files) {
             if (file !== 'creds.json') {
+                const fullPath = path.join(sessionPath, file);
                 try {
-                    await fs.unlink(path.join(sessionPath, file));  // Eliminar archivo
+                    const stats = await stat(fullPath);
+                    if (stats.isDirectory()) {
+                        await deleteFolderRecursive(fullPath);
+                    } else {
+                        await unlink(fullPath);
+                    }
                     filesDeleted++;
                 } catch (err) {
-                    console.error('Error al eliminar el archivo:', err);
-                    await conn.reply(m.chat, `${msm} No se pudo eliminar el archivo: ${file}`, m);
+                    console.error(`Error al eliminar ${file}:`, err);
+                    await conn.reply(m.chat, `${emojiWarn} No se pudo eliminar: ${file}`, m);
                 }
             }
         }
 
-        // Informar si se eliminaron archivos
-        if (filesDeleted === 0) {
-            await conn.reply(m.chat, `${emoji2} No se encontraron archivos para eliminar, o la carpeta está vacía.`, m);
+        if (filesDeleted > 0) {
+            m.react(emojiOk);
+            await conn.reply(m.chat, `${emojiOk} Se eliminaron *${filesDeleted}* archivos de sesión (excepto *creds.json*).`, m);
+            await conn.reply(m.chat, `${emojiOk} *¡Hola! ¿logras verme?*`, m);
         } else {
-            m.react('✅');  // Indicador de proceso completado
-            await conn.reply(m.chat, `${emoji} Se eliminaron ${filesDeleted} archivos de sesión, excepto el archivo creds.json.`, m);
-            conn.reply(m.chat, `${emoji} *¡Hola! ¿logras verme?*`, m);
+            await conn.reply(m.chat, `${emojiOk} No se encontraron archivos para eliminar.`, m);
         }
+
     } catch (err) {
-        // Manejar errores generales
-        console.error('Error al leer la carpeta o los archivos de sesión:', err);
-        await conn.reply(m.chat, `${msm} Ocurrió un fallo durante el proceso.`, m);
+        console.error('Error en el proceso de limpieza:', err);
+        await conn.reply(m.chat, `${emojiWarn} Ocurrió un error inesperado.`, m);
     }
 };
+
+// Función para eliminar carpetas recursivamente
+async function deleteFolderRecursive(folderPath) {
+    const entries = await readdir(folderPath, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(folderPath, entry.name);
+        if (entry.isDirectory()) {
+            await deleteFolderRecursive(fullPath);
+        } else {
+            await unlink(fullPath);
+        }
+    }
+    await rmdir(folderPath);
+}
 
 handler.help = ['dsowner'];
 handler.tags = ['owner'];
