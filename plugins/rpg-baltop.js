@@ -1,6 +1,6 @@
 let handler = async (m, { conn, args, participants }) => {
-    const emoji = '⭐'; // Definir emoji
-    const moneda = 'Yen'; // Definir moneda
+    const emoji = '🤍'; // Definir emoji
+    const moneda = 'Yenes'; // Definir moneda
 
     // Obtener los usuarios desde la base de datos
     let users = Object.entries(global.db.data.users).map(([key, value]) => {
