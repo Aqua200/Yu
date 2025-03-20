@@ -17,7 +17,7 @@ let handler = async (m, { conn, __dirname }) => {
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ╰─────────────────
 
-%leer más
+%Leer más
 
 
 》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
