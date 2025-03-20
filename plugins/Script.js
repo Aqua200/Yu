@@ -10,9 +10,9 @@ let handler = async (m, { conn, __dirname }) => {
 
     // Aquí escribe a mano el menú como tú quieras:
     let menuText = `
-*𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦Ａｎｉｋａ Ｄｍ✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
+*𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
 ╭─┈↷
-│ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 𝗞𝗮𝗻𝗲𝗸𝗼 ❤️
+│ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VaGWwUfB4hdVxH1MDu43
 ╰─────────────────
@@ -61,9 +61,9 @@ let handler = async (m, { conn, __dirname }) => {
   }
 }
 
-handler.help = ['menú script'] // Cambié el comando aquí
+handler.help = ['ownermenu'] // Cambié el comando aquí
 handler.tags = ['main']
-handler.command = ['menú script', 'help', 'menu'] // Cambié el comando aquí
+handler.command = ['ownermenu'] // Cambié el comando aquí
 handler.register = true
 export default handler
 
