@@ -31,14 +31,8 @@ let handler = async (m, { conn, __dirname }) => {
 ✦ #ping — Ver velocidad de respuesta  
 ✦ #grupos — Ver mis grupos oficiales 
 
-✐ 𝗢𝘄𝗻𝗲𝗿:
-❀ ᥴ᥆mᥲᥒძ᥆s ძᥱ m᥆ძᥱrᥲᥴіóᥒ ᥡ ᥴ᥆ᥒ𝗍r᥆ᥣ ᥲ᥎ᥲᥒzᥲз᥆ ⍴ᥲrᥲ ᥆ᥕᥒᥱrs.
-
 ✿ 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗱𝗲 *𝗦𝗰𝗿𝗶𝗽𝘁*:
 ✐💎→ ᴘᴀʀᴀ ᴄʀᴇᴀʀ ᴜɴ sᴜʙ-ʙᴏᴛ ᴄᴏɴ ᴛᴜ ɴᴜᴍᴇʀᴏ ᴜᴛɪʟɪᴢᴀ *#qr* o *#code*
-
-*Script* ⊹
-
 ✐ Comandos para registrar tu propio bot.
 ✦ *#botinfo • #infobot*
 → Obtener informacion del bot
@@ -67,11 +61,7 @@ let handler = async (m, { conn, __dirname }) => {
 ✦ *#setusername* + [nombre]
 → Cambiar el nombre de usuario
 
-》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 𝗠𝗔𝗜𝗡 」───《
-
-...
-
-»⊹˚୨ *2B* ⊹
+» ⊹˚୨ *2B* ⊹
 `.trim()
 
     // Aquí puedes poner la URL de la imagen
