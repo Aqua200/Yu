@@ -17,9 +17,6 @@ let handler = async (m, { conn, __dirname }) => {
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ╰─────────────────
 
-%Leer más
-
-
 》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
 ➥ Nombre: *${name}*
 ➥ Nivel: *${level}*
@@ -79,7 +76,18 @@ let handler = async (m, { conn, __dirname }) => {
 
     // Aquí puedes poner la URL de la imagen
     let pp = 'https://example.com/miniurl.jpg' // Reemplaza con tu URL de imagen
-    await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
+    
+    // Botón "Leer más"
+    const button = [
+      {
+        buttonId: 'readmore', // Este ID es para manejar la acción
+        buttonText: { displayText: 'Leer más' },
+        type: 1
+      }
+    ]
+    
+    // Enviar mensaje con botón
+    await conn.sendButton(m.chat, menuText, 'Haz clic en "Leer más" para ver más información', pp, button)
 
   } catch (e) {
     conn.reply(m.chat, 'Lo sentimos, ocurrió un error mostrando el menú.', m)
