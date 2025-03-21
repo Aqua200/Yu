@@ -134,9 +134,9 @@ ${leerMas}
   }
 }
 
-handler.help = ['ownermenu']
+handler.help = ['menu script']
 handler.tags = ['main']
-handler.command = ['ownermenu']
+handler.command = ['menu script']
 handler.register = true
 export default handler
 
