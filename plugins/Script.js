@@ -14,7 +14,8 @@ let handler = async (m, { conn, __dirname }) => {
 *𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
-│ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ: https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
+│ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
+│ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ${leerMas}
 ╰─────────────────
 
@@ -31,10 +32,10 @@ ${leerMas}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    // Asegúrate de que la imagen y el texto (caption) se envíen juntos correctamente
+    // Enviar la imagen con el texto (caption) que incluye el enlace del canal
     await conn.sendMessage(m.chat, {
-      image: { url: 'https://files.catbox.moe/58o60y.jpg' },  // Asegúrate de que esta URL sea válida
-      caption: menuText  // El menú y el enlace están ahora dentro del caption
+      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Asegúrate de que esta URL sea válida
+      caption: menuText // El menú y el enlace están dentro del caption
     })
 
   } catch (e) {
