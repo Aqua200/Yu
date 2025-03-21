@@ -33,13 +33,14 @@ ${leerMas}
 `.trim()
 
     await conn.sendMessage(m.chat, {
+      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Asegúrate de que esta URL sea válida
       caption: menuText,
       contextInfo: {
         externalAdReply: {
           title: 'Canal Oficial 2B',
           body: 'Únete y recibe novedades',
           sourceUrl: 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24',
-          mediaType: 1,
+          mediaType: 1, // Este valor debería estar bien para una imagen
           renderLargerThumbnail: true
         }
       }
