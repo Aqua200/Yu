@@ -31,11 +31,11 @@ ${leerMas}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    // Aquí estamos enviando la imagen con el caption que incluye el enlace al canal
+    // Asegúrate de que la imagen y el texto (caption) se envíen juntos correctamente
     await conn.sendMessage(m.chat, {
-      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Asegúrate de que esta URL sea válida
+      image: { url: 'https://files.catbox.moe/58o60y.jpg' },  // Asegúrate de que esta URL sea válida
       caption: menuText  // El menú y el enlace están ahora dentro del caption
-    }, { quoted: m })
+    })
 
   } catch (e) {
     conn.reply(m.chat, 'Lo sentimos, ocurrió un error mostrando el menú.', m)
