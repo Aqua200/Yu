@@ -31,18 +31,10 @@ ${leerMas}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
+    // Aquí estamos enviando la imagen con el caption que incluye el enlace al canal
     await conn.sendMessage(m.chat, {
-      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Imagen con la URL del canal
-      caption: menuText,  // Aquí estamos incluyendo el texto con el enlace
-      contextInfo: {
-        externalAdReply: {
-          title: 'Canal Oficial 2B',
-          body: 'Únete y recibe novedades',
-          sourceUrl: 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24',
-          mediaType: 1,  // Tipo de media correcto para una imagen
-          renderLargerThumbnail: true
-        }
-      }
+      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Asegúrate de que esta URL sea válida
+      caption: menuText  // El menú y el enlace están ahora dentro del caption
     }, { quoted: m })
 
   } catch (e) {
