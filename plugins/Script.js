@@ -19,8 +19,6 @@ let handler = async (m, { conn, __dirname }) => {
 ${leerMas}
 ╰─────────────────
 
-
-
 》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
 ➥ Nombre: *${name}*
 ➥ Nivel: *${level}*
@@ -30,19 +28,9 @@ ${leerMas}
 
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 」───《
 
-✐ 𝗜𝗻𝗳𝗼:
-✦ #infobot — Información del bot  
-✦ #ping — Ver velocidad de respuesta  
-✦ #grupos — Ver mis grupos oficiales 
-
-✐ 𝗢𝘄𝗻𝗲𝗿:
-❀ ᥴ᥆mᥲᥒძ᥆s ძᥱ m᥆ძᥱrᥲᥴіóᥒ ᥡ ᥴ᥆ᥒ𝗍r᥆ᥣ ᥲ᥎ᥲᥒzᥲз᥆ ⍴ᥲrᥲ ᥆ᥕᥒᥱrs.
-
 ✿ 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗱𝗲 *𝗦𝗰𝗿𝗶𝗽𝘁*:
+
 ✐💎→ ᴘᴀʀᴀ ᴄʀᴇᴀʀ ᴜɴ sᴜʙ-ʙᴏᴛ ᴄᴏɴ ᴛᴜ ɴᴜᴍᴇʀᴏ ᴜᴛɪʟɪᴢᴀ *#qr* o *#code*
-
-*Script* ⊹
-
 ✐ Comandos para registrar tu propio bot.
 ✦ *#botinfo • #infobot*
 → Obtener informacion del bot
@@ -54,10 +42,6 @@ ${leerMas}
 → Cerrar sesion del bot
 ✦ *#qr • #code*
 → Crear un Sub-Bot con un codigo QR/Code
-✦ *#qrpremium • #codepremium* + [Token]
-→ Crear un sub-bot premium
-✦ *#qrtemporal • #codetemporal*
-→ Crear un Sub-Bot temporal con un codigo QR/Code
 ✦ *#setbanner • #setmenubanner*
 → Cambiar el banner del menu
 ✦ *#setbotcurrency* + [nombre]
@@ -68,11 +52,22 @@ ${leerMas}
 → Cambiar la imagen de perfil
 ✦ *#setstatus* + [estado]
 → Cambiar el estado del bot
-✦ *#setusername* + [nombre]
-→ Cambiar el nombre de usuario
+✦ 
 
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 𝗠𝗔𝗜𝗡 」───《
-...
+
+✦ 
+→
+✦ 
+→
+✦ 
+→
+✦ 
+→
+✦ 
+→
+✦ 
+→
 
 »⊹˚୨ *2B* ⊹
 `.trim()
