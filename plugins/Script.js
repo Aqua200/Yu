@@ -47,7 +47,12 @@ ${leerMas}
 → Cambiar el estado del bot
 ✦ *#addowner • #delowner* 
 → Agrega o elimina un número de la lista de owners.
-
+✦ *#codigo*
+→ Crea un token o código de canjeó de códigos.
+✦ *#backup • #copia*
+→ Crear un respaldo de seguridad de la *db* del Bot.
+✦ *#bcgc*
+→ Envia un mensaje a todos los grupos donde este el Bot.
 
 »⊹˚୨ *2B* ⊹
 `.trim()
