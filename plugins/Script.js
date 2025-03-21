@@ -33,7 +33,6 @@ ${leerMas}
 `.trim()
 
     await conn.sendMessage(m.chat, {
-      image: { url: 'https://files.catbox.moe/58o60y.jpg' },
       caption: menuText,
       contextInfo: {
         externalAdReply: {
