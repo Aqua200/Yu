@@ -1,6 +1,11 @@
 import moment from 'moment-timezone';
 
 let handler = async (m, { conn, args }) => {
+    // Asegúrate de que el comando no esté invocando el menú cuando no se necesita
+    if (args[0] && args[0].toLowerCase() === 'script') {
+        return; // Simplemente no hace nada si se ingresa '.menú script'
+    }
+
     let userId = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.sender;
     let user = global.db.data.users[userId];
     let name = conn.getName(userId);
