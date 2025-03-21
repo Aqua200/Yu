@@ -134,9 +134,9 @@ ${leerMas}
   }
 }
 
-handler.help = ['menu script']
+handler.help = ['menuscript'] // Cambié a 'menuscript'
 handler.tags = ['main']
-handler.command = ['menu script']
+handler.command = ['menuscript'] // Cambié a 'menuscript'
 handler.register = true
 export default handler
 
