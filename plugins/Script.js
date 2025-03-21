@@ -9,12 +9,14 @@ let handler = async (m, { conn, __dirname }) => {
     let muptime = clockString(_uptime)
 
     // Aquí escribe a mano el menú como tú quieras:
+    let repeatText = '• '.repeat(5); // Aquí puedes ajustar el número de repeticiones que necesites
     let menuText = `
 *𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
+│ ${repeatText} // Aquí se repite el texto debajo del enlace
 ╰─────────────────
 
 》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
@@ -68,7 +70,6 @@ let handler = async (m, { conn, __dirname }) => {
 → Cambiar el nombre de usuario
 
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 𝗠𝗔𝗜𝗡 」───《
-
 ...
 
 »⊹˚୨ *2B* ⊹
@@ -95,4 +96,4 @@ function clockString(ms) {
   let m = Math.floor(ms / 60000) % 60
   let s = Math.floor(ms / 1000) % 60
   return [h, m, s].map(v => v.toString().padStart(2, 0)).join(':')
-  }
+}
