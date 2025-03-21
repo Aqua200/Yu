@@ -16,10 +16,9 @@ let handler = async (m, { conn, __dirname }) => {
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
-│ ${repeatText} // Aquí se repite el texto debajo del enlace
 ╰─────────────────
 
-│ ${repeatText} /
+
 
 》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
 ➥ Nombre: *${name}*
