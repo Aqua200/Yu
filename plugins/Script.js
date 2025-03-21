@@ -14,8 +14,7 @@ let handler = async (m, { conn, __dirname }) => {
 *𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
-│ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
-│ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
+│ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ: https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ${leerMas}
 ╰─────────────────
 
@@ -33,14 +32,14 @@ ${leerMas}
 `.trim()
 
     await conn.sendMessage(m.chat, {
-      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Asegúrate de que esta URL sea válida
-      caption: menuText,
+      image: { url: 'https://files.catbox.moe/58o60y.jpg' }, // Imagen con la URL del canal
+      caption: menuText,  // Aquí estamos incluyendo el texto con el enlace
       contextInfo: {
         externalAdReply: {
           title: 'Canal Oficial 2B',
           body: 'Únete y recibe novedades',
           sourceUrl: 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24',
-          mediaType: 1, // Este valor debería estar bien para una imagen
+          mediaType: 1,  // Tipo de media correcto para una imagen
           renderLargerThumbnail: true
         }
       }
