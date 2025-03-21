@@ -134,9 +134,9 @@ ${leerMas}
   }
 }
 
-handler.help = ['menu script', 'dev']
+handler.help = ['menuscript', 'dev'] // Añadí 'dev'
 handler.tags = ['main']
-handler.command = ['menu script', 'dev'] // Cambié 'menuscript' a 'menu script' para que se invoque con espacio
+handler.command = ['menuscript', 'dev'] // Añadí 'dev'
 handler.register = true
 export default handler
 
