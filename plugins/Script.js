@@ -19,6 +19,8 @@ let handler = async (m, { conn, __dirname }) => {
 │ ${repeatText} // Aquí se repite el texto debajo del enlace
 ╰─────────────────
 
+│ ${repeatText} /
+
 》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
 ➥ Nombre: *${name}*
 ➥ Nivel: *${level}*
