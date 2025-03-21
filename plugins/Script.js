@@ -14,17 +14,12 @@ let handler = async (m, { conn, __dirname }) => {
 *𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
+│ ➥ Tiempo activa: *${muptime}*
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ╰─────────────────
-${leerMas}
 
-》───「 𝗧𝗨 𝗣𝗘𝗥𝗙𝗜𝗟 」───《
-➥ Nombre: *${name}*
-➥ Nivel: *${level}*
-➥ XP: *${exp}*
-➥ Dulces: *${limit}*
-➥ Tiempo activo: *${muptime}*
+${leerMas}
 
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 」───《
 
@@ -52,7 +47,7 @@ ${leerMas}
 → Cambiar la imagen de perfil
 ✦ *#setstatus* + [estado]
 → Cambiar el estado del bot
-✦ 
+
 
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 𝗠𝗔𝗜𝗡 」───《
 
