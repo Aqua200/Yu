@@ -77,7 +77,7 @@ ${leerMas}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    let pp = 'https://files.catbox.moe/rexl71.jpg' // Cambia por tu imagen
+    let pp = 'https://files.catbox.moe/58o60y.jpg' // Cambia por tu imagen
     await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
 
   } catch (e) {
