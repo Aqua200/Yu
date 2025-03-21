@@ -8,14 +8,16 @@ let handler = async (m, { conn, __dirname }) => {
     let _uptime = process.uptime() * 1000
     let muptime = clockString(_uptime)
 
-    // Aquí escribe a mano el menú como tú quieras:
-    let repeatText = '• '.repeat(5); // Aquí puedes ajustar el número de repeticiones que necesites
+    let repeatText = '• '.repeat(5)
+    let saltos = '\n'.repeat(999) // << Aquí añadimos los saltos
+
     let menuText = `
 *𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
+${saltos}
 ╰─────────────────
 
 
@@ -76,8 +78,7 @@ let handler = async (m, { conn, __dirname }) => {
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    // Aquí puedes poner la URL de la imagen
-    let pp = 'https://example.com/miniurl.jpg' // Reemplaza con tu URL de imagen
+    let pp = 'https://example.com/miniurl.jpg' // Cambia por tu URL
     await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
 
   } catch (e) {
@@ -86,9 +87,9 @@ let handler = async (m, { conn, __dirname }) => {
   }
 }
 
-handler.help = ['ownermenu'] // Cambié el comando aquí
+handler.help = ['ownermenu']
 handler.tags = ['main']
-handler.command = ['ownermenu'] // Cambié el comando aquí
+handler.command = ['ownermenu']
 handler.register = true
 export default handler
 
