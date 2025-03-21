@@ -18,9 +18,7 @@ let handler = async (m, { conn, __dirname }) => {
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ╰─────────────────
-
 ${leerMas}
-
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 」───《
 
 ✿ 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗱𝗲 *𝗦𝗰𝗿𝗶𝗽𝘁*:
@@ -49,7 +47,7 @@ ${leerMas}
 → Cambiar el estado del bot
 
 
-》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 𝗠𝗔𝗜𝗡 」───《
+》───「 𝗠𝗔𝗜𝗡 」───《
 
 ✦ 
 →
