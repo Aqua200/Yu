@@ -39,7 +39,6 @@ ${leerMas}
         externalAdReply: {
           title: 'Canal Oficial 2B',
           body: 'Únete y recibe novedades',
-          thumbnailUrl: 'https://files.catbox.moe/58o60y.jpg',
           sourceUrl: 'https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24',
           mediaType: 1,
           renderLargerThumbnail: true
