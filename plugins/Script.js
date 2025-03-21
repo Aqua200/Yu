@@ -134,9 +134,9 @@ ${leerMas}
   }
 }
 
-handler.help = ['menuscript'] // Cambié a 'menuscript'
+handler.help = ['menu script', 'dev']
 handler.tags = ['main']
-handler.command = ['menuscript'] // Cambié a 'menuscript'
+handler.command = ['menu script', 'dev'] // Cambié 'menuscript' a 'menu script' para que se invoque con espacio
 handler.register = true
 export default handler
 
