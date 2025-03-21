@@ -8,8 +8,7 @@ let handler = async (m, { conn, __dirname }) => {
     let _uptime = process.uptime() * 1000
     let muptime = clockString(_uptime)
 
-    let repeatText = '• '.repeat(5)
-    let saltos = '\n'.repeat(999) // << Aquí añadimos los saltos
+    let leerMas = '\u200e'.repeat(850) // Esto genera el "leer más" en WhatsApp
 
     let menuText = `
 *𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
@@ -17,7 +16,7 @@ let handler = async (m, { conn, __dirname }) => {
 │ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
-${saltos}
+${leerMas}
 ╰─────────────────
 
 
@@ -78,7 +77,7 @@ ${saltos}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    let pp = 'https://example.com/miniurl.jpg' // Cambia por tu URL
+    let pp = 'https://example.com/miniurl.jpg' // Cambia por tu imagen
     await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
 
   } catch (e) {
