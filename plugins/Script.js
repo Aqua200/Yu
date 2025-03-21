@@ -45,29 +45,8 @@ ${leerMas}
 → Cambiar la imagen de perfil
 ✦ *#setstatus* + [estado]
 → Cambiar el estado del bot
-
-
-》───「 𝗠𝗔𝗜𝗡 」───《
-${leerMas}
-✦ 
-→
-✦ 
-→
-✦ 
-→
-✦ 
-→
-✦ 
-→
-✦ 
-→
-✦ 
-→
-✦ 
-→
-✦ 
-→
-
+✦ *#addowner • #delowner* 
+→ Agrega o elimina un número de la lista de owners.
 
 
 »⊹˚୨ *2B* ⊹
