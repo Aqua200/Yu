@@ -1,5 +1,5 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys'
-import fetch from 'node-fetch'
+import { WAMessageStubType } from '@whiskeysockets/baileys';
+import fetch from 'node-fetch';
 
 export async function before(m, { conn, participants, groupMetadata }) {
   // Verifica que sea un grupo y que haya un tipo de mensaje válido
@@ -18,13 +18,13 @@ export async function before(m, { conn, participants, groupMetadata }) {
     // Maneja los diferentes tipos de stub message (cuando alguien se une, sale o es expulsado)
     if (m.messageStubType == 27) {
       // Tipo de mensaje: bienvenida
-      let bienvenida = `┌─★ *2B* \n│「 Bienvenido 」\n└┬★ 「 @${m.messageStubParameters[0].split`@`[0]} 」\n   │✑  Bienvenido a\n   │✑  ${groupMetadata.subject}\n   └───────────────┈ ⳹`;
+      let bienvenida = `┌─★ *2B* \n│「 Bienvenido 」\n└┬★ 「 @${m.messageStubParameters[0].split`@`[0]} 」\n   │✑  Bienvenido a\n   │✑  ${groupMetadata.subject}\n   └──[...]`;
       await conn.sendMessage(m.chat, { text: bienvenida, mentions: [m.messageStubParameters[0]] });
     }
 
     if (m.messageStubType == 28 || m.messageStubType == 32) {
       // Tipo de mensaje: despedida (cuando alguien sale o es expulsado)
-      let bye = `┌─★ *2B* \n│「 ADIOS 👋 」\n└┬★ 「 @${m.messageStubParameters[0].split`@`[0]} 」\n   │✑  Se fue\n   │✑ Jamás te quisimos aquí\n   └───────────────┈ ⳹`;
+      let bye = `┌─★ *2B* \n│「 ADIOS 👋 」\n└┬★ 「 @${m.messageStubParameters[0].split`@`[0]} 」\n   │✑  Se fue\n   │✑ Jamás te quisimos aquí\n   └──────[...]`;
       await conn.sendMessage(m.chat, { text: bye, mentions: [m.messageStubParameters[0]] });
     }
   }
