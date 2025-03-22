@@ -1,8 +1,7 @@
-/* Plugin para revisión de plugins corruptos (solo Termux), mejorado y decorado por Neykoors */
+/* Plugin para revisar plugins corruptos solo en Termux con validación de sintaxis */
 
-import { readdir } from 'fs/promises'
+import { readdir, readFile } from 'fs/promises'
 import path from 'path'
-import { pathToFileURL } from 'url'
 import os from 'os'
 
 const handler = async (m, { conn }) => {
@@ -34,9 +33,10 @@ const handler = async (m, { conn }) => {
       revisados++
       try {
         const filePath = path.join(pluginsFolder, file)
-        await import(pathToFileURL(filePath))
+        const contenido = await readFile(filePath, 'utf-8')
+        new Function(contenido) // Valida sintaxis
       } catch (e) {
-        corruptos.push(`• ${file}`)
+        corruptos.push(`• ${file} — ${e.name}: ${e.message}`)
       }
     }
   }
