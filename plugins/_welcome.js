@@ -4,24 +4,41 @@ import fetch from 'node-fetch';
 export async function before(m, { conn, participants, groupMetadata }) {
   if (!m.messageStubType || !m.isGroup) return true;
 
+  // Verificamos que el tipo de mensaje sea el adecuado para bienvenida
+  if (m.messageStubType !== WAMessageStubType.GROUP_PARTICIPANT_ADD) return true;
+
   let who = m.messageStubParameters[0];
   let taguser = `@${who.split('@')[0]}`;
   let chat = global.db.data.chats[m.chat];
-  let pp = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg');
-  
-  // Aseguramos que la imagen se obtenga correctamente
+
+  // Verificamos que la bienvenida esté habilitada
+  if (!chat.welcome) {
+    console.log("Bienvenida deshabilitada en el chat.");
+    return true;
+  }
+
+  // Obtenemos la imagen de perfil del usuario que se unió
+  let pp;
+  try {
+    pp = await conn.profilePictureUrl(m.messageStubParameters[0], 'image');
+  } catch (err) {
+    console.log('Error al obtener imagen de perfil, usando imagen por defecto');
+    pp = 'https://files.catbox.moe/xr2m6u.jpg';  // Imagen por defecto
+  }
+
   let img;
   try {
     img = await (await fetch(pp)).buffer();
   } catch (err) {
-    console.error('Error al obtener la imagen de perfil:', err);
-    img = null;  // En caso de error, no se envía imagen
+    console.log('Error al obtener la imagen desde la URL:', err);
+    img = null;  // Si hay error, no se enviará imagen
   }
-  
-  let totalMiembros = participants.length;
 
-  if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_ADD) {
-    let bienvenida = `╭━━━━━━♡・❀・♡━━━━━━╮
+  let totalMiembros = participants.length;
+  console.log(`Total de miembros después de agregar: ${totalMiembros}`);
+
+  // Mensaje de bienvenida
+  let bienvenida = `╭━━━━━━♡・❀・♡━━━━━━╮
 ✦  𝐁𝐢𝐞𝐧𝐯𝐞𝐧𝐢𝐝𝐨 ~!  
 ✰ ${taguser}  
 
@@ -31,20 +48,14 @@ ${global.welcom1}
 
 > ✐ Usa *#help* para ver mis comandos  
 ╰━━━━━━♡・❀・♡━━━━━━╯`;
+
+  // Enviamos el mensaje de bienvenida con imagen (si existe)
+  try {
     await conn.sendMessage(m.chat, { image: img || undefined, caption: bienvenida, mentions: [who] });
+    console.log('Mensaje de bienvenida enviado correctamente');
+  } catch (err) {
+    console.log('Error al enviar el mensaje de bienvenida:', err);
   }
 
-  if (chat.welcome && (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE)) {
-    let despedida = `╭━━━━━━♡・❀・♡━━━━━━╮
-✦  𝐇𝐚𝐬𝐭𝐚 𝐩𝐫𝐨𝐧𝐭𝐨 ~!  
-✰ ${taguser}  
-
-${global.welcom2}
-
-✦  Ahora somos *${totalMiembros} miembros* en *${groupMetadata.subject}*  
-
-> ✐ Usa *#help* para ver mis comandos  
-╰━━━━━━♡・❀・♡━━━━━━╯`;
-    await conn.sendMessage(m.chat, { image: img || undefined, caption: despedida, mentions: [who] });
-  }
+  return true;
 }
