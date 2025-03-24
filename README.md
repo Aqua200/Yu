@@ -199,8 +199,8 @@ href="https://dahs.hostingpy.shop/home"><img src="https://files.catbox.moe/lr92z
 
 ### **`👑 Propietario`**
 <a
-href="https://github.com/The-King-Destroy"><img src="https://github.com/The-King-Destroy.png" width="130" height="130" alt="
-ⁱᵃᵐ|𝔇ĕ𝐬†𝓻⊙γ𒆜"/></a>
+href="https://github.com/Aqua200"><img src="https://github.com/Aqua200.png" width="130" height="130" alt="
+Neykoor💜"/></a>
 
 ### **`🪐 Créditos`**
 <a href="https://github.com/OfcKing" style="display:inline-block; text-decoration: none;">
