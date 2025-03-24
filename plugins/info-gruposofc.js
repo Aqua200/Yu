@@ -22,7 +22,10 @@ ${namecomu}
 
 > ${dev}`
 
-await conn.sendFile(m.chat, catalogo, "grupos.jpg", grupos, m)
+// Coloca la URL de la imagen aquí:
+const imageUrl = 'https://tuimagenurl.com/imagen.jpg'
+
+await conn.sendFile(m.chat, imageUrl, "grupos.jpg", grupos, m)
 
 await m.react(emojis)
 
