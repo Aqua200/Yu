@@ -23,7 +23,7 @@ ${namecomu}
 > ${dev}`
 
 // Coloca la URL de la imagen aquí:
-const imageUrl = 'https://tuimagenurl.com/imagen.jpg'
+const imageUrl = 'https://files.catbox.moe/jyaacp.jpg'
 
 await conn.sendFile(m.chat, imageUrl, "grupos.jpg", grupos, m)
 
