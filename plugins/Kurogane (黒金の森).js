@@ -1,48 +1,63 @@
 let cooldowns = {}
 
-let handler = async (m, { conn }) => {
-    let user = global.db.data.users[m.sender]
-    let tiempo = 5 * 60 // 5 minutos de cooldown
-    if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
-        const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
-        conn.reply(m.chat, `${emoji3} Debes esperar *${tiempo2}* para usar *#kurogane* de nuevo.`, m)
-        return
-    }
+let handler = async (m, { conn, isPrems }) => {
+  let user = global.db.data.users[m.sender]
+  let tiempo = 5 * 60
 
-    // Generar cantidad de yenes de 1000 a 2000 aleatoriamente
-    let yenes = Math.floor(Math.random() * 1001) + 1000; // entre 1000 y 2000 yenes
+  // Verificar cooldown
+  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
+    const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
+    conn.reply(m.chat, `${emoji3} Debes esperar *${tiempo2}* para usar *#w* de nuevo.`, m)
+    return
+  }
 
-    // Incrementar el contador global de uso del comando
-    global.db.data.stats.kuroganeUses = (global.db.data.stats.kuroganeUses || 0) + 1;
+  // Elegir aleatoriamente un lugar de "Kurogane"
+  const lugares = ['Bosque', 'Mazmorra', 'Zona de descanso']
+  const lugarElegido = pickRandom(lugares)
 
-    // Mensaje base con la cantidad de yenes ganados
-    let info = `🎉 ¡Felicidades! Has encontrado en *Kurogane (黒金の森)*:\n\n` +
-        `💴 *Yenes*: ${yenes} yenes`;
+  // Recompensas basadas en el lugar elegido
+  let recompensa = 0
+  switch(lugarElegido) {
+    case 'Bosque':
+      recompensa = Math.floor(Math.random() * 300) + 100
+      break
+    case 'Mazmorra':
+      recompensa = Math.floor(Math.random() * 500) + 200
+      break
+    case 'Zona de descanso':
+      recompensa = Math.floor(Math.random() * 200) + 50
+      break
+  }
 
-    // Mostrar cuántas veces se ha usado el comando globalmente
-    info += `\n🔢 *Usos del comando (todos los usuarios)*: ${global.db.data.stats.kuroganeUses} veces.`;
-
-    // Enviar mensaje con imagen del lugar
-    await conn.sendFile(m.chat, "https://qu.ax/GtiGX.jpeg", 'kurogane.jpg', info, fkontak);
-    await m.react('🌳');
-
-    // Sumar los yenes al usuario
-    user.yenes += yenes;
-
-    // Guardar el tiempo de último uso del comando
-    cooldowns[m.sender] = Date.now();
+  cooldowns[m.sender] = Date.now()
+  await conn.reply(m.chat, `Te diriges al *${lugarElegido}* y encuentras *${toNum(recompensa)}* ${moneda} 💸.`, m)
+  user.coin += recompensa
 }
 
-handler.help = ['kurogane']
+handler.help = ['trabajar']
 handler.tags = ['economy']
-handler.command = ['kurogane', 'recoger']
-handler.register = true
+handler.command = ['kurogane']
 handler.group = true
+handler.register = true
 
 export default handler
 
+function toNum(number) {
+  if (number >= 1000 && number < 1000000) {
+    return (number / 1000).toFixed(1) + 'k'
+  } else if (number >= 1000000) {
+    return (number / 1000000).toFixed(1) + 'M'
+  } else {
+    return number.toString()
+  }
+}
+
 function segundosAHMS(segundos) {
-    let minutos = Math.floor((segundos % 3600) / 60)
-    let segundosRestantes = segundos % 60
-    return `${minutos} minutos y ${segundosRestantes} segundos`
+  let minutos = Math.floor((segundos % 3600) / 60)
+  let segundosRestantes = segundos % 60
+  return `${minutos} minutos y ${segundosRestantes} segundos`
+}
+
+function pickRandom(list) {
+  return list[Math.floor(list.length * Math.random())]
 }
