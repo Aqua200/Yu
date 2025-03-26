@@ -49,8 +49,10 @@ let handler = async (m, { conn, isPrems }) => {
   // Actualizar el cooldown
   cooldowns[m.sender] = Date.now()
 
-  // Enviar la respuesta al usuario
-  await conn.reply(m.chat, `Fuiste al *${lugarElegido.nombre}* y encontraste *${toNum(situacionElegida.recompensa)}* ${moneda} 💸.\n\n${situacionElegida.descripcion}\n\n![Imagen](${lugarElegido.imagen})`, m)
+  // Enviar la imagen como archivo
+  await conn.sendFile(m.chat, lugarElegido.imagen, 'imagen.jpg', `Fuiste al *${lugarElegido.nombre}* y encontraste *${toNum(situacionElegida.recompensa)}* ${moneda} 💸.\n\n${situacionElegida.descripcion}`, m)
+  
+  // Actualizar el saldo del usuario
   user.coin += situacionElegida.recompensa
 }
 
