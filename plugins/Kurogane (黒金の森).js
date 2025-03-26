@@ -11,6 +11,9 @@ let handler = async (m, { conn }) => {
     let yenes = Math.floor(Math.random() * 1001) + 1000; // entre 1000 y 2000 yenes aleatorios
     let diamond = Math.random() < 0.05 ? 1 : 0;  // 5% de probabilidad de diamante
 
+    // Incrementar los yenes globales
+    global.db.data.stats.totalYenes = (global.db.data.stats.totalYenes || 0) + yenes; // Si no existe, lo inicializa en 0
+
     // Mensaje base con la cantidad encontrada
     let info = `🎉 ¡Felicidades! Has encontrado en *Kurogane (黒金の森)*:\n\n` +
         `🏅 *Oro*: ${gold}\n` +
@@ -23,8 +26,9 @@ let handler = async (m, { conn }) => {
             `✨ ¡Increíble! Has encontrado un diamante raro en Kurogane (黒金の森)!`;
     }
 
-    // Incluir cuántas veces se ha usado el comando globalmente
+    // Incluir cuántas veces se ha usado el comando globalmente y el total de yenes acumulados
     info += `\n🔢 *Usos del comando (todos los usuarios)*: ${global.db.data.stats.kuroganeUses} veces.`;
+    info += `\n💴 *Yenes acumulados (todos los usuarios)*: ${global.db.data.stats.totalYenes} yenes.`;
 
     // Enviar mensaje con imagen del lugar
     await conn.sendFile(m.chat, "https://qu.ax/GtiGX.jpeg", 'kurogane.jpg', info, fkontak);
@@ -36,7 +40,7 @@ let handler = async (m, { conn }) => {
     user.yenes += yenes;
     user.diamond += diamond;
 
-    user.lastmiming = new Date() * 1;
+    user.lastmiming = new Date() * 1;  // Ya no se usa cooldown
 }
 
 handler.help = ['kurogane'];
