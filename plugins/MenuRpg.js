@@ -8,12 +8,12 @@ let handler = async (m, { conn, __dirname }) => {
     let _uptime = process.uptime() * 1000
     let muptime = clockString(_uptime)
 
-    let leerMas = '\u200e'.repeat(850) // Esto genera el "leer más" en WhatsApp
+    let leerMas = '\u200e'.repeat(850)
 
     let menuText = `
-*𝐇𝐨𝐥𝐚! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*
+*𝐇𝐨𝐥𝐚 ${name}! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*  
 ╭─┈↷
-│ ✐ 𝓓𝓮𝓼𝓮𝓪𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
+│ ✐ 𝓓𝓮𝓼𝓮𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ➥ Tiempo activa: *${muptime}*
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
@@ -23,11 +23,10 @@ ${leerMas}
 
 ✿ 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗱𝗲 *Rpg*:
  
-
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    let pp = 'https://files.catbox.moe/58o60y.jpg' // Imagen de portada
+    let pp = 'https://files.catbox.moe/58o60y.jpg'
     await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
 
   } catch (e) {
@@ -38,8 +37,8 @@ ${leerMas}
 
 handler.help = ['rpg']
 handler.tags = ['main']
-handler.command = ['rpg'] // Aquí el comando que lo invoca
-handler.register = true
+handler.command = ['rpg']
+handler.register = false
 export default handler
 
 function clockString(ms) {
