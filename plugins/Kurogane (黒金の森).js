@@ -15,7 +15,7 @@ let handler = async (m, { conn, isPrems }) => {
   const lugares = [
     {
       nombre: 'Bosque',
-      imagen: 'https://example.com/bosque.jpg',
+      imagen: 'https://files.catbox.moe/rh5vun.jpeg',
       situaciones: [
         { descripcion: 'Te adentras en el espeso bosque y encuentras un antiguo amuleto.', recompensa: 150 },
         { descripcion: 'Mientras exploras, descubres una cueva secreta que contiene una espada legendaria.', recompensa: 200 },
@@ -24,7 +24,7 @@ let handler = async (m, { conn, isPrems }) => {
     },
     {
       nombre: 'Mazmorra',
-      imagen: 'https://example.com/mazmorra.jpg',
+      imagen: 'https://files.catbox.moe/fu141j.jpeg',
       situaciones: [
         { descripcion: 'Bajas a la sombría mazmorra y encuentras una espada oxidada, pero con un brillo peculiar.', recompensa: 250 },
         { descripcion: 'Te enfrentas a un enigma antiguo y, al resolverlo, descubres un tesoro escondido.', recompensa: 300 },
@@ -33,7 +33,7 @@ let handler = async (m, { conn, isPrems }) => {
     },
     {
       nombre: 'Zona de descanso',
-      imagen: 'https://example.com/descanso.jpg',
+      imagen: 'https://files.catbox.moe/6rxmls.jpeg',
       situaciones: [
         { descripcion: 'Te relajas en la zona de descanso y encuentras una misteriosa carta con un mensaje críptico.', recompensa: 80 },
         { descripcion: 'Un anciano te cuenta historias que te otorgan sabiduría y una pequeña recompensa.', recompensa: 120 },
