@@ -27,7 +27,7 @@ ${leerMas}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    let pp = 'https://files.catbox.moe/58o60y.jpg' // Cambia por tu imagen
+    let pp = 'https://files.catbox.moe/58o60y.jpg' // Imagen de portada
     await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
 
   } catch (e) {
@@ -36,9 +36,9 @@ ${leerMas}
   }
 }
 
-handler.help = ['menuscript', 'dev'] // Añadí 'dev'
+handler.help = ['rpg']
 handler.tags = ['main']
-handler.command = ['menuscript', 'dev'] // Añadí 'dev'
+handler.command = ['rpg'] // Aquí el comando que lo invoca
 handler.register = true
 export default handler
 
