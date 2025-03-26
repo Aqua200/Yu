@@ -15,6 +15,7 @@ let handler = async (m, { conn, __dirname }) => {
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
 │ ➥ Tiempo activa: *${muptime}*
+│ ✿ Temporada: *1 — El Florecer*  
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ╰─────────────────
