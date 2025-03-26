@@ -7,34 +7,54 @@ let handler = async (m, { conn, isPrems }) => {
   // Verificar cooldown
   if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
     const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
-    conn.reply(m.chat, `${emoji3} Debes esperar *${tiempo2}* para usar *#w* de nuevo.`, m)
+    conn.reply(m.chat, `${emoji3} Debes esperar *${tiempo2}* para usar *#kurogane* de nuevo.`, m)
     return
   }
 
-  // Elegir aleatoriamente un lugar de "Kurogane"
-  const lugares = ['Bosque', 'Mazmorra', 'Zona de descanso']
+  // Definir los lugares y sus posibles situaciones
+  const lugares = [
+    {
+      nombre: 'Bosque',
+      imagen: 'https://example.com/bosque.jpg',
+      situaciones: [
+        { descripcion: 'Te adentras en el espeso bosque y encuentras un antiguo amuleto.', recompensa: 150 },
+        { descripcion: 'Mientras exploras, descubres una cueva secreta que contiene una espada legendaria.', recompensa: 200 },
+        { descripcion: 'Encuentras una fuente cristalina que te otorga una visión del futuro.', recompensa: 100 }
+      ]
+    },
+    {
+      nombre: 'Mazmorra',
+      imagen: 'https://example.com/mazmorra.jpg',
+      situaciones: [
+        { descripcion: 'Bajas a la sombría mazmorra y encuentras una espada oxidada, pero con un brillo peculiar.', recompensa: 250 },
+        { descripcion: 'Te enfrentas a un enigma antiguo y, al resolverlo, descubres un tesoro escondido.', recompensa: 300 },
+        { descripcion: 'Una sombra misteriosa te ofrece un pacto a cambio de poder, pero a un precio.', recompensa: 50 }
+      ]
+    },
+    {
+      nombre: 'Zona de descanso',
+      imagen: 'https://example.com/descanso.jpg',
+      situaciones: [
+        { descripcion: 'Te relajas en la zona de descanso y encuentras una misteriosa carta con un mensaje críptico.', recompensa: 80 },
+        { descripcion: 'Un anciano te cuenta historias que te otorgan sabiduría y una pequeña recompensa.', recompensa: 120 },
+        { descripcion: 'Mientras descansas, descubres una planta rara con propiedades curativas.', recompensa: 60 }
+      ]
+    }
+  ]
+
+  // Elegir aleatoriamente un lugar y una situación
   const lugarElegido = pickRandom(lugares)
+  const situacionElegida = pickRandom(lugarElegido.situaciones)
 
-  // Recompensas basadas en el lugar elegido
-  let recompensa = 0
-  switch(lugarElegido) {
-    case 'Bosque':
-      recompensa = Math.floor(Math.random() * 300) + 100
-      break
-    case 'Mazmorra':
-      recompensa = Math.floor(Math.random() * 500) + 200
-      break
-    case 'Zona de descanso':
-      recompensa = Math.floor(Math.random() * 200) + 50
-      break
-  }
-
+  // Actualizar el cooldown
   cooldowns[m.sender] = Date.now()
-  await conn.reply(m.chat, `Te diriges al *${lugarElegido}* y encuentras *${toNum(recompensa)}* ${moneda} 💸.`, m)
-  user.coin += recompensa
+
+  // Enviar la respuesta al usuario
+  await conn.reply(m.chat, `Fuiste al *${lugarElegido.nombre}* y encontraste *${toNum(situacionElegida.recompensa)}* ${moneda} 💸.\n\n${situacionElegida.descripcion}\n\n![Imagen](${lugarElegido.imagen})`, m)
+  user.coin += situacionElegida.recompensa
 }
 
-handler.help = ['trabajar']
+handler.help = ['kurogane']
 handler.tags = ['economy']
 handler.command = ['kurogane']
 handler.group = true
