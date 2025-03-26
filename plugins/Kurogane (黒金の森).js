@@ -7,37 +7,37 @@ let handler = async (m, { conn, isPrems }) => {
   // Verificar cooldown
   if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
     const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
-    conn.reply(m.chat, `${emoji3} Debes esperar *${tiempo2}* para usar *#kurogane* de nuevo.`, m)
+    conn.reply(m.chat, `🌙✨ 𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪 ✨🌙\n\n⚠️ Debes esperar *${tiempo2}* para volver a explorar.`, m)
     return
   }
 
   // Definir los lugares y sus posibles situaciones
   const lugares = [
     {
-      nombre: 'Bosque',
+      nombre: 'Bosque encantado 🌲',
       imagen: 'https://files.catbox.moe/rh5vun.jpeg',
       situaciones: [
-        { descripcion: 'Te adentras en el espeso bosque y encuentras un antiguo amuleto.', recompensa: 150 },
-        { descripcion: 'Mientras exploras, descubres una cueva secreta que contiene una espada legendaria.', recompensa: 200 },
-        { descripcion: 'Encuentras una fuente cristalina que te otorga una visión del futuro.', recompensa: 100 }
+        { descripcion: 'Te adentras en el espeso bosque y hallas un antiguo amuleto con grabados místicos.', recompensa: 150 },
+        { descripcion: 'Explorando, descubres una cueva secreta donde descansa una espada legendaria.', recompensa: 200 },
+        { descripcion: 'Encuentras una fuente cristalina que refleja un misterioso futuro.', recompensa: 100 }
       ]
     },
     {
-      nombre: 'Mazmorra',
+      nombre: 'Mazmorra olvidada 🏰',
       imagen: 'https://files.catbox.moe/fu141j.jpeg',
       situaciones: [
-        { descripcion: 'Bajas a la sombría mazmorra y encuentras una espada oxidada, pero con un brillo peculiar.', recompensa: 250 },
-        { descripcion: 'Te enfrentas a un enigma antiguo y, al resolverlo, descubres un tesoro escondido.', recompensa: 300 },
-        { descripcion: 'Una sombra misteriosa te ofrece un pacto a cambio de poder, pero a un precio.', recompensa: 50 }
+        { descripcion: 'Bajas a la sombría mazmorra y hallas una espada oxidada con un aura peculiar.', recompensa: 250 },
+        { descripcion: 'Resuelves un enigma antiguo y descubres un tesoro oculto.', recompensa: 300 },
+        { descripcion: 'Una sombra te ofrece un pacto de poder... a cambio de algo valioso.', recompensa: 50 }
       ]
     },
     {
-      nombre: 'Zona de descanso',
+      nombre: 'Zona de descanso 🍵',
       imagen: 'https://files.catbox.moe/6rxmls.jpeg',
       situaciones: [
-        { descripcion: 'Te relajas en la zona de descanso y encuentras una misteriosa carta con un mensaje críptico.', recompensa: 80 },
-        { descripcion: 'Un anciano te cuenta historias que te otorgan sabiduría y una pequeña recompensa.', recompensa: 120 },
-        { descripcion: 'Mientras descansas, descubres una planta rara con propiedades curativas.', recompensa: 60 }
+        { descripcion: 'Te relajas y encuentras una carta con un mensaje enigmático.', recompensa: 80 },
+        { descripcion: 'Un anciano te narra historias antiguas y te otorga un pequeño obsequio.', recompensa: 120 },
+        { descripcion: 'Descubres una planta rara con propiedades curativas.', recompensa: 60 }
       ]
     }
   ]
@@ -49,8 +49,20 @@ let handler = async (m, { conn, isPrems }) => {
   // Actualizar el cooldown
   cooldowns[m.sender] = Date.now()
 
-  // Enviar la imagen como archivo
-  await conn.sendFile(m.chat, lugarElegido.imagen, 'imagen.jpg', `Fuiste al *${lugarElegido.nombre}* y encontraste *${toNum(situacionElegida.recompensa)}* ${moneda} 💸.\n\n${situacionElegida.descripcion}`, m)
+  // Enviar la imagen con el mensaje decorado
+  await conn.sendFile(
+    m.chat, 
+    lugarElegido.imagen, 
+    'aventura.jpg', 
+    `╭━━━ ∘◦ ✦ ◦∘ ━━━╮\n` +
+    `  𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪\n` +
+    `╰━━━ ∘◦ ✦ ◦∘ ━━━╯\n\n` +
+    `🏯 Has explorado *${lugarElegido.nombre}* y hallado:\n` +
+    `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n\n` +
+    `📜 ${situacionElegida.descripcion}\n\n` +
+    `🔮 ¿Volverás a la aventura?`,
+    m
+  )
   
   // Actualizar el saldo del usuario
   user.coin += situacionElegida.recompensa
