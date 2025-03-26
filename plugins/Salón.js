@@ -11,7 +11,7 @@ ${i + 1}️⃣  *${jugador.nombre}*
         ➥  💴 *Yenes ganados:* ${jugador.yenes.toLocaleString()}  
 `).join('\n')}
 
-╰━⊰ 𝐋𝐚 𝐡𝐢𝐬𝐭𝐨𝐫𝐢𝐚 𝐬𝐞 𝐞𝐬𝐜𝐫𝐢𝐛𝐞 𝐚𝐪𝐮𝐢́!  ⊱━╯
+╰⊰ 𝐋𝐚 𝐡𝐢𝐬𝐭𝐨𝐫𝐢𝐚 𝐬𝐞 𝐞𝐬𝐜𝐫𝐢𝐛𝐞 𝐚𝐪𝐮𝐢́!  ⊱╯
 `.trim()
 
     conn.reply(m.chat, mensaje, m)
