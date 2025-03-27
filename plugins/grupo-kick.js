@@ -7,10 +7,10 @@ var handler = async (m, { conn, participants }) => {
     let groupMetadata = await conn.groupMetadata(m.chat);
     let ownerGroup = groupMetadata.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
     let ownerBot = global.owner[0][0] + '@s.whatsapp.net';
-    let botAdmin = participants.find(p => p.id === conn.user.jid)?.admin;
 
     // Verificar si el bot es administrador
-    if (!botAdmin) {
+    let bot = participants.find(p => p.id === conn.user.jid);
+    if (!bot || !bot.admin) {
         return conn.reply(m.chat, '❌ No puedo eliminar usuarios porque no soy administrador.', m);
     }
 
@@ -21,7 +21,8 @@ var handler = async (m, { conn, participants }) => {
 
     try {
         await conn.groupParticipantsUpdate(m.chat, [user], 'remove');
-        await conn.reply(m.chat, `╭──────────────╮\n  𝙰𝙳𝙸𝙾́𝚂  @${user.split('@')[0]}\n  𝙽𝙾 𝙵𝚄𝙸𝚂𝚃𝙴 𝙳𝙸𝙶𝙽𝙾 𝙳𝙴 𝙴𝚂𝚃𝙴 𝙶𝚁𝚄𝙿𝙾\n╰──────────────╯`, {
+        await conn.sendMessage(m.chat, {
+            text: `╭──────────────╮\n  𝙰𝙳𝙸𝙾́𝚂  @${user.split('@')[0]}\n  𝙽𝙾 𝙵𝚄𝙸𝚂𝚃𝙴 𝙳𝙸𝙶𝙽𝙾 𝙳𝙴 𝙴𝚂𝚃𝙴 𝙶𝚁𝚄𝙿𝙾\n╰──────────────╯`,
             mentions: [user]
         });
     } catch (e) {
