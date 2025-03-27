@@ -7,56 +7,36 @@ const apis = {
     rioo: 'https://restapi.apibotwa.biz.id/'
 };
 
-export const command = 'play3';
-export const description = 'Busca y descarga música desde Spotify.';
-export const category = 'Música';
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) throw `⚠️ Escribe lo que deseas buscar en Spotify.\nEjemplo: *${usedPrefix + command}* Marshmello - Alone`;
 
-export async function handler({ sock, msg, text }) {
-    await sock.sendMessage(msg.key.remoteJid, { react: { text: "🎶", key: msg.key } });
-
-    if (!text) {
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: `⚠️ Escribe lo que deseas buscar en Spotify.\nEjemplo: *play3* Marshmello - Alone`
-        }, { quoted: msg });
-        return;
-    }
+    await conn.sendMessage(m.chat, { react: { text: "🎶", key: m.key } });
 
     try {
         const res = await axios.get(`${apis.delirius}search/spotify?q=${encodeURIComponent(text)}&limit=1`);
-        if (!res.data.data || res.data.data.length === 0) {
-            throw new Error('❌ No se encontraron resultados en Spotify.');
-        }
+        if (!res.data.data || res.data.data.length === 0) throw "❌ No se encontraron resultados en Spotify.";
 
         const result = res.data.data[0];
-        const img = result.image;
-        const url = result.url;
-        const info = `⧁ 𝙏𝙄𝙏𝙐𝙇𝙊: ${result.title}
-⧁ 𝘼𝙍𝙏𝙄𝙎𝙏𝘼: ${result.artist}
-⧁ 𝘿𝙐𝙍𝘼𝘾𝙞́𝙊𝙉: ${result.duration}
-⧁ 𝙋𝙐𝘽𝙇𝙞𝘾𝘼𝘿𝙊: ${result.publish}
-⧁ 𝙋𝙊𝙋𝙐𝙇𝘼𝙍𝙞𝘿𝘼𝘿: ${result.popularity}
-⧁ 𝙀𝙉𝙇𝘼𝘾𝙀: ${url}
+        const info = `「✦」𝙄𝙉𝙁𝙊𝙍𝙈𝘼𝘾𝙄𝙊́𝙉 𝘿𝙀 𝙇𝘼 𝙈𝙐́𝙎𝙄𝘾𝘼\n\n> ✦ 𝙏𝙄́𝙏𝙐𝙇𝙊 » *${result.title}*\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ✦ 𝘼𝙍𝙏𝙄𝙎𝙏𝘼 » *${result.artist}*\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ⴵ 𝘿𝙐𝙍𝘼𝘾𝙄𝙊́𝙉 » *${result.duration}*\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ✐ 𝙋𝙐𝘽𝙇𝙄𝘾𝘼𝘿𝙊 » *${result.publish}*\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> 🜸 𝙀𝙉𝙇𝘼𝘾𝙀 » ${result.url}\n\n🎶 *Kaneko enviando tu música...*`;
 
-🎶 *Kaneko enviando tu música...*`.trim();
-
-        await sock.sendMessage(msg.key.remoteJid, {
-            image: { url: img },
+        await conn.sendMessage(m.chat, {
+            image: { url: result.image },
             caption: info
-        }, { quoted: msg });
+        }, { quoted: m });
 
         const sendAudio = async (link) => {
-            await sock.sendMessage(msg.key.remoteJid, {
+            await conn.sendMessage(m.chat, {
                 audio: { url: link },
                 fileName: `${result.title}.mp3`,
                 mimetype: 'audio/mpeg'
-            }, { quoted: msg });
+            }, { quoted: m });
         };
 
         const downloadAttempts = [
-            `${apis.delirius}download/spotifydl?url=${encodeURIComponent(url)}`,
-            `${apis.delirius}download/spotifydlv3?url=${encodeURIComponent(url)}`,
-            `${apis.rioo}api/spotify?url=${encodeURIComponent(url)}`,
-            `${apis.ryzen}api/downloader/spotify?url=${encodeURIComponent(url)}`
+            `${apis.delirius}download/spotifydl?url=${encodeURIComponent(result.url)}`,
+            `${apis.delirius}download/spotifydlv3?url=${encodeURIComponent(result.url)}`,
+            `${apis.rioo}api/spotify?url=${encodeURIComponent(result.url)}`,
+            `${apis.ryzen}api/downloader/spotify?url=${encodeURIComponent(result.url)}`
         ];
 
         for (const attempt of downloadAttempts) {
@@ -71,14 +51,17 @@ export async function handler({ sock, msg, text }) {
             }
         }
 
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: '❌ No se pudo descargar el audio.'
-        }, { quoted: msg });
+        throw "❌ No se pudo descargar el audio.";
 
     } catch (err) {
         console.error(err);
-        await sock.sendMessage(msg.key.remoteJid, {
-            text: `❌ Ocurrió un error: ${err.message || err}`
-        }, { quoted: msg });
+        throw `❌ Ocurrió un error: ${err.message || err}`;
     }
-}
+};
+
+handler.help = ['play3'];
+handler.command = ['play3'];
+handler.tags = ['música'];
+handler.register = true;
+
+export default handler;
