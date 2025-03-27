@@ -1,13 +1,20 @@
-var handler = async (m, { conn }) => {
+var handler = async (m, { conn, participants }) => {
     if (!m.mentionedJid[0] && !m.quoted) {
         return conn.reply(m.chat, '⚠️ Debes mencionar a un usuario para expulsarlo.', m);
     }
 
     let user = m.mentionedJid[0] || m.quoted.sender;
-    let groupInfo = await conn.groupMetadata(m.chat);
-    let ownerGroup = groupInfo.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
+    let groupMetadata = await conn.groupMetadata(m.chat);
+    let ownerGroup = groupMetadata.owner || m.chat.split`-`[0] + '@s.whatsapp.net';
     let ownerBot = global.owner[0][0] + '@s.whatsapp.net';
+    let botAdmin = participants.find(p => p.id === conn.user.jid)?.admin;
 
+    // Verificar si el bot es administrador
+    if (!botAdmin) {
+        return conn.reply(m.chat, '❌ No puedo eliminar usuarios porque no soy administrador.', m);
+    }
+
+    // Evitar eliminar a ciertos usuarios
     if ([conn.user.jid, ownerGroup, ownerBot].includes(user)) {
         return conn.reply(m.chat, '⚠️ No puedes eliminar a este usuario.', m);
     }
@@ -18,7 +25,8 @@ var handler = async (m, { conn }) => {
             mentions: [user]
         });
     } catch (e) {
-        return conn.reply(m.chat, '❌ No se pudo eliminar al usuario. Asegúrate de que el bot es administrador.', m);
+        console.error(e);
+        return conn.reply(m.chat, '❌ No se pudo eliminar al usuario. Puede que tenga protecciones o que el bot no tenga permisos suficientes.', m);
     }
 };
 
