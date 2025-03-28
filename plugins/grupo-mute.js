@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 
 let mutedUsers = new Set();
+const ownerNumber = '5216631079388@s.whatsapp.net'; // Número del owner en formato JID
 
 // Cargar usuarios muteados desde un archivo JSON de forma asíncrona
 const loadMutedUsers = async () => {
@@ -34,6 +35,11 @@ var handler = async (m, { conn, participants, command }) => {
     let user = m.mentionedJid?.[0] || m.quoted?.sender;
     if (!user) {
         return conn.sendMessage(m.chat, { text: '⚠️ Debes mencionar o responder a un usuario para mutearlo.' });
+    }
+
+    // Evitar que el owner sea muteado
+    if (user === ownerNumber) {
+        return conn.sendMessage(m.chat, { text: '⚠️ No puedes mutear al owner del bot.' });
     }
 
     if (command === "mute") {
