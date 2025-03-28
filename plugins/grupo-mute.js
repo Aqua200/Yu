@@ -49,7 +49,7 @@ var handler = async (m, { conn, participants, command }) => {
         mutedUsers.add(user);
         await saveMutedUsers();
         await conn.sendMessage(m.chat, {
-            text: `╭──────────────╮\n  🔇 *USUARIO MUTEADO*\n  📌 *@${user.split('@')[0]}* no podrá enviar mensajes.\n╰──────────────╯`,
+            text: `┏━━━━━━━━━━━━━━━\n┃ 🔇 *USUARIO MUTEADO*\n┃ 📌 *@${user.split('@')[0]}* ya no podrá hablar.\n┗━━━━━━━━━━━━━━━`,
             mentions: [user]
         });
     } else if (command === "unmute") {
@@ -59,7 +59,7 @@ var handler = async (m, { conn, participants, command }) => {
         mutedUsers.delete(user);
         await saveMutedUsers();
         await conn.sendMessage(m.chat, {
-            text: `╭──────────────╮\n  🔊 *USUARIO DESMUTEADO*\n  📌 *@${user.split('@')[0]}* puede volver a hablar.\n╰──────────────╯`,
+            text: `┏━━━━━━━━━━━━━━━\n┃ 🔊 *USUARIO DESMUTEADO*\n┃ 📌 *@${user.split('@')[0]}* puede hablar nuevamente.\n┗━━━━━━━━━━━━━━━`,
             mentions: [user]
         });
     }
@@ -69,7 +69,10 @@ var handler = async (m, { conn, participants, command }) => {
 handler.before = async (m, { conn }) => {
     if (mutedUsers.has(m.sender)) {
         try {
-            await conn.sendMessage(m.chat, { delete: m.key });
+            await conn.sendMessage(m.chat, { delete: m.key }); // Eliminar el mensaje
+            if (m.message.stickerMessage) {
+                await conn.sendMessage(m.chat, { delete: m.key }); // Eliminar sticker si es un sticker
+            }
         } catch (e) {
             console.error('Error al eliminar mensaje:', e);
         }
