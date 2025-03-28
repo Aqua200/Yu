@@ -27,11 +27,11 @@ var handler = async (m, { conn, participants, command }) => {
     }
 
     // Verificar si se mencionó o respondió a un usuario
-    if (!m.mentionedJid[0] && !m.quoted) {
+    if (!m.mentionedJid?.[0] && !m.quoted) {
         return conn.reply(m.chat, '⚠️ Debes mencionar o responder a un usuario para mutearlo.', m);
     }
 
-    let user = m.mentionedJid[0] || m.quoted.sender;
+    let user = m.mentionedJid?.[0] || m.quoted.sender;
 
     if (command === "mute") {
         if (mutedUsers.has(user)) {
@@ -69,7 +69,7 @@ handler.before = async (m, { conn }) => {
 
 handler.help = ['mute', 'unmute'];
 handler.tags = ['grupo'];
-handler.command = /^(mute|unmute)$/i;
+handler.command = ['mute', 'unmute']; // <-- Cambio importante
 handler.admin = true;
 handler.group = true;
 handler.botAdmin = true;
