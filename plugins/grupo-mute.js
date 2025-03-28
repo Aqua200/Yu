@@ -67,12 +67,38 @@ var handler = async (m, { conn, participants, command }) => {
 
 // Interceptar mensajes de usuarios muteados y eliminarlos al instante
 handler.before = async (m, { conn }) => {
+    // Verificar si el usuario está muteado
     if (mutedUsers.has(m.sender)) {
         try {
-            await conn.sendMessage(m.chat, { delete: m.key }); // Eliminar el mensaje
-            if (m.message.stickerMessage) {
-                await conn.sendMessage(m.chat, { delete: m.key }); // Eliminar sticker si es un sticker
+            // Eliminar mensajes de texto
+            if (m.message && m.message.conversation) {
+                await conn.sendMessage(m.chat, { delete: m.key });
             }
+
+            // Eliminar imágenes y archivos multimedia
+            if (m.message && m.message.imageMessage) {
+                await conn.sendMessage(m.chat, { delete: m.key });
+            }
+
+            if (m.message && m.message.videoMessage) {
+                await conn.sendMessage(m.chat, { delete: m.key });
+            }
+
+            // Eliminar stickers
+            if (m.message && m.message.stickerMessage) {
+                await conn.sendMessage(m.chat, { delete: m.key });
+            }
+
+            // Eliminar documentos
+            if (m.message && m.message.documentMessage) {
+                await conn.sendMessage(m.chat, { delete: m.key });
+            }
+
+            // Eliminar mensajes de voz
+            if (m.message && m.message.audioMessage) {
+                await conn.sendMessage(m.chat, { delete: m.key });
+            }
+
         } catch (e) {
             console.error('Error al eliminar mensaje:', e);
         }
