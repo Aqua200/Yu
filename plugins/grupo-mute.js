@@ -75,27 +75,8 @@ handler.before = async (m, { conn }) => {
                 await conn.sendMessage(m.chat, { delete: m.key });
             }
 
-            // Eliminar imágenes y archivos multimedia
-            if (m.message && m.message.imageMessage) {
-                await conn.sendMessage(m.chat, { delete: m.key });
-            }
-
-            if (m.message && m.message.videoMessage) {
-                await conn.sendMessage(m.chat, { delete: m.key });
-            }
-
             // Eliminar stickers
             if (m.message && m.message.stickerMessage) {
-                await conn.sendMessage(m.chat, { delete: m.key });
-            }
-
-            // Eliminar documentos
-            if (m.message && m.message.documentMessage) {
-                await conn.sendMessage(m.chat, { delete: m.key });
-            }
-
-            // Eliminar mensajes de voz
-            if (m.message && m.message.audioMessage) {
                 await conn.sendMessage(m.chat, { delete: m.key });
             }
 
