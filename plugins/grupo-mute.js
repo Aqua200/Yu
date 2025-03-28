@@ -1,27 +1,64 @@
+import fs from 'fs';
+
 let mutedUsers = new Set();
 
-let handler = async (m, { conn, usedPrefix, command, isAdmin, isBotAdmin }) => {
-    if (!isBotAdmin) return conn.reply(m.chat, '🍭 El bot necesita ser administrador.', m);
-    if (!isAdmin) return conn.reply(m.chat, '🍭 Solo los administradores pueden usar este comando.', m);
-
-    let user;
-    if (m.quoted) {
-        user = m.quoted.sender;
-    } else {
-        return conn.reply(m.chat, '🍭 Responde al mensaje del usuario que quieres mutear.', m);
-    }
-
-    if (command === "mute") {
-        mutedUsers.add(user);
-        conn.reply(m.chat, `✅ *Usuario muteado:* @${user.split('@')[0]}`, m, { mentions: [user] });
-    } else if (command === "unmute") {
-        mutedUsers.delete(user);
-        conn.reply(m.chat, `✅ *Usuario desmuteado:* @${user.split('@')[0]}`, m, { mentions: [user] });
+// Cargar usuarios muteados desde un archivo JSON
+const loadMutedUsers = () => {
+    try {
+        let data = fs.readFileSync('./mutedUsers.json', 'utf-8');
+        mutedUsers = new Set(JSON.parse(data));
+    } catch (e) {
+        mutedUsers = new Set();
     }
 };
 
+// Guardar usuarios muteados en un archivo JSON
+const saveMutedUsers = () => {
+    fs.writeFileSync('./mutedUsers.json', JSON.stringify([...mutedUsers]), 'utf-8');
+};
+
+loadMutedUsers(); // Cargar usuarios al iniciar el bot
+
+var handler = async (m, { conn, participants, command }) => {
+    // Verificar si el bot es administrador
+    let bot = participants.find(p => p.id === conn.user.jid);
+    if (!bot || !bot.admin) {
+        return conn.reply(m.chat, '❌ No puedo gestionar muteos porque no soy administrador.', m);
+    }
+
+    // Verificar si se mencionó o respondió a un usuario
+    if (!m.mentionedJid[0] && !m.quoted) {
+        return conn.reply(m.chat, '⚠️ Debes mencionar o responder a un usuario para mutearlo.', m);
+    }
+
+    let user = m.mentionedJid[0] || m.quoted.sender;
+
+    if (command === "mute") {
+        if (mutedUsers.has(user)) {
+            return conn.reply(m.chat, '⚠️ Este usuario ya está muteado.', m);
+        }
+        mutedUsers.add(user);
+        saveMutedUsers();
+        await conn.sendMessage(m.chat, {
+            text: `╭──────────────╮\n  🔇 *USUARIO MUTEADO*\n  📌 *@${user.split('@')[0]}* no podrá enviar mensajes.\n╰──────────────╯`,
+            mentions: [user]
+        });
+    } else if (command === "unmute") {
+        if (!mutedUsers.has(user)) {
+            return conn.reply(m.chat, '⚠️ Este usuario no está muteado.', m);
+        }
+        mutedUsers.delete(user);
+        saveMutedUsers();
+        await conn.sendMessage(m.chat, {
+            text: `╭──────────────╮\n  🔊 *USUARIO DESMUTEADO*\n  📌 *@${user.split('@')[0]}* puede volver a hablar.\n╰──────────────╯`,
+            mentions: [user]
+        });
+    }
+};
+
+// Interceptar mensajes de usuarios muteados
 handler.before = async (m, { conn }) => {
-    if (mutedUsers.has(m.sender) && m.mtype !== 'stickerMessage') {
+    if (mutedUsers.has(m.sender)) {
         try {
             await conn.sendMessage(m.chat, { delete: m.key });
         } catch (e) {
@@ -33,8 +70,8 @@ handler.before = async (m, { conn }) => {
 handler.help = ['mute', 'unmute'];
 handler.tags = ['grupo'];
 handler.command = /^(mute|unmute)$/i;
-handler.group = true;
 handler.admin = true;
+handler.group = true;
 handler.botAdmin = true;
 
-export default handler; 
+export default handler;
