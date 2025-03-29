@@ -15,7 +15,7 @@ ${m.pushName || 'Anónimo'}
 ${text}`
 
     // Enviar reporte al owner
-    await conn.reply("584125014674@s.whatsapp.net", report, m, { mentions: [m.sender] })
+    await conn.reply("5216631079388@s.whatsapp.net", report, m, { mentions: [m.sender] })
 
     m.reply("✅ ¡Tu reporte ha sido enviado con éxito! Gracias por ayudar a mejorar el bot.")
 }
