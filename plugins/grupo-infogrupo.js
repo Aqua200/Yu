@@ -17,16 +17,17 @@ const handler = async (m, {conn, participants, groupMetadata}) => {
 ✥ *Administradores:*
 ${listAdmin}
 
-˚₊· ͟͟͞͞➳❥ CONFIGURACIÓN
-◈ ${botname} » ${isBanned ? 'Desactivado' : 'Activado'}
-◈ Welcome: ${welcome ? 'Activado' : 'Desactivado'}
-◈ Detect: ${detect ? 'Activado' : 'Desactivado'}
-◈ Antilink: ${antiLink ? 'Activado' : 'Desactivado'}
-◈ Autoaceptar: ${autoAceptar ? 'Activado' : 'Desactivado'}
-◈ Autorechazar: ${autoRechazar ? 'Activado' : 'Desactivado'}
-◈ NSFW: ${nsfw ? 'Activado' : 'Desactivado'}
-◈ Modoadmin: ${modoadmin ? 'Activado' : 'Desactivado'}
-◈ Reacción: ${reaction ? 'Activado' : 'Desactivado'}`.trim();
+˚₊· ͟͟͞͞➳❥ *CONFIGURACIÓN*
+
+◈ *${botname}* » ${isBanned ? 'Desactivado' : 'Activado'}
+◈ *Welcome:* ${welcome ? 'Activado' : 'Desactivado'}
+◈ *Detect:* ${detect ? 'Activado' : 'Desactivado'}  
+◈ *Antilink:* ${antiLink ? 'Activado' : 'Desactivado'} 
+◈ *Autoaceptar:* ${autoAceptar ? 'Activado' : 'Desactivado'}
+◈ *Autorechazar:* ${autoRechazar ? 'Activado' : 'Desactivado'}
+◈ *NSFW:* ${nsfw ? 'Activado' : 'Desactivado'}
+◈ *Modoadmin:* ${modoadmin ? 'Activado' : 'Desactivado'}
+◈ *Reacción:* ${reaction ? 'Activado' : 'Desactivado'}
 
   conn.sendFile(m.chat, pp, 'img.jpg', text, m, false, {mentions: [...groupAdmins.map((v) => v.id), owner]});
 };
