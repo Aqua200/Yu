@@ -1,10 +1,10 @@
 import fetch from 'node-fetch'
 
-const chatHistory = {} // Almacena el historial de cada chat
+const chatHistory = {} // Historial por cada chat
 
 var handler = async (m, { text, usedPrefix, command }) => {
   let chatId = m.chat
-  if (!chatHistory[chatId]) chatHistory[chatId] = [] // Si no hay historial, se crea
+  if (!chatHistory[chatId]) chatHistory[chatId] = [] // Crear historial si no existe
 
   let inputText = text || (m.quoted && m.quoted.sender === conn.user.jid ? m.quoted.text : null)
 
@@ -16,23 +16,24 @@ var handler = async (m, { text, usedPrefix, command }) => {
     await m.react('⌛')
     conn.sendPresenceUpdate('composing', m.chat)
 
-    // Agregar el nuevo mensaje al historial
+    // Agregar el mensaje al historial
     chatHistory[chatId].push(`Usuario: ${inputText}`)
 
-    // Limitar el historial para evitar respuestas muy largas
-    if (chatHistory[chatId].length > 10) {
-      chatHistory[chatId].shift() // Elimina el mensaje más antiguo
-    }
-
+    // Enviar el historial como texto completo
     let fullConversation = chatHistory[chatId].join('\n')
 
     var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
     var res = await apii.json()
 
     let botResponse = res.result
-    chatHistory[chatId].push(`Bot: ${botResponse}`) // Guardar respuesta en historial
+    chatHistory[chatId].push(`Bot: ${botResponse}`) // Guardar respuesta
 
-    await m.reply(botResponse)
+    // Limitar a los últimos 10 mensajes
+    if (chatHistory[chatId].length > 10) {
+      chatHistory[chatId].shift() // Borra el mensaje más antiguo
+    }
+
+    await m.reply(`🤖 ${botResponse}`)
   } catch (e) {
     await m.react('❌')
     await conn.reply(m.chat, `⚠️ Gemini no puede responder a esa pregunta.`, m)
