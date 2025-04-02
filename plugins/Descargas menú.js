@@ -10,7 +10,7 @@ let handler = async (m, { conn }) => {
 
 ╭──⬣「 *Herramientas* 」⬣
 │  ≡◦ *Comando 1*
-│「✦」*.play*
+│「✦」*play*
 │  ≡◦ *Comando 2*
 │  ≡◦ *Comando 3*
 ╰──⬣
