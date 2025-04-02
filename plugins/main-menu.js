@@ -18,9 +18,9 @@ let handler = async (m, { conn, args }) => {
 ♡✧･ﾟ: *✧･ﾟ: *♡
 ¡Konnichiwa! Soy
 ${botname}
-Es un placer estar aquí contigo. Aquí tienes la lista de comandos para que podamos disfrutar juntos.
+Arigatou gozaimasu por estar aquí
 *･ﾟ✧: *･ﾟ✧♡
-Arigatou gozaimasu por estar aquí.
+
 
 ╭┈ ↷
 │ᰔᩚ Cliente » @${userId.split('@')[0]}
@@ -31,16 +31,15 @@ Arigatou gozaimasu por estar aquí.
 │✧ Comandos » ${totalCommands}
 │🜸 Baileys » Multi Device
 ╰─────────────────
-
-Hola, querido!✨ ¿Quieres ver mis nuevos ajustes?  Solo escribe *.changelog* y te los mostraré con mucho gusto 💕
-
-Crea un *Sub-Bot* con tu número utilizando *.jadi* o *#jadi*
+Crea un *Sub-Bot* con tu número utilizando *#qr* o *#code*
 
 • :･ﾟ⊹˚• \`『 Info-Bot 』\` •˚⊹:･ﾟ•
 
 ❍ Comandos para ver estado e información de la Bot.
 ᰔᩚ *#help • #menu*
 > ✦ Ver la lista de comandos de la Bot.
+ᰔᩚ *#musica*
+> ✦ lista de play para descargar musicas.
 ᰔᩚ *#uptime • #runtime*
 > ✦ Ver tiempo activo o en linea de la Bot.
 ᰔᩚ *.jadi • #jadi*
