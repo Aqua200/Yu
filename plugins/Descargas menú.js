@@ -18,8 +18,8 @@ let handler = async (m, { conn }) => {
   // Enviar mensaje con imagen y texto del menú
   await conn.sendFile(m.chat, imageUrl, 'thumbnail.jpg', menuText.trim(), m)
 
-  // Reaccionar al mensaje con un emoji de música
-  await conn.react(m.chat, '🎵')  // Emoji de música
+  // Reaccionar al mensaje con un emoji de música usando sendMessage
+  await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } })
 }
 
 handler.help = ['musica']
