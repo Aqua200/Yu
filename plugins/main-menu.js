@@ -21,7 +21,6 @@ ${botname}
 Arigatou gozaimasu por estar aquí
 *･ﾟ✧: *･ﾟ✧♡
 
-
 ╭┈ ↷
 │ᰔᩚ Cliente » @${userId.split('@')[0]}
 │❀ Modo » Publico
