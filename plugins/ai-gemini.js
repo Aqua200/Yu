@@ -1,11 +1,11 @@
 import fetch from 'node-fetch'
 
-const chatHistory = {} // Almacena el historial por chat
+const chatHistory = {} // Guarda el historial por cada chat
 
 var handler = async (m, { text, usedPrefix, command, conn }) => {
   let chatId = m.chat
 
-  // Asegurar que el historial exista
+  // Crear historial si no existe
   if (!chatHistory[chatId]) chatHistory[chatId] = []
 
   let inputText = text || (m.quoted && m.quoted.sender === conn.user.jid ? m.quoted.text : null)
@@ -18,17 +18,17 @@ var handler = async (m, { text, usedPrefix, command, conn }) => {
     await m.react('⌛')
     conn.sendPresenceUpdate('composing', m.chat)
 
-    // Agregar mensaje del usuario al historial
+    // Guardar mensaje del usuario en el historial
     chatHistory[chatId].push({ role: 'user', content: inputText })
 
-    // Enviar el historial como contexto (máximo 10 mensajes)
+    // Construir el historial para dar contexto
     let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
 
     var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
     var res = await apii.json()
 
     let botResponse = res.result
-    chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta
+    chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta en historial
 
     // Limitar a los últimos 10 mensajes
     if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
@@ -43,42 +43,44 @@ var handler = async (m, { text, usedPrefix, command, conn }) => {
   }
 }
 
-// Responder mensajes sin prefijo, pero evitando que el bot se auto-responda
+// **Manejador para seguir la conversación sin prefijo**
 var chatResponder = async (m, { conn }) => {
   let chatId = m.chat
 
-  if (handler.conversationMode && chatHistory[chatId]) {
-    if (m.isGroup && !m.mentionedJid.includes(conn.user.jid)) return // Solo responde si lo mencionan en grupos
-    if (m.sender === conn.user.jid) return // Evita que el bot se responda a sí mismo
+  if (!handler.conversationMode || !chatHistory[chatId]) return // Si la conversación no está activa, ignorar
 
-    let inputText = m.text
-    if (!inputText) return
+  if (m.sender === conn.user.jid) return // Evita que el bot se auto-responda
 
-    try {
-      await m.react('⌛')
-      conn.sendPresenceUpdate('composing', m.chat)
+  if (m.isGroup && !m.mentionedJid.includes(conn.user.jid) && !m.quoted) return 
+  // En grupos, solo responde si lo mencionan o le responden a un mensaje
+  
+  let inputText = m.text
+  if (!inputText) return
 
-      // Agregar mensaje del usuario
-      chatHistory[chatId].push({ role: 'user', content: inputText })
-      let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
+  try {
+    await m.react('⌛')
+    conn.sendPresenceUpdate('composing', m.chat)
 
-      var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
-      var res = await apii.json()
+    // Guardar mensaje del usuario
+    chatHistory[chatId].push({ role: 'user', content: inputText })
+    let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
 
-      let botResponse = res.result
-      chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta
+    var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
+    var res = await apii.json()
 
-      // Limitar historial
-      if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
+    let botResponse = res.result
+    chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta
 
-      await m.reply(botResponse)
-    } catch (e) {
-      await m.react('❌')
-    }
+    // Limitar historial
+    if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
+
+    await m.reply(botResponse)
+  } catch (e) {
+    await m.react('❌')
   }
 }
 
-// Asigna el nuevo manejador para respuestas sin prefijo
+// **Configurar el manejador para detectar respuestas sin prefijo**
 handler.before = chatResponder
 handler.command = ['gemini']
 handler.help = ['gemini']
