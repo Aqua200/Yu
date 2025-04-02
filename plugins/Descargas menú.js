@@ -14,7 +14,7 @@ let menuText = defaultMenu.before.replace(/%name/g, name)
 
 if (section) { menuText += \n╭──⬣「 *${section.title}* 」⬣\n; for (let cmd of section.commands) { menuText += │  ≡◦ *${cmd}*\n; } menuText += '╰──⬣\n'; } else { for (let sec of defaultMenu.sections) { menuText += \n╭──⬣「 *${sec.title}* 」⬣\n; for (let cmd of sec.commands) { menuText += │  ≡◦ *${cmd}*\n; } menuText += '╰──⬣\n'; } }
 
-let imageUrl = 'https://qu.ax/iKouo.jpeg' await conn.sendFile(m.chat, imageUrl, 'thumbnail.jpg', menuText.trim(), m) }
+let imageUrl = 'https://files.catbox.moe/k3tn8r.jpeg' await conn.sendFile(m.chat, imageUrl, 'thumbnail.jpg', menuText.trim(), m) }
 
 handler.help = ['menu'] handler.tags = ['main'] handler.command = ['descargas'] export default handler
 
