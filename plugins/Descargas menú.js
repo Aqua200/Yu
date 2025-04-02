@@ -17,10 +17,13 @@ let handler = async (m, { conn }) => {
   
   // Enviar mensaje con imagen y texto del menú
   await conn.sendFile(m.chat, imageUrl, 'thumbnail.jpg', menuText.trim(), m)
+
+  // Reaccionar al mensaje con un emoji de música
+  await conn.react(m.chat, '🎵')  // Emoji de música
 }
 
-handler.help = ['herramientas']
+handler.help = ['musica']
 handler.tags = ['main']
-handler.command = ['herramientas']
+handler.command = ['musica']
 
 export default handler
