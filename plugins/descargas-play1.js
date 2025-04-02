@@ -69,11 +69,11 @@ const ddownr = {
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     if (!text.trim()) {
-      return conn.reply(m.chat, `🪼 Ingresa el nombre de la música a descargar.`, m);
+      return conn.reply(m.chat, `🩵 Porfavor Ingresa el nombre de la música a descargar.`, m);
     }
 
     // Respuesta inicial con emoji de verificación ✅
-    await conn.reply(m.chat, '✅ Procesando tu solicitud...', m);
+    await conn.reply(m.chat, '💜 Ya estoy Procesando tu solicitud Porfavor Espere 1 minuto...', m);
 
     const search = await yts(text);
     if (!search.all || search.all.length === 0) {
@@ -107,7 +107,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       const api = await ddownr.download(url, 'mp3');
       const result = api.downloadUrl;
       await conn.sendMessage(m.chat, { audio: { url: result }, mimetype: "audio/mpeg" }, { quoted: m });
-      return m.reply("✅ Música descargada con éxito.");
+      return m.reply("🩷 disculpa tu Música se a descargada con éxito.");
     } else if (command === 'play2' || command === 'ytmp4') {
       let sources = [
         `https://api.siputzx.my.id/api/d/ytmp4?url=${url}`,
