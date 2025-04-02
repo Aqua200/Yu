@@ -1,4 +1,4 @@
-export function before(m) { const owner = '+584125014674'; // Número del owner const user = global.db.data.users[m.sender]; const deco1 = '✦'; const deco2 = '✧'; const deco3 = '✨';
+export function before(m) { const owner = '+5216631079388'; // Número del owner const user = global.db.data.users[m.sender]; const deco1 = '✦'; const deco2 = '✧'; const deco3 = '✨';
 
 if (m.sender === owner) {
     if (m.text === '.wafk') {
