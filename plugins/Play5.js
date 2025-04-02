@@ -69,8 +69,8 @@ const checkProgress = async (id) => {
     }
 };
 
-handler.help = ['play1'];
-handler.command = ['play1'];
+handler.help = ['play4'];
+handler.command = ['play4'];
 handler.tags = ['música'];
 handler.register = true;
 
