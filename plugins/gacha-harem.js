@@ -21,6 +21,11 @@ async function loadHarem() {
     }
 }
 
+// Función para normalizar el ID (eliminar el @s.whatsapp.net si existe)
+function normalizeId(userId) {
+    return userId.split('@')[0];
+}
+
 let handler = async (m, { conn, args }) => {
     try {
         const characters = await loadCharacters();
@@ -28,14 +33,20 @@ let handler = async (m, { conn, args }) => {
         let userId;
 
         if (m.quoted && m.quoted.sender) {
-            userId = m.quoted.sender;
+            userId = normalizeId(m.quoted.sender);
         } else if (args[0] && args[0].startsWith('@')) {
-            userId = args[0].replace('@', '');
+            userId = normalizeId(args[0].replace('@', ''));
         } else {
-            userId = m.sender;
+            userId = normalizeId(m.sender);
         }
 
-        const userCharacters = characters.filter(character => character.user === userId);
+        // Normalizar los IDs en los personajes antes de filtrar
+        const normalizedCharacters = characters.map(character => ({
+            ...character,
+            user: normalizeId(character.user)
+        }));
+
+        const userCharacters = normalizedCharacters.filter(character => character.user === userId);
 
         if (userCharacters.length === 0) {
             await conn.reply(m.chat, '❀ No tiene personajes reclamados en tu harem.', m);
@@ -55,7 +66,7 @@ let handler = async (m, { conn, args }) => {
         }
 
         let message = `✿ Personajes reclamados ✿\n`;
-        message += `⌦ Usuario: @${userId.split('@')[0]}\n`;
+        message += `⌦ Usuario: @${userId}\n`;
         message += `♡ Personajes: *(${totalCharacters}):*\n\n`;
 
         for (let i = startIndex; i < endIndex; i++) {
@@ -65,7 +76,7 @@ let handler = async (m, { conn, args }) => {
 
         message += `\n> ⌦ _Página *${page}* de *${totalPages}*_`;
 
-        await conn.reply(m.chat, message, m, { mentions: [userId] });
+        await conn.reply(m.chat, message, m, { mentions: [userId + '@s.whatsapp.net'] });
     } catch (error) {
         await conn.reply(m.chat, `✘ Error al cargar el harem: ${error.message}`, m);
     }
