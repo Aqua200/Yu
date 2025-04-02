@@ -6,13 +6,18 @@ let handler = async (m, { conn }) => {
 
   // Texto del menú
   let menuText = `
-¡Hola *${name}*! ¿Qué deseas escuchar ahora?
+¡Hola *${name}*! ¿Qué deseas escuchar este dia??
 
 ╭──⬣「 *Herramientas* 」⬣
+│
 │  ≡◦ *Comando 1*
-│「✦」.play
+│ ✦ .play
 │  ≡◦ *Comando 2*
+│
 │  ≡◦ *Comando 3*
+│
+│ 🩵 Nota de mi owner:
+│ si los comando no funciona pon .reportar play
 ╰──⬣
   `
 
