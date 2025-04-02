@@ -21,9 +21,10 @@ async function loadHarem() {
     }
 }
 
-// Función para normalizar el ID (eliminar el @s.whatsapp.net si existe)
+// Función mejorada para normalizar el ID
 function normalizeId(userId) {
-    return userId.split('@')[0];
+    if (!userId) return null; // Si userId es null/undefined, retornamos null
+    return userId.split('@')[0]; // Extraemos solo la parte antes del @
 }
 
 let handler = async (m, { conn, args }) => {
@@ -40,10 +41,16 @@ let handler = async (m, { conn, args }) => {
             userId = normalizeId(m.sender);
         }
 
-        // Normalizar los IDs en los personajes antes de filtrar
+        // Verificamos si userId es válido
+        if (!userId) {
+            await conn.reply(m.chat, '❀ No se pudo identificar al usuario.', m);
+            return;
+        }
+
+        // Normalizamos los IDs de los personajes
         const normalizedCharacters = characters.map(character => ({
             ...character,
-            user: normalizeId(character.user)
+            user: normalizeId(character.user) || '' // Si es null, lo dejamos como string vacío
         }));
 
         const userCharacters = normalizedCharacters.filter(character => character.user === userId);
@@ -78,6 +85,7 @@ let handler = async (m, { conn, args }) => {
 
         await conn.reply(m.chat, message, m, { mentions: [userId + '@s.whatsapp.net'] });
     } catch (error) {
+        console.error(error); // Para depuración
         await conn.reply(m.chat, `✘ Error al cargar el harem: ${error.message}`, m);
     }
 };
