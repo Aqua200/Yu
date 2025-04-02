@@ -72,6 +72,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       return conn.reply(m.chat, `🪼 Ingresa el nombre de la música a descargar.`, m);
     }
 
+    // Respuesta inicial con emoji de verificación ✅
+    await conn.reply(m.chat, '✅ Procesando tu solicitud...', m);
+
     const search = await yts(text);
     if (!search.all || search.all.length === 0) {
       return m.reply('No se encontraron resultados para tu búsqueda.');
@@ -80,7 +83,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const videoInfo = search.all[0];
     const { title, thumbnail, timestamp, views, ago, url } = videoInfo;
     const vistas = formatViews(views);
-    const infoMessage = `*𖹭.╭╭ִ╼࣪━ִﮩ٨ـﮩ♡̫prueba𝗍♡ִ̫ﮩ٨ـﮩ━ִ╾࣪╮╮.𖹭*\n> ♡ *Título:* ${title}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Duración:* ${timestamp}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Vistas:* ${vistas}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Canal:* ${videoInfo.author.name || 'Desconocido'}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Publicado:* ${ago}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Enlace:* ${url}\n*⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ⏝ּׅ︢︣ۛ۫۫۫۫۫۫ۜ⏝ּׅ︢︣ۛ۫۫۫۫۫۫ۜ⏝ּׅ︢︣ۛ۫۫۫۫۫۫ۜ⏝ּׅ︢︣ׄۛ۫۫۫۫۫۫ۜ*`;
+    const infoMessage = `*𖹭.╭╭ִ╼࣪━ִﮩ٨ـﮩ♡̫prueba𝗍♡ִ̫ﮩ٨ـﮩ━ִ╾࣪╮╮.𖹭*\n> ♡ *Título:* ${title}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Duración:* ${timestamp}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Vistas:* ${vistas}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Canal:* ${videoInfo.author.name || 'Desconocido'}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Publicado:* ${ago}\n*°.⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸⎯ܴ⎯̶᳞͇ࠝ⎯⃘̶⎯̸.°*\n> ♡ *Enlace:* ${url}\n*⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ⏝ּׅ︣︢ۛ۫۫۫۫۫۫ۜ*`;
     const thumb = (await conn.getFile(thumbnail))?.data;
 
     const JT = {
@@ -151,7 +154,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.command = handler.help = ['play', 'ytmp4', 'play2'];
 handler.tags = ['downloader'];
-handler.group = true
+handler.group = true;
 
 export default handler;
 
