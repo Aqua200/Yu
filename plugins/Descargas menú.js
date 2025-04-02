@@ -11,14 +11,14 @@ let handler = async (m, { conn }) => {
 ╭──⬣「 *Herramientas* 」⬣
 │
 │  ≡◦ *Comando 1*
-│ ✦ .play
+│  ✦ .play
 │  ≡◦ *Comando 2*
 │
 │  ≡◦ *Comando 3*
 │
 │ 🩵 Nota de mi owner:
-│ si unos de mis comando no funciona 
-│   reporta ejemplo 
+│ si unos de mis comando no 
+│ funciona reporta ejemplo 
 │              .reportar play
 ╰──⬣
   `
