@@ -1,7 +1,14 @@
 import fetch from 'node-fetch'
 
 var handler = async (m, { text, usedPrefix, command }) => {
-  if (!text) {
+  let inputText = text // Guarda el texto original
+  
+  // Si el mensaje es una respuesta a uno del bot, usa el texto citado
+  if (m.quoted && m.quoted.sender === conn.user.jid) {
+    inputText = m.quoted.text
+  }
+
+  if (!inputText) {
     return conn.reply(m.chat, `${emoji} Ingrese una petición para que Gemini lo responda.`, m)
   }
 
@@ -9,12 +16,7 @@ var handler = async (m, { text, usedPrefix, command }) => {
     await m.react(rwait)
     conn.sendPresenceUpdate('composing', m.chat)
 
-    // Verificar si el mensaje es respuesta a uno del bot
-    if (m.quoted && m.quoted.sender === conn.user.jid) {
-      text = m.quoted.text // Usa el mensaje original citado
-    }
-
-    var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(text)}`)
+    var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(inputText)}`)
     var res = await apii.json()
 
     await m.reply(res.result)
