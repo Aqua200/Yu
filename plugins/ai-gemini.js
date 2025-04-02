@@ -1,60 +1,56 @@
 import fetch from 'node-fetch'
 
-const chatHistory = {} // Guarda el historial por cada chat
+const chatHistory = {}
 
 var handler = async (m, { text, usedPrefix, command, conn }) => {
   let chatId = m.chat
-
-  // Si no hay historial, crearlo
   if (!chatHistory[chatId]) chatHistory[chatId] = []
 
   let inputText = text || (m.quoted && m.quoted.sender === conn.user.jid ? m.quoted.text : null)
 
   if (!inputText) {
-    return conn.reply(m.chat, `💬 Ingrese una pregunta para que Gemini lo responda.`, m)
+    return conn.reply(m.chat, `💬 Escribe algo para que pueda responder.`, m)
   }
 
   try {
     await m.react('⌛')
     conn.sendPresenceUpdate('composing', m.chat)
 
-    // Guardar mensaje del usuario en el historial
     chatHistory[chatId].push({ role: 'user', content: inputText })
 
-    // Construir el historial para dar contexto
     let fullConversation = chatHistory[chatId]
-      .slice(-10) // Solo toma los últimos 10 mensajes
+      .slice(-10)
       .map(msg => `${msg.role}: ${msg.content}`)
       .join('\n')
 
-    var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
-    var res = await apii.json()
+    let apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
+    let res = await apii.json()
+
+    // **Validar si la API devuelve una respuesta correcta**
+    if (!res || !res.result) {
+      throw new Error("La API no devolvió una respuesta válida.")
+    }
 
     let botResponse = res.result
-    chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta en historial
+    chatHistory[chatId].push({ role: 'bot', content: botResponse })
 
-    // Limitar a los últimos 10 mensajes
     if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
 
     await m.reply(botResponse)
-
-    // Activar conversación para que el bot responda sin prefijo
     handler.conversationMode = true  
   } catch (e) {
+    console.error("[ERROR API GEMINI]:", e)
     await m.react('❌')
-    await conn.reply(m.chat, `⚠️ No puedo responder a esa pregunta.`, m)
+    await conn.reply(m.chat, `⚠️ No pude obtener una respuesta en este momento. Inténtalo de nuevo más tarde.`, m)
   }
 }
 
-// **Manejador para continuar la conversación sin prefijo**
 var chatResponder = async (m, { conn }) => {
   let chatId = m.chat
 
-  if (!handler.conversationMode || !chatHistory[chatId]) return // Si la conversación no está activa, ignorar
+  if (!handler.conversationMode || !chatHistory[chatId]) return
+  if (m.sender === conn.user.jid) return 
 
-  if (m.sender === conn.user.jid) return // Evita que el bot se auto-responda
-
-  // **En grupos**, solo responde si lo mencionan o le responden a un mensaje suyo
   if (m.isGroup && !m.mentionedJid.includes(conn.user.jid) && (!m.quoted || m.quoted.sender !== conn.user.jid)) {
     return
   }
@@ -66,30 +62,32 @@ var chatResponder = async (m, { conn }) => {
     await m.react('⌛')
     conn.sendPresenceUpdate('composing', m.chat)
 
-    // Guardar mensaje del usuario
     chatHistory[chatId].push({ role: 'user', content: inputText })
     
     let fullConversation = chatHistory[chatId]
-      .slice(-10) // Últimos 10 mensajes
+      .slice(-10)
       .map(msg => `${msg.role}: ${msg.content}`)
       .join('\n')
 
-    var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
-    var res = await apii.json()
+    let apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
+    let res = await apii.json()
+
+    if (!res || !res.result) {
+      throw new Error("La API no devolvió una respuesta válida.")
+    }
 
     let botResponse = res.result
-    chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta
+    chatHistory[chatId].push({ role: 'bot', content: botResponse })
 
-    // Limitar historial
     if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
 
     await m.reply(botResponse)
   } catch (e) {
+    console.error("[ERROR API GEMINI]:", e)
     await m.react('❌')
   }
 }
 
-// **Configurar el manejador para detectar respuestas sin prefijo**
 handler.before = chatResponder
 handler.command = ['gemini']
 handler.help = ['gemini']
