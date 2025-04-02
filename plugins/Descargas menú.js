@@ -26,7 +26,7 @@ ${greeting} *${name}*, ¿Qué deseas escuchar este día?
 │  ≡◦ *Comando 1*
 │  ✦ .play
 │  ≡◦ *Comando 2*
-│
+│  ✦ .play3
 │  ≡◦ *Comando 3*
 │
 │ 🩵 Nota de mi owner:
