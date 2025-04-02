@@ -1,12 +1,25 @@
 let handler = async (m, { conn }) => {
   let name = await conn.getName(m.sender)
   
+  // Obtener la hora actual
+  let currentHour = new Date().getHours()
+  
+  // Determinar el saludo según la hora
+  let greeting = ''
+  if (currentHour >= 6 && currentHour < 12) {
+    greeting = '¡Buenos días!'
+  } else if (currentHour >= 12 && currentHour < 18) {
+    greeting = '¡Buenas tardes!'
+  } else {
+    greeting = '¡Buenas noches!'
+  }
+
   // Reaccionar al mensaje con el emoji de música primero
   await conn.sendMessage(m.chat, { react: { text: '🎵', key: m.key } })
 
-  // Texto del menú
+  // Texto del menú con saludo
   let menuText = `
-¡Hola *${name}*! ¿Qué deseas escuchar este dia??
+${greeting} *${name}*, ¿Qué deseas escuchar este día?
 
 ╭──⬣「 *Herramientas* 」⬣
 │
@@ -17,7 +30,7 @@ let handler = async (m, { conn }) => {
 │  ≡◦ *Comando 3*
 │
 │ 🩵 Nota de mi owner:
-│ si unos de mis comando no 
+│ si uno de mis comandos no 
 │ funciona reporta ejemplo 
 │              .reportar play
 ╰──⬣
