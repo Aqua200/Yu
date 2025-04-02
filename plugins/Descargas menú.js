@@ -26,9 +26,9 @@ ${greeting} *${name}*, ¿Qué deseas escuchar este día?
 │  ≡◦ *Comando 1*
 │  ✦ .play
 │  ≡◦ *Comando 2*
-│  ✦ .play3
+│  ✦ .play3 recomendable
 │  ≡◦ *Comando 3*
-│
+│  ✦ .play4
 │ 🩵 Nota de mi owner:
 │ si uno de mis comandos no 
 │ funciona reporta ejemplo 
