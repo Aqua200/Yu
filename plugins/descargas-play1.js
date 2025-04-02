@@ -69,7 +69,7 @@ const ddownr = {
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     if (!text.trim()) {
-      return conn.reply(m.chat, `🩵 Porfavor Ingresa el nombre de la música a descargar.`, m);
+      return conn.reply(m.chat, `🩵 Porfavor Ingresa el nombre de la música para descargar.`, m);
     }
 
     // Respuesta inicial con emoji de verificación ✅
