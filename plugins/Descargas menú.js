@@ -17,7 +17,9 @@ let handler = async (m, { conn }) => {
 │  ≡◦ *Comando 3*
 │
 │ 🩵 Nota de mi owner:
-│ si los comando no funciona pon .reportar play
+│ si unos de mis comando no funciona 
+│   reporta ejemplo 
+│              .reportar play
 ╰──⬣
   `
 
