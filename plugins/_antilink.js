@@ -1,90 +1,30 @@
-const linkRegex = /chat\.whatsapp\.com\/(?:invite\/)?([0-9A-Za-z]{20,24})/i;
-const otherWhatsappLinks = [
-  /whatsapp\.com\/dl/,
-  /wa\.me\/join/,
-  /whatsapp\.com\/channel/,
-  /invite\.whatsapp\.com/,
-  /whatsapp\.com\/invite/
-];
+let linkRegex = /chat.whatsapp.com\/([0-9A-Za-z]{20,24})/i;
+let linkRegex1 = /whatsapp.com\/channel\/([0-9A-Za-z]{20,24})/i;
 
-export async function before(m, {conn, isAdmin, isBotAdmin}) {
-  try {
-    // Ignorar si es mensaje del propio bot o no es grupo
-    if (m.isBaileys && m.fromMe) return true;
-    if (!m.isGroup) return false;
+export async function before(m, { conn, isAdmin, isBotAdmin, isOwner, isROwner, participants }) {
 
-    const chat = global.db.data.chats[m.chat];
-    const botSettings = global.db.data.settings[this.user.jid] || {};
-    const user = `@${m.sender.split('@')[0]}`;
+if (!m.isGroup) return;
+if (isAdmin || isOwner || m.fromMe || isROwner) return;
 
-    // Verificar si el antilink está activo
-    if (!chat.antiLink) return false;
-
-    // Verificar si el mensaje contiene algún enlace de WhatsApp
-    const containsAnyLink = () => {
-      if (!m.text) return false;
-      const text = m.text.toLowerCase();
-      
-      // Verificar enlaces estándar
-      if (linkRegex.test(text)) return true;
-      
-      // Verificar otros formatos de enlaces
-      return otherWhatsappLinks.some(regex => regex.test(text));
-    };
-
-    // Si no contiene enlaces, salir
-    if (!containsAnyLink()) return false;
-
-    // Si es el enlace del grupo actual, permitirlo
-    if (isBotAdmin) {
-      const groupCode = await this.groupInviteCode(m.chat).catch(() => null);
-      if (groupCode && m.text.includes(groupCode)) return false;
-    }
-
-    // Si es administrador, solo advertir
-    if (isAdmin) {
-      await conn.sendMessage(m.chat, {
-        text: `⚠️ *ADVERTENCIA PARA ADMIN* ⚠️\n${user} has enviado un enlace de grupo.\nRecuerda que está desactivado el antilink para admins.`,
-        mentions: [m.sender]
-      }, {quoted: m});
-      return true;
-    }
-
-    // -- Acciones para usuarios normales --
-    // 1. Notificar eliminación
-    await conn.sendMessage(m.chat, {
-      text: `🚫 *ENLACE DETECTADO* 🚫\n${user} ha enviado un enlace de WhatsApp.\nSerá eliminado del grupo.`,
-      mentions: [m.sender]
-    }, {quoted: m});
-
-    // 2. Eliminar el mensaje (si el bot es admin)
-    if (isBotAdmin) {
-      await conn.sendMessage(m.chat, {
-        delete: {
-          remoteJid: m.chat,
-          fromMe: false,
-          id: m.key.id,
-          participant: m.key.participant
-        }
-      }).catch(e => console.log('Error al borrar mensaje:', e));
-    }
-
-    // 3. Eliminar al usuario (si está activa la restricción)
-    if (isBotAdmin && botSettings.restrict) {
-      await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove')
-        .catch(async e => {
-          console.log('Error al eliminar usuario:', e);
-          await conn.sendMessage(m.chat, {
-            text: `❌ No pude eliminar a ${user}. ¿Tengo permisos suficientes?`,
-            mentions: [m.sender]
-          });
-        });
-    }
-
-    return true;
-
-  } catch (error) {
-    console.error('Error en el handler antilink:', error);
-    return false;
-  }
-                                 }
+let chat = global.db.data.chats[m.chat];
+let delet = m.key.participant;
+let bang = m.key.id;
+const user = `@${m.sender.split`@`[0]}`;
+const groupAdmins = participants.filter(p => p.admin);
+const listAdmin = groupAdmins.map((v, i) => `*» ${i + 1}. @${v.id.split('@')[0]}*`).join('\n');
+let bot = global.db.data.settings[conn.user.jid] || {};
+const isGroupLink = linkRegex.exec(m.text) || linkRegex1.exec(m.text);
+const grupo = `https://chat.whatsapp.com`;
+if (chat.antilink && isGroupLink && !isAdmin) {
+if (isBotAdmin) {
+const linkThisGroup = `https://chat.whatsapp.com/${await this.groupInviteCode(m.chat)}`;
+if (m.text.includes(linkThisGroup)) return !0;
+}
+await conn.sendMessage(m.chat, { text: `> ✦ Se ha eliminado a ${user}⁩ del grupo por Anti-Link.`, mentions: [m.sender] }, { quoted: m, ephemeralExpiration: 24*60*100, disappearingMessagesInChat: 24*60*100 });
+if (isBotAdmin) {
+await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: bang, participant: delet } });
+let responseb = await conn.groupParticipantsUpdate(m.chat, [m.sender], 'remove');
+if (responseb[0].status === "404") return;
+}} 
+return !0;
+}
