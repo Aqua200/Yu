@@ -28,8 +28,13 @@ Ejemplo: *${usedPrefix + command} Boza Yaya*`;
         if (!res.data.success) throw "❌ No se pudo obtener la info del video.";
         
         const downloadUrl = await checkProgress(res.data.id);
-        const tmpDir = path.join(process.cwd(), 'tmp');
-        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+        
+        // Cambios para Termux:
+        // 1. Usar un directorio temporal compatible con Termux
+        const tmpDir = '/data/data/com.termux/files/usr/tmp';
+        if (!fs.existsSync(tmpDir)) {
+            fs.mkdirSync(tmpDir, { recursive: true });
+        }
 
         const filePath = path.join(tmpDir, `${Date.now()}.mp3`);
         const audioRes = await axios.get(downloadUrl, { responseType: 'stream' });
@@ -52,6 +57,7 @@ Ejemplo: *${usedPrefix + command} Boza Yaya*`;
             }
         }, { quoted: m });
 
+        // Limpiar el archivo temporal
         fs.unlinkSync(filePath);
     } catch (err) {
         console.error(err);
@@ -61,11 +67,16 @@ Ejemplo: *${usedPrefix + command} Boza Yaya*`;
 
 const checkProgress = async (id) => {
     while (true) {
-        const res = await axios.get(`${apis.ocean}/progress.php?id=${id}`);
-        if (res.data?.success && res.data.progress === 1000) {
-            return res.data.download_url;
+        try {
+            const res = await axios.get(`${apis.ocean}/progress.php?id=${id}`);
+            if (res.data?.success && res.data.progress === 1000) {
+                return res.data.download_url;
+            }
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        } catch (e) {
+            console.error('Error en checkProgress:', e);
+            await new Promise(resolve => setTimeout(resolve, 5000));
         }
-        await new Promise(resolve => setTimeout(resolve, 5000));
     }
 };
 
