@@ -1,11 +1,3 @@
-// playPlugin.js
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const { pipeline } = require('stream');
-const { promisify } = require('util');
-const streamPipeline = promisify(pipeline);
-
 module.exports = {
   name: 'MusicPlugin',
   version: '2.0.0',
@@ -14,15 +6,17 @@ module.exports = {
   dependencies: ['axios', 'fs', 'path', 'stream'],
 
   initialize: (client) => {
+    // Aquí registramos el comando `.play` correctamente
     client.commands.set('play', {
       config: {
         name: "play",
         description: "Descarga música/videos de YouTube",
         usage: "[título o enlace]",
         cooldown: 5,
-        aliases: ["play60", "p"]
+        aliases: ["play60", "p"]  // Añadido un alias corto para invocar el comando
       },
       handler: async ({ sock, msg, args, text, global }) => {
+        // Verificamos si el texto está presente
         if (!text) {
           await sock.sendMessage(msg.key.remoteJid, {
             text: `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${global.prefix}play* La Factoría - Perdoname`
@@ -30,16 +24,17 @@ module.exports = {
           return;
         }
 
+        // Agregamos una reacción de proceso
         await sock.sendMessage(msg.key.remoteJid, {
           react: { text: '⏳', key: msg.key }
         });
 
         try {
-          // 1. BUSQUEDA
+          // 1. Realizamos la búsqueda de video utilizando la API de Neoxr
           const searchUrl = `https://api.neoxr.eu/api/video?q=${encodeURIComponent(text)}&apikey=russellxz`;
           const searchRes = await axios.get(searchUrl);
           const videoInfo = searchRes.data;
-          
+
           if (!videoInfo || !videoInfo.data?.url) 
             throw new Error('No se pudo encontrar el video');
 
@@ -50,10 +45,10 @@ module.exports = {
           const author = videoInfo.channel || 'Desconocido';
           const videoLink = `https://www.youtube.com/watch?v=${videoInfo.id}`;
 
-          // 2. BANNER
+          // 2. Mostrar el banner con la información del video
           const captionPreview = `
 ╔═════════════════╗
-║✦ pruebas          ✦
+║✦ 𝙈𝙪𝙨𝙞𝙘 𝙋𝙡𝙪𝙜𝙞𝙣 ✦
 ╚═════════════════╝
 
 📀 *𝙄𝗻𝗳𝗼𝗿𝗺𝗮𝗰𝗶ó𝗻 𝗱𝗲𝗹 𝘃í𝗱𝗲𝗼:*  
@@ -73,20 +68,21 @@ module.exports = {
 
 ⏳ *Procesando tu solicitud...*`;
 
+          // Enviar la imagen de portada y la información del video
           await sock.sendMessage(msg.key.remoteJid, {
             image: { url: thumbnail },
             caption: captionPreview
           }, { quoted: msg });
 
-          // 3. DESCARGA
+          // 3. Intentamos obtener el video con distintas calidades
           const qualities = ['720p', '480p', '360p'];
           let videoData = null;
-          
+
           for (let quality of qualities) {
             try {
               const apiUrl = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(videoLink)}&apikey=russellxz&type=video&quality=${quality}`;
               const response = await axios.get(apiUrl);
-              
+
               if (response.data?.status && response.data?.data?.url) {
                 videoData = {
                   url: response.data.data.url,
@@ -98,9 +94,11 @@ module.exports = {
               }
             } catch { continue; }
           }
-          
+
+          // Si no se pudo obtener el video, mostramos un error
           if (!videoData) throw new Error('No se pudo obtener el video en ninguna calidad');
 
+          // 4. Descargar el video
           const tmpDir = path.join(__dirname, 'tmp');
           if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
           const filename = `${Date.now()}_${videoData.title.replace(/[^a-z0-9]/gi, '_')}.mp4`;
@@ -110,7 +108,8 @@ module.exports = {
             responseType: 'stream',
             headers: { 'User-Agent': 'Mozilla/5.0' }
           });
-          
+
+          // Descargar el video y guardarlo en el archivo temporal
           await streamPipeline(resDownload.data, fs.createWriteStream(filePath));
 
           const stats = fs.statSync(filePath);
@@ -119,6 +118,7 @@ module.exports = {
             throw new Error('El video descargado está vacío o incompleto');
           }
 
+          // Enviar el video al usuario
           await sock.sendMessage(msg.key.remoteJid, {
             video: fs.readFileSync(filePath),
             mimetype: 'video/mp4',
@@ -127,6 +127,7 @@ module.exports = {
             gifPlayback: false
           }, { quoted: msg });
 
+          // Borrar el archivo después de enviarlo
           fs.unlinkSync(filePath);
           await sock.sendMessage(msg.key.remoteJid, {
             react: { text: '✅', key: msg.key }
