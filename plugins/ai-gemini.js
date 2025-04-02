@@ -5,13 +5,13 @@ const chatHistory = {} // Guarda el historial por cada chat
 var handler = async (m, { text, usedPrefix, command, conn }) => {
   let chatId = m.chat
 
-  // Crear historial si no existe
+  // Si no hay historial, crearlo
   if (!chatHistory[chatId]) chatHistory[chatId] = []
 
   let inputText = text || (m.quoted && m.quoted.sender === conn.user.jid ? m.quoted.text : null)
 
   if (!inputText) {
-    return conn.reply(m.chat, `💬 Ingrese una petición para que Gemini lo responda.`, m)
+    return conn.reply(m.chat, `💬 Ingrese una pregunta para que Gemini lo responda.`, m)
   }
 
   try {
@@ -22,7 +22,10 @@ var handler = async (m, { text, usedPrefix, command, conn }) => {
     chatHistory[chatId].push({ role: 'user', content: inputText })
 
     // Construir el historial para dar contexto
-    let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
+    let fullConversation = chatHistory[chatId]
+      .slice(-10) // Solo toma los últimos 10 mensajes
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n')
 
     var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
     var res = await apii.json()
@@ -35,15 +38,15 @@ var handler = async (m, { text, usedPrefix, command, conn }) => {
 
     await m.reply(botResponse)
 
-    // Activar conversación
+    // Activar conversación para que el bot responda sin prefijo
     handler.conversationMode = true  
   } catch (e) {
     await m.react('❌')
-    await conn.reply(m.chat, `⚠️ Gemini no puede responder a esa pregunta.`, m)
+    await conn.reply(m.chat, `⚠️ No puedo responder a esa pregunta.`, m)
   }
 }
 
-// **Manejador para seguir la conversación sin prefijo**
+// **Manejador para continuar la conversación sin prefijo**
 var chatResponder = async (m, { conn }) => {
   let chatId = m.chat
 
@@ -51,9 +54,11 @@ var chatResponder = async (m, { conn }) => {
 
   if (m.sender === conn.user.jid) return // Evita que el bot se auto-responda
 
-  if (m.isGroup && !m.mentionedJid.includes(conn.user.jid) && !m.quoted) return 
-  // En grupos, solo responde si lo mencionan o le responden a un mensaje
-  
+  // **En grupos**, solo responde si lo mencionan o le responden a un mensaje suyo
+  if (m.isGroup && !m.mentionedJid.includes(conn.user.jid) && (!m.quoted || m.quoted.sender !== conn.user.jid)) {
+    return
+  }
+
   let inputText = m.text
   if (!inputText) return
 
@@ -63,7 +68,11 @@ var chatResponder = async (m, { conn }) => {
 
     // Guardar mensaje del usuario
     chatHistory[chatId].push({ role: 'user', content: inputText })
-    let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
+    
+    let fullConversation = chatHistory[chatId]
+      .slice(-10) // Últimos 10 mensajes
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n')
 
     var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
     var res = await apii.json()
