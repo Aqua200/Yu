@@ -2,9 +2,11 @@ import fetch from 'node-fetch'
 
 const chatHistory = {} // Almacena el historial por chat
 
-var handler = async (m, { text, usedPrefix, command }) => {
+var handler = async (m, { text, usedPrefix, command, conn }) => {
   let chatId = m.chat
-  if (!chatHistory[chatId]) chatHistory[chatId] = [] // Crea historial si no existe
+
+  // Asegurar que el historial exista
+  if (!chatHistory[chatId]) chatHistory[chatId] = []
 
   let inputText = text || (m.quoted && m.quoted.sender === conn.user.jid ? m.quoted.text : null)
 
@@ -17,25 +19,23 @@ var handler = async (m, { text, usedPrefix, command }) => {
     conn.sendPresenceUpdate('composing', m.chat)
 
     // Agregar mensaje del usuario al historial
-    chatHistory[chatId].push(`Usuario: ${inputText}`)
+    chatHistory[chatId].push({ role: 'user', content: inputText })
 
-    // Formar la conversación como contexto
-    let fullConversation = chatHistory[chatId].slice(-10).join('\n') // Últimos 10 mensajes
+    // Enviar el historial como contexto (máximo 10 mensajes)
+    let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
 
     var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
     var res = await apii.json()
 
     let botResponse = res.result
-    chatHistory[chatId].push(`Bot: ${botResponse}`) // Guardar respuesta en historial
+    chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta
 
-    // Limitar a los últimos 10 mensajes para no saturar
-    if (chatHistory[chatId].length > 10) {
-      chatHistory[chatId].shift() // Elimina el mensaje más viejo
-    }
+    // Limitar a los últimos 10 mensajes
+    if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
 
     await m.reply(botResponse)
 
-    // Activar modo conversación: el bot responderá a cualquier mensaje sin prefijo
+    // Activar conversación
     handler.conversationMode = true  
   } catch (e) {
     await m.react('❌')
@@ -43,11 +43,14 @@ var handler = async (m, { text, usedPrefix, command }) => {
   }
 }
 
-// Hacer que el bot responda sin necesidad de prefijo después de iniciar la conversación
-var chatResponder = async (m) => {
+// Responder mensajes sin prefijo, pero evitando que el bot se auto-responda
+var chatResponder = async (m, { conn }) => {
   let chatId = m.chat
 
   if (handler.conversationMode && chatHistory[chatId]) {
+    if (m.isGroup && !m.mentionedJid.includes(conn.user.jid)) return // Solo responde si lo mencionan en grupos
+    if (m.sender === conn.user.jid) return // Evita que el bot se responda a sí mismo
+
     let inputText = m.text
     if (!inputText) return
 
@@ -55,20 +58,18 @@ var chatResponder = async (m) => {
       await m.react('⌛')
       conn.sendPresenceUpdate('composing', m.chat)
 
-      // Agregar el nuevo mensaje al historial
-      chatHistory[chatId].push(`Usuario: ${inputText}`)
-      let fullConversation = chatHistory[chatId].slice(-10).join('\n')
+      // Agregar mensaje del usuario
+      chatHistory[chatId].push({ role: 'user', content: inputText })
+      let fullConversation = chatHistory[chatId].slice(-10).map(msg => `${msg.role}: ${msg.content}`).join('\n')
 
       var apii = await fetch(`https://apis-starlights-team.koyeb.app/starlight/gemini?text=${encodeURIComponent(fullConversation)}`)
       var res = await apii.json()
 
       let botResponse = res.result
-      chatHistory[chatId].push(`Bot: ${botResponse}`)
+      chatHistory[chatId].push({ role: 'bot', content: botResponse }) // Guardar respuesta
 
       // Limitar historial
-      if (chatHistory[chatId].length > 10) {
-        chatHistory[chatId].shift()
-      }
+      if (chatHistory[chatId].length > 10) chatHistory[chatId].shift()
 
       await m.reply(botResponse)
     } catch (e) {
