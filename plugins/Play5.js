@@ -1,4 +1,6 @@
-import fetch from "node-fetch"; import yts from 'yt-search'; import axios from "axios";
+import fetch from "node-fetch"; 
+import yts from 'yt-search';
+import axios from "axios";
 
 const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
 
@@ -85,7 +87,12 @@ await conn.sendMessage(m.chat, { audio: { url: result }, mimetype: "audio/mpeg" 
 
 } catch (error) { return m.reply(⚠️︎ *Error:* ${error.message}); } };
 
-handler.command = ['play5']; handler.help = ['play5']; handler.tags = ['downloader']; handler.register = true;
+handler.command = ['play5'];
+handler.help = ['play5'];
+handler.tags = ['downloader'];
+handler.group = true;
+handler.register = true;
+
 
 export default handler;
 
