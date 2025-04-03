@@ -50,7 +50,7 @@ try {
 
 } };
 
-const handler = async (m, { conn, text }) => { try { if (!text.trim()) { return conn.reply(m.chat, '⚔️ Ingresa el nombre de la música a descargar.', m); }
+const handler = async (m, { conn, text, usedPrefix, command }) => { try { if (!text.trim()) { return conn.reply(m.chat, '⚔️ Ingresa el nombre de la música a descargar.', m); }
 
 const search = await yts(text);
 if (!search.all || search.all.length === 0) {
@@ -85,7 +85,7 @@ await conn.sendMessage(m.chat, { audio: { url: result }, mimetype: "audio/mpeg" 
 
 } catch (error) { return m.reply(⚠️︎ *Error:* ${error.message}); } };
 
-handler.command = ['play5']; handler.help = ['play5']; handler.tags = ['downloader'];
+handler.command = ['play5']; handler.help = ['play5']; handler.tags = ['downloader']; handler.register = true;
 
 export default handler;
 
