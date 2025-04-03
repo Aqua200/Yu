@@ -7,7 +7,7 @@ const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
 const ddownr = { 
   download: async (url, format) => { 
     if (!formatAudio.includes(format)) { 
-      throw new Error('Formato no soportado, verifica la lista de formatos disponibles.');
+      throw new Error('✦ Formato no soportado. Revisa la lista de formatos disponibles.');
     }
 
     const config = {
@@ -32,7 +32,7 @@ const ddownr = {
           downloadUrl: downloadUrl
         };
       } else {
-        throw new Error('Fallo al obtener los detalles del video.');
+        throw new Error('✦ Fallo al obtener los detalles del video.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -67,21 +67,31 @@ const ddownr = {
 const handler = async (m, { conn, text, usedPrefix, command }) => { 
   try { 
     if (!text.trim()) { 
-      return conn.reply(m.chat, '⚔️ Ingresa el nombre de la música a descargar.', m); 
+      return conn.reply(m.chat, '╭───────────⩊\n│  Ingresa el nombre de la música.\n╰───────────⩊', m); 
     }
 
     const search = await yts(text);
     if (!search.all || search.all.length === 0) {
-      return m.reply('No se encontraron resultados para tu búsqueda.');
+      return m.reply('╭───────────⩊\n│  No se encontraron resultados.\n╰───────────⩊');
     }
 
     const videoInfo = search.all[0];
     const { title, thumbnail, timestamp, views, ago, url } = videoInfo;
-    const infoMessage = `•••] ✞ ◜YouTube Play◞ ✞ [•••\n\n📌 *🎬  Título : » ${title}\n👀 *💯 Vistas: » ${views}\n⏱️ *⏳ Duración : » ${timestamp}\n📅 *🕒 Publicado : » ${ago}\n🔗 *🌐 URL : » ${url}`;
+    const infoMessage = `╭───────────────⩊\n` +
+                        `│ ✦ 𝙈𝙪𝙨𝙞𝙘 𝙇𝙞𝙣𝙠 ✦\n` +
+                        `├───────────────⩊\n` +
+                        `│ ✦  Título: ${title}\n` +
+                        `│ ✦  Vistas: ${views}\n` +
+                        `│ ✦  Duración: ${timestamp}\n` +
+                        `│ ✦  Publicado: ${ago}\n` +
+                        `│ ✦  URL: ${url}\n` +
+                        `╰───────────────⩊\n` +
+                        `✦ Descargando música, por favor espera...`;
+
     const thumb = (await conn.getFile(thumbnail))?.data;
 
-    const packname = 'MiBot'; 
-    const dev = 'Desarrollador';
+    const packname = 'MusicBot'; 
+    const dev = 'Desarrollado por DevTeam';
 
     const JT = {
       contextInfo: {
@@ -102,10 +112,16 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     const api = await ddownr.download(url, 'mp3');
     const result = api.downloadUrl;
-    await conn.sendMessage(m.chat, { audio: { url: result }, mimetype: "audio/mpeg" }, { quoted: m });
+
+    await conn.sendMessage(m.chat, { 
+      audio: { url: result }, 
+      mimetype: "audio/mpeg" 
+    }, { quoted: m });
+
+    await conn.reply(m.chat, '╭───────────⩊\n│  Música lista para escuchar.\n╰───────────⩊', m);
 
   } catch (error) { 
-    return m.reply(`⚠️ *Error:* ${error.message}`); 
+    return m.reply(`╭───────────⩊\n│  ✦ Error: ${error.message}\n╰───────────⩊`); 
   } 
 };
 
