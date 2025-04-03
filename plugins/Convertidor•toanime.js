@@ -1,6 +1,9 @@
-const handler = async (m, {conn, text, args, usedPrefix, command}) => {
+import uploadImage from '../lib/uploadImage.js';
+
+const handler = async (m, { conn, text, args, usedPrefix, command }) => {
   const q = m.quoted ? m.quoted : m;
   const mime = (q.msg || q).mimetype || q.mediaType || '';
+  
   if (!/image/g.test(mime)) throw '🛑 *Responda a una imagen*';
   m.reply('☄️ *Convirtiendo la imagen en anime, espere un momento...*');
   
@@ -32,3 +35,9 @@ const handler = async (m, {conn, text, args, usedPrefix, command}) => {
     }
   }
 };
+
+// Registrar el comando correctamente
+handler.help = ['toanime', 'jadianime'];  // Asegúrate de que el comando esté en esta lista
+handler.tags = ['tools'];
+handler.command = ['jadianime', 'toanime'];  // Asegúrate de que coincidan con los comandos de tu bot
+export default handler;
