@@ -1,8 +1,8 @@
 import fetch from "node-fetch"; import yts from 'yt-search'; import axios from "axios";
 
-const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav']; const formatVideo = ['360', '480', '720', '1080', '1440', '4k'];
+const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
 
-const ddownr = { download: async (url, format) => { if (!formatAudio.includes(format) && !formatVideo.includes(format)) { throw new Error('Formato no soportado, verifica la lista de formatos disponibles.'); }
+const ddownr = { download: async (url, format) => { if (!formatAudio.includes(format)) { throw new Error('Formato no soportado, verifica la lista de formatos disponibles.'); }
 
 const config = {
   method: 'GET',
@@ -14,7 +14,6 @@ const config = {
 
 try {
   const response = await axios.request(config);
-
   if (response.data && response.data.success) {
     const { id, title, info } = response.data;
     const { image } = info;
@@ -39,7 +38,6 @@ try {
 try {
   while (true) {
     const response = await axios.request(config);
-
     if (response.data && response.data.success && response.data.progress === 1000) {
       return response.data.download_url;
     }
@@ -52,7 +50,7 @@ try {
 
 } };
 
-const handler = async (m, { conn, text }) => { try { if (!text.trim()) { return conn.reply(m.chat, ⚔️ ingresa el nombre de la música a descargar., m); }
+const handler = async (m, { conn, text }) => { try { if (!text.trim()) { return conn.reply(m.chat, '⚔️ Ingresa el nombre de la música a descargar.', m); }
 
 const search = await yts(text);
 if (!search.all || search.all.length === 0) {
