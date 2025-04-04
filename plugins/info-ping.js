@@ -22,7 +22,7 @@ var handler = async (m, { conn, args }) => {
 
     let hora = new Date().getHours()
     let nombreUsuario = conn.getName(m.sender) || "querido usuario"
-    let saludo = hora < 12 ? `🌸 Buenos días, ${nombreUsuario}` : hora < 18 ? `🌅 Buenas tardes, ${nombreUsuario}` : `🌙 Buenas noches, ${nombreUsuario}`
+    let saludo = hora < 11 ? `🌸 Buenos días, ${nombreUsuario}` : hora < 12 ? `🌅 Buenas tardes, ${nombreUsuario}` : `🌙 Buenas noches, ${nombreUsuario} : hora < 6 ?`
 
     let cpu = await osu.cpu.usage()
     let cpuTexto = `💾 *CPU:* ${cpu.toFixed(2)}%`
