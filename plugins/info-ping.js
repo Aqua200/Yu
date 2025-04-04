@@ -8,6 +8,9 @@ import { spawn, exec, execSync } from 'child_process'
 const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
 
 var handler = async (m, { conn, args }) => {
+    // Primero reacciona al mensaje
+    await m.react('🤍')
+
     let timestamp = speed()
     let latensi = speed() - timestamp
 
@@ -21,39 +24,38 @@ var handler = async (m, { conn, args }) => {
 
     // Obtener la hora actual
     let hora = new Date().getHours()
-    let saludo = hora < 12 ? "🌸 𝐵𝑢𝑒𝑛𝑜𝑠 𝑑í𝑎𝑠" : hora < 18 ? "🌅 𝐵𝑢𝑒𝑛𝑎𝑠 𝑡𝑎𝑟𝑑𝑒𝑠" : "🌙 𝐵𝑢𝑒𝑛𝑎𝑠 𝑛𝑜𝑐ℎ𝑒𝑠"
+    let saludo = hora < 12 ? "🌸 Buenos días" : hora < 18 ? "🌅 Buenas tardes" : "🌙 Buenas noches"
 
     let texto = `
-❀──✦・𝒩𝒾𝓋𝑒𝓁 𝒹𝑒 𝓅𝑜𝓉𝑒𝓃𝒸𝒾𝒶・✦──❀
+╭───────────────❀
+│ ${saludo} querido usuario 💖
+╰───────────────❀
 
-${saludo} 𝑀𝒾 𝓁𝒾𝓃𝒹𝑜 𝓊𝓈𝓊𝒶𝓇𝒾𝑜 💖
+╭━━━✦ ✦━━━╮
+┃ 🚀 *Velocidad:*  
+┃ ⏱️ ${latensi.toFixed(4)} ms
+╰━━━✦ ✦━━━╯
 
-╭── ⋆⋅☆⋅⋆ ──╮
-🌟 *𝑉𝑒𝓁𝑜𝒸𝒾𝒹𝒶𝒹:* 
-⏱️ ${latensi.toFixed(4)} ms
-╰── ⋆⋅☆⋅⋆ ──╯
+╭━━━✦ ✦━━━╮
+┃ ⏳ *Actividad:*  
+┃ ⌛ ${muptime}
+╰━━━✦ ✦━━━╯
 
-╭── ⋆⋅☆⋅⋆ ──╮
-📌 *𝒜𝒸𝓉𝒾𝓋𝒾𝒹𝒶𝒹:* 
-⏳ ${muptime}
-╰── ⋆⋅☆⋅⋆ ──╯
+╭━━━✦ ✦━━━╮
+┃ 💌 *Chats:*  
+┃ 💬 ${chats.length} Chats privados  
+┃ 🏡 ${groups.length} Grupos  
+╰━━━✦ ✦━━━╯
 
-╭── ⋆⋅☆⋅⋆ ──╮
-📩 *𝒞𝒽𝒶𝓉𝓈:*  
-👥 ${chats.length} Chats privados  
-🏘️ ${groups.length} Grupos  
-╰── ⋆⋅☆⋅⋆ ──╯
+╭━━━✦ ✦━━━╮
+┃ 💻 *Servidor:*  
+┃ 🖥️ RAM: ${format(totalmem() - freemem())} / ${format(totalmem())}
+╰━━━✦ ✦━━━╯
 
-╭── ⋆⋅☆⋅⋆ ──╮
-💻 *𝒮𝑒𝓇𝓋𝒾𝒹𝑜𝓇:*  
-🖥️ 𝑅𝒶𝓂: ${format(totalmem() - freemem())} / ${format(totalmem())}
-╰── ⋆⋅☆⋅⋆ ──╯
-
-${url ? `📡 *𝐸𝓃𝓁𝒶𝒸𝑒:* ${url}` : ''}
+${url ? `📡 *Enlace:* ${url}` : ''}
 `.trim()
 
     await conn.sendFile(m.chat, "https://files.catbox.moe/mfzdh9.jpeg", '2B.jpg', texto, null)
-    await m.react('🤍')
 }
 
 handler.help = ['ping']
