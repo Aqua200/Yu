@@ -1,6 +1,6 @@
-<h1 align="center">✦ Yυƙι-Sυσυ-Bσƚ ✦</h1>
+<h1 align="center">✦ 𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵 ✦</h1>
 
- <img src= "https://files.catbox.moe/om9jai.jpg">
+ <img src= "https://files.catbox.moe/05rgy5.jpeg">
     </p>
 
 ### **`❕️ Información importante`**
