@@ -1,11 +1,4 @@
-import { totalmem, freemem } from 'os'
-import osu from 'node-os-utils'
-import { performance } from 'perf_hooks'
-import { sizeFormatter } from 'human-readable'
-import speed from 'performance-now'
-import { spawn, exec, execSync } from 'child_process'
-
-const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
+import moment from 'moment-timezone'; // Importa la librería moment-timezone
 
 var handler = async (m, { conn, args }) => {
     await m.react('🤍')
@@ -20,7 +13,7 @@ var handler = async (m, { conn, args }) => {
 
     let url = args.length > 0 ? args.join(' ') : '' 
 
-    let hora = new Date().getHours()
+    let hora = moment().tz("America/Caracas").hour() // Ajusta según la zona horaria
     let nombreUsuario = conn.getName(m.sender) || "querido usuario"
     let saludo = hora < 12 ? `🌸 Buenos días, ${nombreUsuario}` : hora < 18 ? `🌅 Buenas tardes, ${nombreUsuario}` : `🌙 Buenas noches, ${nombreUsuario}`
 
@@ -38,7 +31,7 @@ var handler = async (m, { conn, args }) => {
 ╭━━━✦ ✦━━━╮
 ┃ 🚀 *Velocidad:*  
 ┃ ⏱️ ${latensi.toFixed(4)} ms
-╰━━━✦ ✦━━━╯
+╰━━━✦ ✦━━━╮
 
 ╭━━━✦ ✦━━━╮
 ┃ ⏳ *Actividad:*  
