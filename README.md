@@ -2,6 +2,8 @@
 
  <img src= "https://files.catbox.moe/05rgy5.jpeg">
     </p>
+    <p style="color: red;">Este texto es rojo</p>
+<p style="color: blue;">Este texto es azul</p>
 
 ### **`❕️ Información importante`**
 
