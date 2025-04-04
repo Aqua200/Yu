@@ -2,8 +2,8 @@
 
  <img src= "https://files.catbox.moe/05rgy5.jpeg">
     </p>
-    
-    [![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=8A2BE2&lines=Bienvenid@+a+mi+repositorio;disfruta+de+2B+❤️‍🔥Neykoor)](https://git.io/typing-svg)
+
+[![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&color=8A2BE2&lines=Bienvenid@+a+mi+repositorio;disfruta+de+HuTao🦋+❤️‍🔥yajuuu🔥)](https://git.io/typing-svg)
 
 
 ### **`❕️ Información importante`**
