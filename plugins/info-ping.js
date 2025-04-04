@@ -2,7 +2,7 @@ import { totalmem, freemem } from 'os'
 import osu from 'node-os-utils'
 import { performance } from 'perf_hooks'
 import { sizeFormatter } from 'human-readable'
-import speed from 'performance-now' // Asegúrate de que esta línea esté aquí
+import speed from 'performance-now'
 import { spawn, exec, execSync } from 'child_process'
 
 const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
@@ -10,7 +10,7 @@ const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroe
 var handler = async (m, { conn, args }) => {
     await m.react('🤍')
 
-    let timestamp = speed() // Aquí se usa la función speed que ahora está importada
+    let timestamp = speed()
     let latensi = speed() - timestamp
     let _muptime = process.uptime() * 1000
     let muptime = clockString(_muptime)
@@ -22,7 +22,10 @@ var handler = async (m, { conn, args }) => {
 
     let hora = new Date().getHours()
     let nombreUsuario = conn.getName(m.sender) || "querido usuario"
-    let saludo = hora < 11 ? `🌸 Buenos días, ${nombreUsuario}` : hora < 12 ? `🌅 Buenas tardes, ${nombreUsuario}` : `🌙 Buenas noches, ${nombreUsuario} : hora < 6 ?`
+    let saludo = hora < 6 ? `🌙 Buenas noches, ${nombreUsuario}` : 
+                 hora < 12 ? `🌸 Buenos días, ${nombreUsuario}` : 
+                 hora < 19 ? `🌅 Buenas tardes, ${nombreUsuario}` : 
+                 `🌙 Buenas noches, ${nombreUsuario}`
 
     let cpu = await osu.cpu.usage()
     let cpuTexto = `💾 *CPU:* ${cpu.toFixed(2)}%`
