@@ -8,12 +8,10 @@ import { spawn, exec, execSync } from 'child_process'
 const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
 
 var handler = async (m, { conn, args }) => {
-    // Primero reacciona al mensaje
     await m.react('🤍')
 
     let timestamp = speed()
     let latensi = speed() - timestamp
-
     let _muptime = process.uptime() * 1000
     let muptime = clockString(_muptime)
 
@@ -22,13 +20,19 @@ var handler = async (m, { conn, args }) => {
 
     let url = args.length > 0 ? args.join(' ') : '' 
 
-    // Obtener la hora actual
     let hora = new Date().getHours()
-    let saludo = hora < 12 ? "🌸 Buenos días" : hora < 18 ? "🌅 Buenas tardes" : "🌙 Buenas noches"
+    let nombreUsuario = conn.getName(m.sender) || "querido usuario"
+    let saludo = hora < 12 ? `🌸 Buenos días, ${nombreUsuario}` : hora < 18 ? `🌅 Buenas tardes, ${nombreUsuario}` : `🌙 Buenas noches, ${nombreUsuario}`
+
+    let cpu = await osu.cpu.usage()
+    let cpuTexto = `💾 *CPU:* ${cpu.toFixed(2)}%`
+    
+    let versionBot = "Anika Dm v2.0"
 
     let texto = `
 ╭───────────────❀
-│ ${saludo} querido usuario 💖
+│ ${saludo} 💖
+│ 🤖 *Versión:* ${versionBot}
 ╰───────────────❀
 
 ╭━━━✦ ✦━━━╮
@@ -50,6 +54,7 @@ var handler = async (m, { conn, args }) => {
 ╭━━━✦ ✦━━━╮
 ┃ 💻 *Servidor:*  
 ┃ 🖥️ RAM: ${format(totalmem() - freemem())} / ${format(totalmem())}
+┃ ${cpuTexto}
 ╰━━━✦ ✦━━━╯
 
 ${url ? `📡 *Enlace:* ${url}` : ''}
