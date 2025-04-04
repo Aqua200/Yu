@@ -4,10 +4,18 @@ import axios from "axios";
 
 const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
 
+// 🌈 Paleta de colores y decoración tipo "Neko" (sin gatos)
+const decorator = {
+  header: '╭─── ⋆⋅☆⋅⋆ ───⭑',
+  body: '│ ✧',
+  footer: '╰─── ⋆⋅☆⋅⋆ ───⭑',
+  divider: '├─── ⋅☾⋅ ───⭑'
+};
+
 const ddownr = { 
   download: async (url, format) => { 
     if (!formatAudio.includes(format)) { 
-      throw new Error('✦ Formato no soportado. Revisa la lista de formatos disponibles.');
+      throw new Error(`${decorator.body} Formato no soportado. Formatos disponibles: ${formatAudio.join(', ')}`);
     }
 
     const config = {
@@ -32,7 +40,7 @@ const ddownr = {
           downloadUrl: downloadUrl
         };
       } else {
-        throw new Error('✦ Fallo al obtener los detalles del video.');
+        throw new Error(`${decorator.body} Fallo al obtener los detalles del video.`);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -67,68 +75,92 @@ const ddownr = {
 const handler = async (m, { conn, text, usedPrefix, command }) => { 
   try { 
     if (!text.trim()) { 
-      return conn.reply(m.chat, '╭───────────⩊\n│  Ingresa el nombre de la música.\n╰───────────⩊', m); 
+      return conn.reply(m.chat, `${decorator.header}\n${decorator.body} Ingresa el nombre de la música.\n${decorator.footer}`, m); 
     }
+
+    // Mostrar mensaje de búsqueda
+    await conn.sendMessage(m.chat, { 
+      text: `${decorator.header}\n${decorator.body} 🔍 Buscando: "${text}"\n${decorator.footer}`,
+      contextInfo: { 
+        externalAdReply: {
+          title: '✨ Music Searcher ✨',
+          body: 'Buscando en YouTube...',
+          mediaType: 1,
+          sourceUrl: 'https://www.youtube.com',
+          thumbnail: await (await conn.getFile('https://i.imgur.com/7Q6yzzE.png')).data
+        }
+      }
+    }, { quoted: m });
 
     const search = await yts(text);
     if (!search.all || search.all.length === 0) {
-      return m.reply('╭───────────⩊\n│  No se encontraron resultados.\n╰───────────⩊');
+      return m.reply(`${decorator.header}\n${decorator.body} No se encontraron resultados.\n${decorator.footer}`);
     }
 
-    const videoInfo = search.all[0];
-    const { title, thumbnail, timestamp, views, ago, url } = videoInfo;
-    const infoMessage = `╭───────────────⩊\n` +
-                        `│ ✦ 𝙈𝙪𝙨𝙞𝙘 𝙇𝙞𝙣𝙠 ✦\n` +
-                        `├───────────────⩊\n` +
-                        `│ ✦  Título: ${title}\n` +
-                        `│ ✦  Vistas: ${views}\n` +
-                        `│ ✦  Duración: ${timestamp}\n` +
-                        `│ ✦  Publicado: ${ago}\n` +
-                        `│ ✦  URL: ${url}\n` +
-                        `╰───────────────⩊\n` +
-                        `✦ Descargando música, por favor espera...`;
+    // Seleccionar el mejor resultado (mayor coincidencia)
+    const videoInfo = search.all.sort((a, b) => b.views - a.views)[0];
+    const { title, thumbnail, timestamp, views, ago, url, author } = videoInfo;
+
+    // Formatear la información del video
+    const infoMessage = `${decorator.header}\n` +
+                       `${decorator.body} 🎵 *${title}*\n` +
+                       `${decorator.divider}\n` +
+                       `${decorator.body} 👤 Artista: ${author?.name || 'Desconocido'}\n` +
+                       `${decorator.body} 👀 Vistas: ${views}\n` +
+                       `${decorator.body} ⏱ Duración: ${timestamp}\n` +
+                       `${decorator.body} 📅 Publicado: ${ago}\n` +
+                       `${decorator.footer}\n` +
+                       `${decorator.body} ⏳ Descargando audio, por favor espera...`;
 
     const thumb = (await conn.getFile(thumbnail))?.data;
 
-    const packname = 'MusicBot'; 
-    const dev = 'Desarrollado por DevTeam';
-
-    const JT = {
+    await conn.reply(m.chat, infoMessage, m, {
       contextInfo: {
         externalAdReply: {
-          title: packname,
-          body: dev,
+          title: title.slice(0, 30),
+          body: `por ${author?.name || 'Artista desconocido'}`,
           mediaType: 1,
-          previewType: 0,
-          mediaUrl: url,
-          sourceUrl: url,
           thumbnail: thumb,
-          renderLargerThumbnail: true,
-        },
-      },
-    };
+          sourceUrl: url,
+          renderLargerThumbnail: true
+        }
+      }
+    });
 
-    await conn.reply(m.chat, infoMessage, m, JT);
-
+    // Descargar el audio en formato MP3 (320kbps)
     const api = await ddownr.download(url, 'mp3');
     const result = api.downloadUrl;
 
+    // Enviar el audio con metadatos
     await conn.sendMessage(m.chat, { 
       audio: { url: result }, 
-      mimetype: "audio/mpeg" 
+      mimetype: "audio/mpeg",
+      contextInfo: {
+        externalAdReply: {
+          title: title,
+          body: author?.name || '',
+          mediaType: 2,
+          thumbnail: thumb,
+          sourceUrl: url
+        }
+      }
     }, { quoted: m });
 
-    await conn.reply(m.chat, '╭───────────⩊\n│  Música lista para escuchar.\n╰───────────⩊', m);
+    // Mensaje de confirmación
+    await conn.reply(m.chat, `${decorator.header}\n${decorator.body} ✅ Audio descargado correctamente!\n${decorator.body} 🎧 Disfruta de tu música~\n${decorator.footer}`, m);
 
   } catch (error) { 
-    return m.reply(`╭───────────⩊\n│  ✦ Error: ${error.message}\n╰───────────⩊`); 
+    console.error('Error en el handler:', error);
+    return m.reply(`${decorator.header}\n${decorator.body} ❌ Error: ${error.message}\n${decorator.footer}`); 
   } 
 };
 
-handler.command = ['play5'];
-handler.help = ['play5'];
-handler.tags = ['downloader'];
+// Configuración del comando
+handler.command = ['play', 'music', 'play5'];
+handler.help = ['play <nombre de la canción> - Descarga música de YouTube'];
+handler.tags = ['downloader', 'music'];
 handler.group = true;
 handler.register = true;
+handler.limit = true; // Limitar para evitar abuso
 
 export default handler;
