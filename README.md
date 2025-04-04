@@ -86,7 +86,7 @@ npm start
 ❒ Abre Termux y navega al directorio del bot:
    
    ```bash
-    cd Yuki_Suou-Bot
+    cd Yu
    ```
 
 ❒ Inicia el bot nuevamente:
@@ -111,9 +111,9 @@ npm start
 <details>
  <summary><b> 🍭 Grupos Oficiales </b></summary>
 
- * Canal Oficial  [`¡Click aquí!`](https://whatsapp.com/channel/0029VapSIvR5EjxsD1B7hU3T)
-* Grupo Oficial [`¡Click aquí!`](https://chat.whatsapp.com/Ecz881bBgqPIWjDOaKkp7E)
-* Comunidad Oficial [`¡Click aquí!`](https://chat.whatsapp.com/EwrwcGvpLf1BnMhP3B4axD)
+ * Canal Oficial  [`¡Click aquí!`](https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24)
+* Grupo Oficial [`¡Click aquí!`](https://chat.whatsapp.com/Lf5b8iMlbCbEvYlDQC6SgC)
+* Comunidad Oficial [`¡Click aquí!`](https://chat.whatsapp.com/Lf5b8iMlbCbEvYlDQC6SgC)
 </details>
 
 <details>
