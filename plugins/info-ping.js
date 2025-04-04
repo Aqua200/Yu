@@ -1,9 +1,16 @@
-import moment from 'moment-timezone'; // Importa la librería moment-timezone
+import { totalmem, freemem } from 'os'
+import osu from 'node-os-utils'
+import { performance } from 'perf_hooks'
+import { sizeFormatter } from 'human-readable'
+import speed from 'performance-now' // Asegúrate de que esta línea esté aquí
+import { spawn, exec, execSync } from 'child_process'
+
+const format = sizeFormatter({ std: 'JEDEC', decimalPlaces: 2, keepTrailingZeroes: false, render: (literal, symbol) => `${literal} ${symbol}B` })
 
 var handler = async (m, { conn, args }) => {
     await m.react('🤍')
 
-    let timestamp = speed()
+    let timestamp = speed() // Aquí se usa la función speed que ahora está importada
     let latensi = speed() - timestamp
     let _muptime = process.uptime() * 1000
     let muptime = clockString(_muptime)
@@ -13,7 +20,7 @@ var handler = async (m, { conn, args }) => {
 
     let url = args.length > 0 ? args.join(' ') : '' 
 
-    let hora = moment().tz("America/Caracas").hour() // Ajusta según la zona horaria
+    let hora = new Date().getHours()
     let nombreUsuario = conn.getName(m.sender) || "querido usuario"
     let saludo = hora < 12 ? `🌸 Buenos días, ${nombreUsuario}` : hora < 18 ? `🌅 Buenas tardes, ${nombreUsuario}` : `🌙 Buenas noches, ${nombreUsuario}`
 
