@@ -27,7 +27,7 @@ var handler = async (m, { conn, args }) => {
     let cpu = await osu.cpu.usage()
     let cpuTexto = `💾 *CPU:* ${cpu.toFixed(2)}%`
     
-    let versionBot = "Anika Dm v2.0"
+    let versionBot = "2B v2.0"
 
     let texto = `
 ╭───────────────❀
