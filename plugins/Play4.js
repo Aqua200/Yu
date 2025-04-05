@@ -28,16 +28,18 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         
         const downloadUrl = await checkProgress(res.data.id);
         
-        // Cambios para Termux:
-        // 1. Usar un directorio temporal en $HOME, donde siempre tienes permisos
-        const tmpDir = path.join(process.env.HOME, 'tmp');
+        // Directorio temporal compatible con Termux
+        const tmpDir = '/data/data/com.termux/files/usr/tmp';
         if (!fs.existsSync(tmpDir)) {
             fs.mkdirSync(tmpDir, { recursive: true });
         }
 
         const filePath = path.join(tmpDir, `${Date.now()}.mp3`);
         const audioRes = await axios.get(downloadUrl, { responseType: 'stream' });
-        await streamPipeline(audioRes.data, fs.createWriteStream(filePath));
+
+        // Crear el flujo con un buffer más grande para acelerar la descarga
+        const writer = fs.createWriteStream(filePath, { highWaterMark: 64 * 1024 }); // 64 KB
+        await streamPipeline(audioRes.data, writer);
 
         await conn.sendMessage(m.chat, {
             audio: fs.readFileSync(filePath),
@@ -56,7 +58,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
             }
         }, { quoted: m });
 
-        // Limpiar el archivo temporal
+        // Limpiar archivo temporal
         fs.unlinkSync(filePath);
     } catch (err) {
         console.error(err);
@@ -64,6 +66,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 };
 
+// Versión rápida de checkProgress
 const checkProgress = async (id) => {
     while (true) {
         try {
@@ -71,10 +74,10 @@ const checkProgress = async (id) => {
             if (res.data?.success && res.data.progress === 1000) {
                 return res.data.download_url;
             }
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Antes 5000
         } catch (e) {
             console.error('Error en checkProgress:', e);
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
         }
     }
 };
