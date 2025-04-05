@@ -5,9 +5,20 @@ const subOwners = [
   '18498613998'      // +1 (849) 861-3998 (formateado correctamente)
 ];
 
-let handler = async (m, { conn, sender }) => {
+let handler = async (m, { conn, participants, sender }) => {
+  // Verificar si sender está definido
+  if (!sender) {
+    return m.reply("❌ No se pudo identificar el remitente.");
+  }
+
   // Normalizar el número del remitente para comparación
-  const senderNumber = sender.replace(/[^0-9]/g, '');
+  let senderNumber;
+  try {
+    senderNumber = sender.replace(/[^0-9]/g, '');
+  } catch (e) {
+    console.error("Error al procesar el número del remitente:", e);
+    return m.reply("❌ Error al verificar permisos.");
+  }
 
   // Verificar si el usuario es un sub-bot
   if (!subOwners.includes(senderNumber)) {
@@ -15,7 +26,7 @@ let handler = async (m, { conn, sender }) => {
   }
 
   // Si el mensaje tiene una imagen citada
-  if (m.quoted && /image/.test(m.quoted.mimetype)) {
+  if (m.quoted && m.quoted.mimetype && /image/.test(m.quoted.mimetype)) {
     try {
       const media = await m.quoted.download();
       let link = await catbox(media);
@@ -28,7 +39,7 @@ let handler = async (m, { conn, sender }) => {
       await conn.sendFile(m.chat, media, 'banner.jpg', '✅ Banner actualizado correctamente', m);
 
     } catch (error) {
-      console.error(error);
+      console.error("Error al cambiar banner:", error);
       m.reply("🔴 Ocurrió un error al intentar cambiar el banner.");
     }
 
@@ -44,6 +55,7 @@ let handler = async (m, { conn, sender }) => {
 
 // Función para validar imágenes
 const isImageValid = (buffer) => {
+  if (!buffer || buffer.length < 4) return false;
   const magicBytes = buffer.slice(0, 4).toString('hex');
   const validFormats = ['ffd8ffe0', 'ffd8ffe1', 'ffd8ffe2', '89504e47', '47494638'];
   return validFormats.includes(magicBytes);
@@ -55,24 +67,30 @@ handler.command = ['setbanner2'];
 
 export default handler;
 
-// Funciones auxiliares (catbox y formatBytes permanecen igual)
+// Función para subir imágenes a catbox (asegúrate de tener las dependencias necesarias)
 async function catbox(content) {
-  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
-  const blob = new Blob([content.toArrayBuffer()], { type: mime });
-  const formData = new FormData();
-  const randomBytes = crypto.randomBytes(5).toString("hex");
-  formData.append("reqtype", "fileupload");
-  formData.append("fileToUpload", blob, randomBytes + "." + ext);
+  try {
+    const { fileTypeFromBuffer } = await import('file-type');
+    const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
+    const blob = new Blob([content.buffer ? content.buffer : content], { type: mime });
+    const formData = new FormData();
+    const randomBytes = crypto.randomBytes(5).toString("hex");
+    formData.append("reqtype", "fileupload");
+    formData.append("fileToUpload", blob, randomBytes + "." + ext);
 
-  const response = await fetch("https://catbox.moe/user/api.php", {
-    method: "POST",
-    body: formData,
-    headers: {
-      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
-    },
-  });
+    const response = await fetch("https://catbox.moe/user/api.php", {
+      method: "POST",
+      body: formData,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
+      },
+    });
 
-  return await response.text();
+    return await response.text();
+  } catch (error) {
+    console.error("Error en catbox:", error);
+    throw error;
+  }
 }
 
 function formatBytes(bytes) {
