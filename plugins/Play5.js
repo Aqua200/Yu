@@ -1,81 +1,34 @@
-import yts from 'yt-search';
+import fetch from 'node-fetch';
+import fg from 'senna-fg';
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) throw `*Ejemplo:* ${usedPrefix + command} canción o artista`;
-    
-    try {
-        // Realizar búsqueda en YouTube
-        const search = await yts(text);
-        if (!search.all || search.all.length === 0) throw 'No se encontraron resultados para tu búsqueda';
-        
-        const isVideo = command.includes('vid');
-        const videoInfo = search.videos[0]; // Usamos videos en lugar de all para mayor precisión
-        
-        if (!videoInfo) throw 'No se encontró el video solicitado';
-        
-        const body = `🎵 *YouTube Play* 🎵
+let handler = async(m, { conn, usedPrefix, command, text }) => {
 
-📌 *Título:* ${videoInfo.title}
-👀 *Vistas:* ${videoInfo.views}
-⏳ *Duración:* ${videoInfo.timestamp}
-📅 *Subido:* ${videoInfo.ago}
-🔗 *Enlace:* ${videoInfo.url}
+if (!text) return m.reply(`🍭 Ingresa Un Texto Para Buscar En Youtube\n> *Ejemplo:* ${usedPrefix + command} crow edits`);
 
-⏳ *Preparando tu ${isVideo ? 'video' : 'audio'}...*`;
-        
-        // Enviar información del video
-        await conn.sendMessage(m.chat, {
-            image: { url: videoInfo.thumbnail },
-            caption: body
-        }, { quoted: m });
-        
-        await m.react('🔍');
-        
-        // Descargar el contenido
-        const mediaData = await dl_vid(videoInfo.url);
-        if (!mediaData?.data) throw 'Error al obtener el contenido';
-        
-        // Enviar el archivo multimedia
-        await conn.sendMessage(m.chat, {
-            [isVideo ? 'video' : 'audio']: {
-                url: isVideo ? mediaData.data.mp4 : mediaData.data.mp3
-            },
-            mimetype: isVideo ? 'video/mp4' : 'audio/mpeg',
-            caption: `🎬 ${videoInfo.title}`
-        }, { quoted: m });
-        
-        await m.react('✅');
-        
-    } catch (error) {
-        console.error('Error en el handler:', error);
-        await m.reply(`❌ Error: ${error.message || error}`);
-        await m.react('❌');
-    }
+try {
+let api = await (await fetch(`https://delirius-apiofc.vercel.app/search/ytsearch?q=${text}`)).json();
+
+let results = api.data[0];
+
+let txt = `✨ *Título:* ${results.title}\n⌛ *Duración:* ${results.duration}\n📎 *Link:* ${results.url}\n📆 *Publicado:* ${results.publishedAt}`;
+
+let img = results.image;
+
+m.react('🕒');
+conn.sendMessage(m.chat, { image: { url: img }, caption: txt }, { quoted: m });
+
+let data = await fg.ytmp4(results.url);
+let url = data.dl_url;
+
+await conn.sendMessage(m.chat, { document: { url: url }, fileName: `${results.title}.mp4`, caption: `> ${wm}`, mimetype: 'video/mp4' }, { quoted: m })
+m.react('✅');     
+
+} catch (e) {
+m.reply(`Error: ${e.message}`);
+m.react('✖️');
+  }
 }
 
-handler.command = ['play5', 'playvid5'];
-handler.help = ['play5 <búsqueda> - Descarga audio de YouTube', 'playvid5 <búsqueda> - Descarga video de YouTube'];
-handler.tags = ['downloader'];
-export default handler;
+handler.command = ['play5', 'pvideo', 'play2'];
 
-async function dl_vid(url) {
-    try {
-        const response = await fetch('https://shinoa.us.kg/api/download/ytdl', {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ text: url })
-        });
-
-        if (!response.ok) {
-            throw new Error(`API respondió con estado ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('Error en dl_vid:', error);
-        throw new Error('Falló la descarga del video');
-    }
-}
+export default handler
