@@ -50,7 +50,7 @@ let handler = async (m, { conn, isPrems }) => {
   if (Math.random() < 0.05) {
     lugares.push({
       nombre: 'DRAGÓN DORADO 🐉✨',
-      imagen: 'https://files.catbox.moe/1j3f0d.jpeg',
+      imagen: 'https://files.catbox.moe/abgoij.PNG',
       situaciones: [
         { 
           descripcion: '¡EVENTO RARO! Derrotas al dragón y obtienes un tesoro épico.', 
