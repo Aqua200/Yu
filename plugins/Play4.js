@@ -28,8 +28,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         
         const downloadUrl = await checkProgress(res.data.id);
         
-        // Directorio temporal seguro en Termux
-        const tmpDir = '/data/data/com.termux/files/home/tmp';
+        // Carpeta temporal local (en donde esté el bot)
+        const tmpDir = path.join(process.cwd(), 'tmp');
         if (!fs.existsSync(tmpDir)) {
             fs.mkdirSync(tmpDir, { recursive: true });
         }
