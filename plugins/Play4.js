@@ -28,8 +28,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         
         const downloadUrl = await checkProgress(res.data.id);
         
-        // Directorio temporal compatible con Termux
-        const tmpDir = '/data/data/com.termux/files/usr/tmp';
+        // Directorio temporal seguro en Termux
+        const tmpDir = '/data/data/com.termux/files/home/tmp';
         if (!fs.existsSync(tmpDir)) {
             fs.mkdirSync(tmpDir, { recursive: true });
         }
@@ -37,7 +37,6 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         const filePath = path.join(tmpDir, `${Date.now()}.mp3`);
         const audioRes = await axios.get(downloadUrl, { responseType: 'stream' });
 
-        // Crear el flujo con un buffer más grande para acelerar la descarga
         const writer = fs.createWriteStream(filePath, { highWaterMark: 64 * 1024 }); // 64 KB
         await streamPipeline(audioRes.data, writer);
 
@@ -58,15 +57,13 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
             }
         }, { quoted: m });
 
-        // Limpiar archivo temporal
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(filePath); // Borrar archivo temporal
     } catch (err) {
         console.error(err);
         throw `❌ Error: ${err.message || err}`;
     }
 };
 
-// Versión rápida de checkProgress
 const checkProgress = async (id) => {
     while (true) {
         try {
@@ -74,7 +71,7 @@ const checkProgress = async (id) => {
             if (res.data?.success && res.data.progress === 1000) {
                 return res.data.download_url;
             }
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Antes 5000
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Espera 1.5 segundos
         } catch (e) {
             console.error('Error en checkProgress:', e);
             await new Promise(resolve => setTimeout(resolve, 1500));
