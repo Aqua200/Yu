@@ -1,34 +1,98 @@
-import Jimp from 'jimp';
+import fs from 'fs';  
+import path from 'path';  
+import fetch from "node-fetch";
+import crypto from "crypto";
+import { FormData, Blob } from "formdata-node";
+import { fileTypeFromBuffer } from "file-type";
 
-let handler = async (m, { conn, isROwner, isOwner }) => {
-  if (!isROwner && !isOwner) 
-    return conn.reply(m.chat, 'Este comando es solo para el owner o subowner.', m);
+// Lista de sub-owners
+const subOwners = ['+58 412-5014674', '+58 412-1234567', '+1 (849) 861-3998'];  // Agregué el nuevo número aquí
 
-  if (!m.quoted) 
-    return conn.reply(m.chat, 'Por favor, responde a una imagen para cambiar la foto de perfil.', m);
+let handler = async (m, { conn, isRowner, sender }) => {
 
-  try {
-    const media = await m.quoted.download();
-    if (!media) 
-      return conn.reply(m.chat, 'No se pudo obtener la imagen.', m);
+  // Verificar si el usuario es el owner o un sub-owner
+  if (!isRowner && !subOwners.includes(sender)) {
+    return m.reply("No tienes permiso para cambiar el banner.");
+  }
 
-    const image = await Jimp.read(media);
-    const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+  // Si el mensaje tiene una imagen citada
+  if (m.quoted && /image/.test(m.quoted.mimetype)) {
+    try {
+      const media = await m.quoted.download();
+      let link = await catbox(media);
 
-    // Usamos m.sender para cambiar la foto de perfil del subpropietario
-    const userNumber = m.sender;
-    await conn.updateProfilePicture(userNumber, buffer);
+      if (!isImageValid(media)) {
+        return m.reply(`${emoji2} El archivo enviado no es una imagen válida.`);
+      }
 
-    return conn.reply(m.chat, 'Foto de perfil cambiada con éxito.', m);
-  } catch (e) {
-    console.error(e);
-    return conn.reply(m.chat, 'Ocurrió un error al intentar cambiar la foto de perfil.', m);
+      global.banner = `${link}`;
+      await conn.sendFile(m.chat, media, 'banner.jpg', `${emoji} Banner actualizado.`, m);
+
+    } catch (error) {
+      console.error(error);
+      m.reply(`${msm} Hubo un error al intentar cambiar el banner.`);
+    }
+
+  // Si el mensaje contiene un link
+  } else if (m.text && m.text.match(/https?:\/\/.*\.(jpg|jpeg|png|gif)/)) {
+    let link = m.text.match(/https?:\/\/.*\.(jpg|jpeg|png|gif)/)[0];
+    global.banner = link;
+    m.reply(`${emoji} Banner actualizado con el link proporcionado: ${link}`);
+  } else {
+    m.reply(`${emoji} Por favor, responde a una imagen o envía un link válido de una imagen con el comando *setbanner2* para actualizar la foto del menú.`);
   }
 };
 
-handler.help = ['setsubpfp'];
-handler.tags = ['owner'];
-handler.command = ['setsubpfp']; // ahora es .setsubpfp
-handler.owner = true; // permite owner y subowner
+const isImageValid = (buffer) => {
+  const magicBytes = buffer.slice(0, 4).toString('hex');
+
+  if (magicBytes === 'ffd8ffe0' || magicBytes === 'ffd8ffe1' || magicBytes === 'ffd8ffe2') {
+    return true;
+  }
+
+  if (magicBytes === '89504e47') {
+    return true;
+  }
+
+  if (magicBytes === '47494638') {
+    return true;
+  }
+
+  return false; 
+};
+
+handler.help = ['setbanner2'];
+handler.tags = ['tools'];
+handler.command = ['setbanner2'];  // El comando sigue siendo .setbanner2
+handler.rowner = true;
 
 export default handler;
+
+function formatBytes(bytes) {
+  if (bytes === 0) {
+    return "0 B";
+  }
+  const sizes = ["B", "KB", "MB", "GB", "TB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / 1024 ** i).toFixed(2)} ${sizes[i]}`;
+}
+
+async function catbox(content) {
+  const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
+  const blob = new Blob([content.toArrayBuffer()], { type: mime });
+  const formData = new FormData();
+  const randomBytes = crypto.randomBytes(5).toString("hex");
+  formData.append("reqtype", "fileupload");
+  formData.append("fileToUpload", blob, randomBytes + "." + ext);
+
+  const response = await fetch("https://catbox.moe/user/api.php", {
+    method: "POST",
+    body: formData,
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36",
+    },
+  });
+
+  return await response.text();
+}
