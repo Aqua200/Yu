@@ -13,15 +13,19 @@ let handler = async (m, { conn, args }) => {
 
   try {
     const media = await m.quoted.download();
-    if (!media) return conn.reply(m.chat, 'No se pudo obtener la imagen.', m);
+    if (!media) return conn.reply(m.chat, 'No se pudo descargar la imagen.', m);
 
     const image = await Jimp.read(media);
     const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
 
+    // Intenta cambiar la imagen
     await conn.updateProfilePicture(number, buffer);
     return conn.reply(m.chat, `Foto de perfil cambiada con éxito para el sub bot ${args[0]}.`, m);
   } catch (e) {
-    console.error(e);
+    console.error('[ERROR CAMBIAR FOTO PERFIL]', e);
+    if (e?.message?.includes('401') || e?.message?.includes('not authorized')) {
+      return conn.reply(m.chat, 'Este número no está vinculado o no tiene sesión activa como sub bot.', m);
+    }
     return conn.reply(m.chat, 'Ocurrió un error al intentar cambiar la foto de perfil.', m);
   }
 };
