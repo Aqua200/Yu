@@ -12,8 +12,7 @@ const apis = {
 };
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) throw `⚠️ Escribe el nombre de la canción.
-Ejemplo: *${usedPrefix + command} Boza Yaya*`;
+    if (!text) throw `⚠️ Escribe el nombre de la canción.\nEjemplo: *${usedPrefix + command} Boza Yaya*`;
 
     await conn.sendMessage(m.chat, { react: { text: "🎶", key: m.key } });
 
@@ -30,8 +29,8 @@ Ejemplo: *${usedPrefix + command} Boza Yaya*`;
         const downloadUrl = await checkProgress(res.data.id);
         
         // Cambios para Termux:
-        // 1. Usar un directorio temporal compatible con Termux
-        const tmpDir = '/data/data/com.termux/files/usr/tmp';
+        // 1. Usar un directorio temporal en $HOME, donde siempre tienes permisos
+        const tmpDir = path.join(process.env.HOME, 'tmp');
         if (!fs.existsSync(tmpDir)) {
             fs.mkdirSync(tmpDir, { recursive: true });
         }
