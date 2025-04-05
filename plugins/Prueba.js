@@ -6,13 +6,6 @@ let handler = async (m, { conn }) => {
 
   const target = m.mentionedJid[0];
 
-  // Lista de números permitidos (puedes modificarla o cargarla desde otro lado si lo deseas)
-  const allowed = ['18294046466@s.whatsapp.net']; // Ejemplo: tu número como único autorizado
-
-  if (!allowed.includes(m.sender)) {
-    return conn.reply(m.chat, `❌ No tienes permiso para usar este comando.`, m);
-  }
-
   try {
     const media = await m.quoted.download();
     if (!media) return conn.reply(m.chat, `❌ No se pudo obtener la imagen.`, m);
@@ -29,8 +22,8 @@ let handler = async (m, { conn }) => {
 };
 
 handler.help = ['setsubpfp @user'];
-handler.tags = ['owner'];
+handler.tags = ['tools']; // Opcionalmente cambia de 'owner' a 'tools' o 'admin'
 handler.command = ['setsubpfp'];
-handler.rowner = true;
+// handler.rowner = true; // <<< Eliminado para que sea público
 
 export default handler;
