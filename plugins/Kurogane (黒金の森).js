@@ -1,81 +1,107 @@
 let cooldowns = {}
+let moneda = '💰' // Emoji de moneda (puedes cambiarlo)
 
 let handler = async (m, { conn, isPrems }) => {
   let user = global.db.data.users[m.sender]
-  let tiempo = 5 * 60
+  let tiempo = 5 * 60 // 5 minutos de cooldown base
 
-  // Verificar cooldown
-  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
-    const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
-    conn.reply(m.chat, `🌙✨ 𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪 ✨🌙\n\n⚠️ Debes esperar *${tiempo2}* para volver a explorar.`, m)
-    return
+  // ==================== [ MEJORA #4: ENERGÍA ] ====================
+  user.energia = user.energia || 10 // Energía máxima: 10
+  if (user.energia <= 0) {
+    return conn.reply(m.chat, 
+      `🌙✨ 𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪 ✨🌙\n\n` +
+      `⚠️ *¡Sin energía!*\n` +
+      `Descansa y vuelve mañana.`, 
+    m)
   }
 
-  // Definir los lugares y sus posibles situaciones
+  // ==================== [ COOLDOWN ] ====================
+  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
+    const tiempoRestante = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
+    return conn.reply(m.chat, 
+      `🌙✨ 𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪 ✨🌙\n\n` +
+      `⚠️ Espera *${tiempoRestante}* para explorar de nuevo.`, 
+    m)
+  }
+
+  // ==================== [ LUGARES & SITUACIONES ] ====================
   const lugares = [
     {
       nombre: 'Bosque encantado 🌲',
       imagen: 'https://files.catbox.moe/rh5vun.jpeg',
       situaciones: [
-        { descripcion: 'Te adentras en el espeso bosque y hallas un antiguo amuleto con grabados místicos.', recompensa: 150 },
-        { descripcion: 'Explorando, descubres una cueva secreta donde descansa una espada legendaria.', recompensa: 200 },
-        { descripcion: 'Encuentras una fuente cristalina que refleja un misterioso futuro.', recompensa: 100 }
+        { descripcion: 'Hallazgo: Un amuleto místico brilla entre las hojas.', recompensa: 150 },
+        { descripcion: '¡Una espada legendaria yace en una cueva oculta!', recompensa: 200 },
+        { descripcion: 'La fuente cristalina te muestra un futuro misterioso...', recompensa: 100 }
       ]
     },
     {
       nombre: 'Mazmorra olvidada 🏰',
       imagen: 'https://files.catbox.moe/fu141j.jpeg',
       situaciones: [
-        { descripcion: 'Bajas a la sombría mazmorra y hallas una espada oxidada con un aura peculiar.', recompensa: 250 },
-        { descripcion: 'Resuelves un enigma antiguo y descubres un tesoro oculto.', recompensa: 300 },
-        { descripcion: 'Una sombra te ofrece un pacto de poder... a cambio de algo valioso.', recompensa: 50 }
-      ]
-    },
-    {
-      nombre: 'Zona de descanso 🍵',
-      imagen: 'https://files.catbox.moe/6rxmls.jpeg',
-      situaciones: [
-        { descripcion: 'Te relajas y encuentras una carta con un mensaje enigmático.', recompensa: 80 },
-        { descripcion: 'Un anciano te narra historias antiguas y te otorga un pequeño obsequio.', recompensa: 120 },
-        { descripcion: 'Descubres una planta rara con propiedades curativas.', recompensa: 60 }
+        { descripcion: 'Encuentras una espada oxidada con aura oscura.', recompensa: 250 },
+        { descripcion: '¡Resuelves un enigma y abres un cofre dorado!', recompensa: 300 },
+        { descripcion: 'Una sombra susurra: "¿Intercambiarías algo por poder?"', recompensa: 50 }
       ]
     }
   ]
 
-  // Elegir aleatoriamente un lugar y una situación
+  // ==================== [ MEJORA #3: EVENTO RARO (5%) ] ====================
+  if (Math.random() < 0.05) {
+    lugares.push({
+      nombre: 'DRAGÓN DORADO 🐉✨',
+      imagen: 'https://files.catbox.moe/1j3f0d.jpeg',
+      situaciones: [
+        { 
+          descripcion: '¡EVENTO RARO! Derrotas al dragón y obtienes un tesoro épico.', 
+          recompensa: 1000 
+        }
+      ]
+    })
+  }
+
+  // Selección aleatoria
   const lugarElegido = pickRandom(lugares)
   const situacionElegida = pickRandom(lugarElegido.situaciones)
 
-  // Actualizar el cooldown
-  cooldowns[m.sender] = Date.now()
+  // ==================== [ MEJORA #7: BENEFICIO PREMIUM (+30%) ] ====================
+  if (isPrems) {
+    situacionElegida.recompensa = Math.floor(situacionElegida.recompensa * 1.3)
+  }
 
-  // Enviar la imagen con el mensaje decorado
-  await conn.sendFile(
-    m.chat, 
-    lugarElegido.imagen, 
-    'aventura.jpg', 
-    `╭━━━ ∘◦ ✦ ◦∘ ━━━╮\n` +
-    `  𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪\n` +
-    `╰━━━ ∘◦ ✦ ◦∘ ━━━╯\n\n` +
-    `🏯 Has explorado *${lugarElegido.nombre}* y hallado:\n` +
-    `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n\n` +
-    `📜 ${situacionElegida.descripcion}\n\n` +
-    `🔮 ¿Volverás a la aventura?`,
-    m
-  )
-  
-  // Actualizar el saldo del usuario
+  // ==================== [ MEJORA #1: SISTEMA DE NIVELES ] ====================
+  user.exp = (user.exp || 0) + Math.floor(Math.random() * 15) + 5
+  let expNecesaria = 100 * (user.level || 1)
+  let nivelUp = user.exp >= expNecesaria
+
+  if (nivelUp) {
+    user.level = (user.level || 0) + 1
+    user.exp = 0
+    conn.sendMessage(m.chat, { 
+      text: `🎉 *¡Felicidades! Subiste al nivel ${user.level}*`, 
+      contextInfo: { mentionedJid: [m.sender] } 
+    })
+  }
+
+  // Actualizaciones finales
+  cooldowns[m.sender] = Date.now()
+  user.energia -= 1
   user.coin += situacionElegida.recompensa
+
+  // ==================== [ MENSAJE FINAL ] ====================
+  let mensaje = `╭━━━ ∘◦ ✦ ◦∘ ━━━╮\n` +
+                `  𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪\n` +
+                `╰━━━ ∘◦ ✦ ◦∘ ━━━╯\n\n` +
+                `🏯 *${lugarElegido.nombre}*\n` +
+                `📜 ${situacionElegida.descripcion}\n\n` +
+                `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n` +
+                `⚡ Energía: ${user.energia}/10\n` +
+                `✨ EXP: ${user.exp}/${expNecesaria} (Nvl ${user.level || 1})`
+
+  await conn.sendFile(m.chat, lugarElegido.imagen, 'kurogane.jpg', mensaje, m)
 }
 
-handler.help = ['kurogane']
-handler.tags = ['economy']
-handler.command = ['kurogane']
-handler.group = true
-handler.register = true
-
-export default handler
-
+// ==================== [ FUNCIONES AUXILIARES ] ====================
 function toNum(number) {
   if (number >= 1000 && number < 1000000) {
     return (number / 1000).toFixed(1) + 'k'
@@ -95,3 +121,9 @@ function segundosAHMS(segundos) {
 function pickRandom(list) {
   return list[Math.floor(list.length * Math.random())]
 }
+
+handler.help = ['kurogane']
+handler.tags = ['economy']
+handler.command = ['kurogane']
+handler.group = true
+export default handler
