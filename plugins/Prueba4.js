@@ -57,7 +57,7 @@ const isImageValid = (buffer) => {
 handler.help = ['setbanner2'];
 handler.tags = ['tools'];
 handler.command = ['setbanner2'];  // El comando sigue siendo .setbanner2
-handler.rowner = true;
+// Removemos handler.rowner = true ya que estamos manejando los permisos manualmente
 
 export default handler;
 
