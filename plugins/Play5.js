@@ -6,7 +6,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     let search = await yts(text);
     let isVideo = /vid$/.test(command);
     let urls = search.all[0].url;
-    let body = `\`YouTube Play - 2B Prue\`
+    let body = `\`YouTube Play - 2B Pre\`
 
  ➢   *Título:* ${search.all[0].title}
      
@@ -37,8 +37,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     }, { quoted: m });
 }
 
-handler.command = ['play', 'playvid'];
-handler.help = ['play', 'playvid'];
+handler.command = ['play5', 'playvid5']; // Cambiado a play5 y playvid5
+handler.help = ['play5', 'playvid5'];    // Actualizado el help
 handler.tags = ['dl'];
 handler.yenes = 25
 export default handler;
