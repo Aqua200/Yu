@@ -14,7 +14,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const { title, thumbnail, timestamp, views, ago, url } = videoInfo;
     
     // Crear mensaje de información
-    const infoMessage = ` *˙Ⱉ˙ฅ* 𝐊𝐢𝐫𝐢𝐭𝐨 -𝐁𝐨𝐭 𝐌𝐃
+    const infoMessage = ` *˙Ⱉ˙ฅ* 
 
 *「✦」Descargando* ${title}
 
