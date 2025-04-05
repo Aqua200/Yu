@@ -5,18 +5,24 @@ import crypto from "crypto";
 import { FormData, Blob } from "formdata-node";
 import { fileTypeFromBuffer } from "file-type";
 
+// Variable separada para el banner secundario (no afecta al bot principal)
+global.secondaryBanner = global.secondaryBanner || null;
+
 let handler = async (m, { conn }) => {
-  // Número autorizado (en formato WhatsApp: [número]@s.whatsapp.net)
-  const allowedNumber = "18498613998@s.whatsapp.net"; // Eliminé el +1 y dejé solo el número con @s.whatsapp.net
+  // Números autorizados (en formato WhatsApp: [número]@s.whatsapp.net)
+  const allowedNumbers = [
+    "18498613998@s.whatsapp.net", // Dueño principal (sin +1)
+    "18498613998@s.whatsapp.net"  // Segundo número permitido (mismo dueño)
+  ];
   
-  // Verificar si el remitente es el número permitido
-  if (m.sender !== allowedNumber) {
+  // Verificar si el remitente está autorizado
+  if (!allowedNumbers.includes(m.sender)) {
     return m.reply("❌ *Acceso denegado.* Solo el dueño puede usar este comando.");
   }
 
   // Verificar si se respondió a una imagen
   if (!m.quoted || !m.quoted.mimetype || !m.quoted.mimetype.includes("image")) {
-    return m.reply("🔹 *Responde a una imagen* con el comando *setbanner2* para cambiar el banner.");
+    return m.reply("🔹 *Responde a una imagen* con el comando *setbanner2* para cambiar el banner secundario.");
   }
 
   try {
@@ -35,32 +41,25 @@ let handler = async (m, { conn }) => {
     const link = await catbox(media);
     if (!link) throw new Error("No se recibió enlace de Catbox");
 
-    // Actualizar el banner global
-    global.banner = link;
+    // Actualizar SOLO el banner secundario (el principal no se toca)
+    global.secondaryBanner = link;
     
     // Enviar confirmación con la imagen
     await conn.sendFile(
       m.chat, 
       media, 
       'banner.jpg', 
-      `✅ *Banner actualizado con éxito*\nEnlace: ${link}`, 
+      `✅ *Banner secundario actualizado con éxito*\nEnlace: ${link}\n\n🔹 Este cambio no afecta al bot principal.`, 
       m
     );
 
   } catch (error) {
     console.error("Error en setbanner2:", error);
-    m.reply(`❌ *Error al cambiar el banner*\nMensaje: ${error.message}`);
+    m.reply(`❌ *Error al cambiar el banner secundario*\nMensaje: ${error.message}`);
   }
 };
 
-// Función para verificar imágenes válidas (opcional)
-const isImageValid = (buffer) => {
-  const magicBytes = buffer.slice(0, 4).toString('hex');
-  const validFormats = ['ffd8ffe0', 'ffd8ffe1', 'ffd8ffe2', '89504e47', '47494638'];
-  return validFormats.includes(magicBytes);
-};
-
-// Función para subir a Catbox
+// Función para subir a Catbox (se mantiene igual)
 async function catbox(content) {
   try {
     const { ext, mime } = (await fileTypeFromBuffer(content)) || {};
