@@ -7,7 +7,7 @@ let handler = async (m, { conn }) => {
   const target = m.mentionedJid[0];
 
   // Lista de números permitidos (puedes modificarla o cargarla desde otro lado si lo deseas)
-  const allowed = ['584125014674@s.whatsapp.net']; // Ejemplo: tu número como único autorizado
+  const allowed = ['18294046466@s.whatsapp.net']; // Ejemplo: tu número como único autorizado
 
   if (!allowed.includes(m.sender)) {
     return conn.reply(m.chat, `❌ No tienes permiso para usar este comando.`, m);
