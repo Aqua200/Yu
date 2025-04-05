@@ -1,46 +1,53 @@
-import yts from 'yt-search' 
+import yts from 'yt-search';
+
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) throw `Ejemplo: ${usedPrefix + command} diles`,m ,rcanal;
+    if (!text) throw `Ejemplo: ${usedPrefix + command} canción o artista`;
+    
+    try {
+        const search = await yts(text);
+        if (!search.all || search.all.length === 0) throw 'No se encontraron resultados';
+        
+        const isVideo = command.includes('vid');
+        const videoInfo = search.all[0];
+        const urls = videoInfo.url;
+        
+        const body = `\`YouTube Play - 2B Prue\`
 
-    const randomReduction = Math.floor(Math.random() * 5) + 1;
-    let search = await yts(text);
-    let isVideo = /vid$/.test(command);
-    let urls = search.all[0].url;
-    let body = `\`YouTube Play - 2B Pre\`
-
- ➢   *Título:* ${search.all[0].title}
-     
- ➢   *Vistas:* ${search.all[0].views}
-      
- ➢   *Duración:* ${search.all[0].timestamp}  
-      
- ➢   *Subido:* ${search.all[0].ago} 
-      
- ➢   *Url:* ${urls}
+➢ *Título:* ${videoInfo.title}
+➢ *Vistas:* ${videoInfo.views}
+➢ *Duración:* ${videoInfo.timestamp}
+➢ *Subido:* ${videoInfo.ago}
+➢ *Url:* ${urls}
 
 🌸 *Su ${isVideo ? 'Video' : 'Audio'} se está enviando, espere un momento...*`;
-    
-    conn.sendMessage(m.chat, { 
-        image: { url: search.all[0].thumbnail }, 
-        caption: body
-    }, { quoted: m,rcanal });
-    m.react('✅')
+        
+        await conn.sendMessage(m.chat, { 
+            image: { url: videoInfo.thumbnail }, 
+            caption: body
+        }, { quoted: m });
+        
+        m.react('✅');
 
-    let res = await dl_vid(urls)
-    let type = isVideo ? 'video' : 'audio';
-    let video = res.data.mp4;
-    let audio = res.data.mp3;
-    conn.sendMessage(m.chat, { 
-        [type]: { url: isVideo ? video : audio }, 
-        gifPlayback: false, 
-        mimetype: isVideo ? "video/mp4" : "audio/mpeg" 
-    }, { quoted: m });
+        const res = await dl_vid(urls);
+        const type = isVideo ? 'video' : 'audio';
+        const mediaUrl = isVideo ? res.data.mp4 : res.data.mp3;
+        
+        await conn.sendMessage(m.chat, { 
+            [type]: { url: mediaUrl }, 
+            mimetype: isVideo ? "video/mp4" : "audio/mpeg",
+            caption: `🎵 ${videoInfo.title}`
+        }, { quoted: m });
+        
+    } catch (error) {
+        console.error(error);
+        m.reply('❌ Ocurrió un error al procesar tu solicitud');
+        m.react('❌');
+    }
 }
 
-handler.command = ['play5', 'playvid5']; // Cambiado a play5 y playvid5
-handler.help = ['play5', 'playvid5'];    // Actualizado el help
-handler.tags = ['dl'];
-handler.yenes = 25
+handler.command = ['play5', 'playvid5'];
+handler.help = ['play5 <búsqueda>', 'playvid5 <búsqueda>'];
+handler.tags = ['downloader'];
 export default handler;
 
 async function dl_vid(url) {
@@ -51,15 +58,9 @@ async function dl_vid(url) {
             'api_key': 'free',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            text: url,
-        })
+        body: JSON.stringify({ text: url })
     });
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    if (!response.ok) throw new Error(`Error en la API: ${response.status}`);
+    return await response.json();
 }
