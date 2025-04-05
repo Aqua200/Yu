@@ -1,17 +1,7 @@
-import fs from 'fs';  
-import path from 'path';  
-import fetch from "node-fetch";
-import crypto from "crypto";
-import { FormData, Blob } from "formdata-node";
-import { fileTypeFromBuffer } from "file-type";
+let handler = async (m, { conn, sender }) => {
 
-// Lista de sub-owners
-const subOwners = ['+58 412-5014674', '+58 412-1234567', '+1 (849) 861-3998'];  // Agregué el nuevo número aquí
-
-let handler = async (m, { conn, isRowner, sender }) => {
-
-  // Verificar si el usuario es el owner o un sub-owner
-  if (!isRowner && !subOwners.includes(sender)) {
+  // Verificar si el usuario es un sub-bot (solo los sub-owners)
+  if (!subOwners.includes(sender)) {
     return m.reply("No tienes permiso para cambiar el banner.");
   }
 
