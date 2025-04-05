@@ -2,68 +2,59 @@ import { WAMessageStubType } from '@whiskeysockets/baileys'
 
 const handler = m => m
 handler.before = async function (m, { conn }) {
-  if (!m.messageStubType || !m.isGroup || !m.messageStubParameters) return
+  // Validaciones iniciales reforzadas
+  if (!m?.messageStubType || !m?.isGroup || !Array.isArray(m.messageStubParameters)) return
   
-  const fkontak = { 
-    key: { 
-      participants: "0@s.whatsapp.net", 
-      remoteJid: "status@broadcast", 
-      fromMe: false, 
-      id: "Halo" 
-    }, 
-    message: { 
-      contactMessage: { 
-        vcard: `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD` 
-      }
-    }, 
-    participant: "0@s.whatsapp.net"
-  }
-  
-  const chat = global.db.data.chats[m.chat]
-  if (!chat.detect) return
-  
-  const usuario = `@${m.sender.split('@')[0]}`
-  const pp = await conn.profilePictureUrl(m.chat, 'image').catch(_ => null) || 'https://files.catbox.moe/xr2m6u.jpg'
+  const chat = global.db.data.chats?.[m.chat]
+  if (!chat?.detect) return
 
-  const actionMessages = {
-    21: `《✦》${usuario} ha cambiado el nombre del grupo a:\n\n> *${m.messageStubParameters[0]}*`,
-    22: { 
+  // Configuración base
+  const sender = m.sender?.split('@')[0] || 'undefined'
+  const usuario = `@${sender}`
+  const pp = await conn.profilePictureUrl(m.chat, 'image').catch(() => null) 
+          || 'https://files.catbox.moe/xr2m6u.jpg'
+
+  // Plantillas de mensajes (podrían externalizarse para i18n)
+  const actionTemplates = {
+    21: (params) => `《✦》${usuario} cambió el nombre del grupo a:\n\n> *${params[0] || 'Sin nombre'}*`,
+    22: (params) => ({ 
       image: { url: pp }, 
-      caption: `《✦》${usuario} ha cambiado la imagen del grupo`,
+      caption: `《✦》${usuario} actualizó la imagen del grupo`,
       mentions: [m.sender] 
-    },
-    23: `《✦》${usuario} ha restablecido el enlace del grupo`,
-    25: `《✦》${usuario} ha configurado que ${m.messageStubParameters[0] === 'on' ? 'solo admins' : 'todos'} puedan editar el grupo`,
-    26: `《✦》El grupo ha sido ${m.messageStubParameters[0] === 'on' ? 'cerrado' : 'abierto'} por ${usuario}`,
-    29: {
-      text: `《✦》${usuario} ha promovido a admin a @${m.messageStubParameters[0].split('@')[0]}`,
-      mentions: [m.sender, m.messageStubParameters[0]]
-    },
-    30: {
-      text: `《✦》${usuario} ha quitado los privilegios de admin a @${m.messageStubParameters[0].split('@')[0]}`,
-      mentions: [m.sender, m.messageStubParameters[0]]
-    }
+    }),
+    23: () => `《✦》${usuario} restableció el enlace del grupo`,
+    25: (params) => `《✦》${usuario} ${params[0] === 'on' ? 'restringió' : 'permitió'} editar el grupo a ${params[0] === 'on' ? 'admins' : 'todos'}`,
+    26: (params) => `《✦》El grupo fue ${params[0] === 'on' ? 'cerrado' : 'abierto'} por ${usuario}`,
+    29: (params) => ({
+      text: `《✦》${usuario} promovió a admin a @${params[0]?.split('@')[0] || 'usuario'}`,
+      mentions: [m.sender, params[0]].filter(Boolean)
+    }),
+    30: (params) => ({
+      text: `《✦》${usuario} removió los privilegios de admin a @${params[0]?.split('@')[0] || 'usuario'}`,
+      mentions: [m.sender, params[0]].filter(Boolean)
+    })
   }
 
-  const messageConfig = actionMessages[m.messageStubType]
-  if (messageConfig) {
-    try {
-      await conn.sendMessage(
-        m.chat,
-        typeof messageConfig === 'string' 
-          ? { text: messageConfig, mentions: [m.sender] }
-          : messageConfig,
-        { quoted: fkontak }
-      )
-    } catch (error) {
-      console.error('Error al enviar mensaje de detección:', error)
+  // Generar y enviar mensaje
+  const generateMessage = actionTemplates[m.messageStubType]
+  if (!generateMessage) {
+    if (m.messageStubType !== 2) {
+      console.log('Evento no manejado:', WAMessageStubType[m.messageStubType])
     }
-  } else if (m.messageStubType !== 2) {
-    console.log('Evento no manejado:', {
-      messageStubType: m.messageStubType,
-      parameters: m.messageStubParameters,
-      type: WAMessageStubType[m.messageStubType]
-    })
+    return
+  }
+
+  try {
+    const messageConfig = generateMessage(m.messageStubParameters)
+    await conn.sendMessage(
+      m.chat,
+      typeof messageConfig === 'string' 
+        ? { text: messageConfig, mentions: [m.sender] }
+        : messageConfig,
+      { quoted: m } // Mejor que fkontak para mantener contexto
+    )
+  } catch (error) {
+    console.error('Error en _autodetect:', error)
   }
 }
 
