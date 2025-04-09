@@ -1,140 +1,201 @@
-let cooldowns = {}
+const cooldowns = {};
 
-let handler = async (m, { conn }) => {
-    let user = global.db.data.users[m.sender];
+const handler = async (m, { conn }) => {
+    const user = global.db.data.users[m.sender];
     if (!user) return;
 
+    // Verificar estado de la picota
     if (!user.pickaxedurability || user.pickaxedurability <= 0) {
-        return conn.reply(m.chat, '⚒️ Tu picota está rota. Repara o compra una nueva antes de seguir minando.', m);
+        return conn.reply(m.chat, '⚒️ Tu pico está roto. Repáralo o compra uno nuevo antes de minar.', m);
     }
 
-    let lugares = [
-        { nombre: "⛏️ Cueva", img: "https://files.catbox.moe/mtsv8m.jpg", probabilidad: 25, minerales: { coin: [10, 50], iron: [5, 20], gold: [2, 10], coal: [10, 50], stone: [300, 800] } },
-        { nombre: "🌋 Volcán", img: "https://qu.ax/CDdWW.jpeg", probabilidad: 25, minerales: { coin: [30, 90], iron: [15, 40], gold: [10, 50], coal: [30, 100], stone: [700, 4000] } },
-        { nombre: "🏚️ Mina abandonada", img: "https://qu.ax/tZvvf.jpeg", probabilidad: 50, minerales: { coin: [50, 120], iron: [20, 50], gold: [15, 40], coal: [30, 100], stone: [600, 2000] } },
-        { nombre: "🌲 Bosque subterráneo", img: "https://qu.ax/FzCtg.jpeg", probabilidad: 50, minerales: { coin: [40, 100], iron: [15, 40], gold: [10, 30], coal: [20, 80], stone: [500, 1500] } },
-        { nombre: "🌀 Dimensión oscura", img: "https://qu.ax/OLKnB.jpeg", probabilidad: 50, minerales: { coin: [70, 200], iron: [30, 60], gold: [20, 60], coal: [50, 150], stone: [1000, 5000] } }
+    // Lugares de minería con sus propiedades
+    const miningLocations = [
+        { 
+            name: "⛏️ Cueva", 
+            image: "https://files.catbox.moe/mtsv8m.jpg", 
+            probability: 25, 
+            resources: { 
+                coin: [10, 50], 
+                iron: [5, 20], 
+                gold: [2, 10], 
+                coal: [10, 50], 
+                stone: [300, 800] 
+            } 
+        },
+        { 
+            name: "🌋 Volcán", 
+            image: "https://qu.ax/CDdWW.jpeg", 
+            probability: 25, 
+            resources: { 
+                coin: [30, 90], 
+                iron: [15, 40], 
+                gold: [10, 50], 
+                coal: [30, 100], 
+                stone: [700, 4000] 
+            } 
+        },
+        { 
+            name: "🏚️ Mina abandonada", 
+            image: "https://qu.ax/tZvvf.jpeg", 
+            probability: 50, 
+            resources: { 
+                coin: [50, 120], 
+                iron: [20, 50], 
+                gold: [15, 40], 
+                coal: [30, 100], 
+                stone: [600, 2000] 
+            } 
+        },
+        { 
+            name: "🌲 Bosque subterráneo", 
+            image: "https://qu.ax/FzCtg.jpeg", 
+            probability: 50, 
+            resources: { 
+                coin: [40, 100], 
+                iron: [15, 40], 
+                gold: [10, 30], 
+                coal: [20, 80], 
+                stone: [500, 1500] 
+            } 
+        },
+        { 
+            name: "🌀 Dimensión oscura", 
+            image: "https://qu.ax/OLKnB.jpeg", 
+            probability: 50, 
+            resources: { 
+                coin: [70, 200], 
+                iron: [30, 60], 
+                gold: [20, 60], 
+                coal: [50, 150], 
+                stone: [1000, 5000] 
+            } 
+        }
     ];
 
-    let lugar = pickByProbability(lugares);
-
-    let coin = pickRandomRange(lugar.minerales.coin);
-    let iron = pickRandomRange(lugar.minerales.iron);
-    let gold = pickRandomRange(lugar.minerales.gold);
-    let coal = pickRandomRange(lugar.minerales.coal);
-    let stone = pickRandomRange(lugar.minerales.stone);
-    let emerald = pickRandom([1, 5, 7, 8]);
-    let diamond = Math.random() < 0.05 ? pickRandom([1, 2, 3]) : 0;
-
-    let time = user.lastmiming + 600000;
-
-    if (new Date() - user.lastmiming < 600000) {
-        return conn.reply(m.chat, `⏳ Debes esperar ${msToTime(time - new Date())} para volver a minar.`, m);
+    // Verificar cooldown
+    const cooldownTime = user.lastmining + 600000;
+    if (Date.now() - user.lastmining < 600000) {
+        return conn.reply(m.chat, `⏳ Debes esperar ${formatCooldown(cooldownTime - Date.now())} para minar nuevamente.`, m);
     }
 
-    let hasil = Math.floor(Math.random() * 1000);
+    // Seleccionar ubicación y recursos
+    const location = selectByProbability(miningLocations);
+    const resources = {
+        coin: getRandomInRange(location.resources.coin),
+        iron: getRandomInRange(location.resources.iron),
+        gold: getRandomInRange(location.resources.gold),
+        coal: getRandomInRange(location.resources.coal),
+        stone: getRandomInRange(location.resources.stone),
+        emerald: getRandomValue([1, 5, 7, 8]),
+        diamond: Math.random() < 0.05 ? getRandomValue([1, 2, 3]) : 0
+    };
 
-    let maxDurability = 100; // Durabilidad máxima de la picota
-    let durabilityPercentage = (user.pickaxedurability / maxDurability) * 100;
+    // Calcular experiencia y durabilidad
+    const experience = Math.floor(Math.random() * 1000);
+    const maxDurability = 100;
+    const durabilityPercentage = (user.pickaxedurability / maxDurability) * 100;
 
-    let info = `${lugar.nombre}\n\n` +
-        `🔹 *Exp*: ${hasil}\n` +
-        `💰 *Monedas*: ${coin}\n` +
-        `💎 *Esmeralda*: ${emerald}\n` +
-        `🔩 *Hierro*: ${iron}\n` +
-        `🏅 *Oro*: ${gold}\n` +
-        `🪵 *Carbón*: ${coal}\n` +
-        `🪨 *Piedra*: ${stone}\n` +
-        `${diamond ? `💎 *Diamante*: ${diamond}\n` : ''}\n` +
-        `⚒️ *Durabilidad restante de la picota*: ${isNaN(durabilityPercentage) ? 'Desconocida' : `${durabilityPercentage.toFixed(0)}%`}`;
+    // Evento aleatorio
+    const randomEvent = getRandomEvent();
+    
+    // Construir mensaje de resultados
+    let resultMessage = `${location.name}\n\n` +
+        `🔹 *Experiencia*: ${experience}\n` +
+        `💰 *Monedas*: ${resources.coin}\n` +
+        `💎 *Esmeralda*: ${resources.emerald}\n` +
+        `🔩 *Hierro*: ${resources.iron}\n` +
+        `🏅 *Oro*: ${resources.gold}\n` +
+        `🪵 *Carbón*: ${resources.coal}\n` +
+        `🪨 *Piedra*: ${resources.stone}\n` +
+        `${resources.diamond ? `💎 *Diamante*: ${resources.diamond}\n` : ''}\n` +
+        `⚒️ *Durabilidad del pico*: ${isNaN(durabilityPercentage) ? 'Desconocida' : `${durabilityPercentage.toFixed(0)}%`}\n\n` +
+        `🌟 ${randomEvent.text}`;
 
-    // Se obtienen las situaciones buenas o malas
-    const evento = obtenerSituacion();
-    info += `\n\n🌟 ${evento.texto}`;
-
-    // Aplicamos las recompensas o castigos
-    user.health += evento.efecto.vida || 0;
-    user.coin += evento.efecto.yenes || 0;
-    user.exp += evento.efecto.exp || 0;
-
-    await conn.sendFile(m.chat, lugar.img, 'mineria.jpg', info, fkontak);
+    // Enviar resultados
+    await conn.sendFile(m.chat, location.image, 'mining.jpg', resultMessage, m);
     await m.react('⛏️');
 
+    // Actualizar estadísticas del usuario
     user.health -= 50;
     user.pickaxedurability -= 30;
-    user.coin += coin;
-    user.iron += iron;
-    user.gold += gold;
-    user.emerald += emerald;
-    user.coal += coal;
-    user.stone += stone;
-    user.diamond += diamond;
-    user.lastmiming = new Date() * 1;
+    user.coin += resources.coin;
+    user.iron += resources.iron;
+    user.gold += resources.gold;
+    user.emerald += resources.emerald;
+    user.coal += resources.coal;
+    user.stone += resources.stone;
+    user.diamond += resources.diamond;
+    user.exp += experience;
+    user.lastmining = Date.now();
 
+    // Aplicar efectos del evento
+    user.health += randomEvent.effect.health || 0;
+    user.coin += randomEvent.effect.coins || 0;
+    user.exp += randomEvent.effect.exp || 0;
+
+    // Verificar estado del pico
     if (user.pickaxedurability <= 20 && user.pickaxedurability > 0) {
-        conn.reply(m.chat, '⚠️ Tu picota está a punto de romperse. Repara o compra una nueva.', m);
+        conn.reply(m.chat, '⚠️ Tu pico está a punto de romperse. Repáralo o compra uno nuevo.', m);
         await m.react('⚠️');
     }
 
     if (user.pickaxedurability <= 0) {
-        conn.reply(m.chat, '❌ Tu picota se ha roto. Usa el comando *reparar* para arreglarla.', m);
+        conn.reply(m.chat, '❌ Tu pico se ha roto. Usa el comando *reparar* para arreglarlo.', m);
     }
 }
 
-// Función para seleccionar un número aleatorio dentro de un rango
-function pickRandomRange(range) {
-    return Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
+// Función para obtener un valor aleatorio dentro de un rango
+function getRandomInRange([min, max]) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Función para seleccionar valores aleatorios
-function pickRandom(list) {
-    return list[Math.floor(Math.random() * list.length)];
+// Función para seleccionar un valor aleatorio de un array
+function getRandomValue(array) {
+    return array[Math.floor(Math.random() * array.length)];
 }
 
-// Función para seleccionar un lugar basado en su probabilidad
-function pickByProbability(items) {
-    let total = items.reduce((sum, item) => sum + item.probabilidad, 0);
-    let random = Math.random() * total;
-    let sum = 0;
+// Función para seleccionar ubicación basada en probabilidad
+function selectByProbability(items) {
+    const totalProbability = items.reduce((sum, item) => sum + item.probability, 0);
+    const randomValue = Math.random() * totalProbability;
+    let cumulativeProbability = 0;
 
-    for (let item of items) {
-        sum += item.probabilidad;
-        if (random < sum) return item;
+    for (const item of items) {
+        cumulativeProbability += item.probability;
+        if (randomValue < cumulativeProbability) return item;
     }
 }
 
-// Función para convertir milisegundos a tiempo legible
-function msToTime(duration) {
-    var seconds = Math.floor((duration / 1000) % 60),
-        minutes = Math.floor((duration / (1000 * 60)) % 60);
+// Función para formatear el tiempo de cooldown
+function formatCooldown(milliseconds) {
+    const seconds = Math.floor((milliseconds / 1000) % 60);
+    const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
 
-    minutes = (minutes < 10) ? '0' + minutes : minutes;
-    seconds = (seconds < 10) ? '0' + seconds : seconds;
-
-    return minutes + 'm y ' + seconds + 's';
+    return `${minutes.toString().padStart(2, '0')}m y ${seconds.toString().padStart(2, '0')}s`;
 }
 
-// Función para obtener una situación buena o mala aleatoria
-function obtenerSituacion() {
-    const situacionesBuenas = [
-        { texto: "🎉 ¡Has encontrado un montón de monedas!", efecto: { yenes: 100 } },
-        { texto: "✨ ¡Una esmeralda extra!", efecto: { yenes: 50, exp: 10 } },
-        { texto: "💪 ¡Te sientes más fuerte! Has ganado un poco de salud.", efecto: { vida: 20 } },
-        { texto: "🛠️ ¡Has encontrado herramientas extra! Ganaste 30 de durabilidad en tu picota.", efecto: { exp: 20 } },
-        { texto: "🌟 ¡Has encontrado un cofre del tesoro!", efecto: { yenes: 150, exp: 25 } }
+// Función para generar eventos aleatorios
+function getRandomEvent() {
+    const positiveEvents = [
+        { text: "🎉 ¡Has encontrado un tesoro escondido!", effect: { coins: 100 } },
+        { text: "✨ ¡Una veta de minerales raros!", effect: { coins: 50, exp: 10 } },
+        { text: "💪 ¡Encontraste una poción de salud!", effect: { health: 20 } },
+        { text: "🛠️ ¡Materiales de refuerzo para tu pico!", effect: { exp: 20 } },
+        { text: "🌟 ¡Cofre del tesoro legendario!", effect: { coins: 150, exp: 25 } }
     ];
 
-    const situacionesMalas = [
-        { texto: "💥 ¡Un derrumbe te ha hecho daño!", efecto: { vida: -20 } },
-        { texto: "⚡ ¡Un rayo te golpeó y dañó tu salud!", efecto: { vida: -30 } },
-        { texto: "🔥 ¡El calor del volcán te ha dejado exhausto!", efecto: { exp: -10 } },
-        { texto: "⚠️ ¡Un monstruo te atacó! Has perdido algo de salud.", efecto: { vida: -40 } },
-        { texto: "⛔ ¡Te has resbalado y caíste, perdiendo algo de tiempo!", efecto: { exp: -15 } }
+    const negativeEvents = [
+        { text: "💥 ¡Un derrumbe te ha golpeado!", effect: { health: -20 } },
+        { text: "⚡ ¡Una descarga eléctrica en la mina!", effect: { health: -30 } },
+        { text: "🔥 ¡El calor te agotó!", effect: { exp: -10 } },
+        { text: "⚠️ ¡Un enemigo te atacó!", effect: { health: -40 } },
+        { text: "⛔ ¡Perdiste tiempo por un camino equivocado!", effect: { exp: -15 } }
     ];
 
-    const esBuena = Math.random() < 0.5;
-    const situaciones = esBuena ? situacionesBuenas : situacionesMalas;
-    return situaciones[Math.floor(Math.random() * situaciones.length)];
+    const isPositive = Math.random() < 0.5;
+    const events = isPositive ? positiveEvents : negativeEvents;
+    return events[Math.floor(Math.random() * events.length)];
 }
 
 handler.help = ['minar'];
