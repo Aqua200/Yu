@@ -24,6 +24,7 @@ function validateAndFormatCharacters(characters) {
     if (!Array.isArray(characters)) return [];
     
     return characters.map(character => ({
+        id: character.id || '',
         name: character.name || 'Desconocido',
         value: character.value || 0,
         user: normalizeId(character.user) || '',
@@ -47,26 +48,27 @@ let handler = async (m, { conn, args }) => {
             return await conn.reply(m.chat, '❀ No se pudo identificar al usuario.', m);
         }
 
-        // CORRECCIÓN PRINCIPAL: Filtrado correcto de todos los personajes
+        // Filtrado CORREGIDO - tres casos posibles
         const userCharacters = allCharacters.filter(c => {
-            // Personajes reclamados directamente
+            // Caso 1: Personajes reclamados directamente por el usuario
             if (c.user === userId && !c.isGifted) return true;
-            // Personajes regalados (recibidos)
+            
+            // Caso 2: Personajes que el usuario recibió como regalo
             if (c.isGifted && c.user === userId) return true;
-            // Personajes regalados (enviados - si quieres mostrarlos)
+            
+            // Caso 3: Personajes que el usuario regaló (si deseas mostrarlos)
             // if (c.isGifted && c.originalUser === userId) return true;
+            
             return false;
         });
 
-        // Estadísticas precisas
+        // Cálculos de estadísticas CORREGIDOS
         const totalClaimed = allCharacters.filter(c => c.user === userId && !c.isGifted).length;
-        const totalGiftedReceived = allCharacters.filter(c => c.isGifted && c.user === userId).length;
+        const totalGiftsReceived = allCharacters.filter(c => c.isGifted && c.user === userId).length;
         const totalInHarem = userCharacters.length;
 
         // Verificación de consistencia
-        if (totalClaimed + totalGiftedReceived !== totalInHarem) {
-            console.warn('Advertencia: El total no coincide con la suma de reclamados y regalados');
-        }
+        console.log(`Depuración: ${totalClaimed} reclamados + ${totalGiftsReceived} regalados = ${totalClaimed + totalGiftsReceived} vs total ${totalInHarem}`);
 
         if (totalInHarem === 0) {
             return await conn.reply(m.chat, '❀ No tienes personajes en tu harem.', m);
@@ -86,28 +88,47 @@ let handler = async (m, { conn, args }) => {
 
         let message = `✿ ESTADÍSTICAS DEL HAREM ✿\n`;
         message += `⌦ Usuario: @${userId}\n`;
-        message += `♡ Reclamados: ${totalClaimed} | Regalados recibidos: ${totalGiftedReceived}\n`;
+        message += `♡ Reclamados directamente: ${totalClaimed}\n`;
+        message += `♡ Regalos recibidos: ${totalGiftsReceived}\n`;
         message += `♡ Total en harem: ${totalInHarem}\n\n`;
-        message += `✿ LISTA DE PERSONAJES ✿\n\n`;
+        message += `✿ LISTA COMPLETA DE PERSONAJES ✿\n\n`;
 
-        userCharacters.slice(startIndex, endIndex).forEach((character, index) => {
+        // Ordenar por valor descendente y luego por nombre
+        const sortedCharacters = [...userCharacters].sort((a, b) => {
+            if (b.value !== a.value) return b.value - a.value;
+            return a.name.localeCompare(b.name);
+        });
+
+        sortedCharacters.slice(startIndex, endIndex).forEach((character, index) => {
             const position = startIndex + index + 1;
-            const giftTag = character.isGifted ? ' (Regalado)' : '';
-            message += `» ${position}. ${character.name} (${character.value})${giftTag}\n`;
+            const giftTag = character.isGifted ? ' 🎁 (Regalado)' : '';
+            const originalOwner = character.isGifted && character.originalUser ? `\n   ↳ Originalmente de: @${character.originalUser}` : '';
+            message += `${position}. ${character.name} (${character.value})${giftTag}${originalOwner}\n`;
         });
 
         if (totalPages > 1) {
             message += `\n⌦ Página ${page} de ${totalPages}`;
         }
 
+        // Preparar menciones
+        const mentionedUsers = new Set();
+        mentionedUsers.add(userId + '@s.whatsapp.net');
+        
+        // Agregar dueños originales de personajes regalados
+        userCharacters.forEach(c => {
+            if (c.isGifted && c.originalUser) {
+                mentionedUsers.add(c.originalUser + '@s.whatsapp.net');
+            }
+        });
+
         await conn.reply(m.chat, message, m, {
-            mentions: [userId + '@s.whatsapp.net']
+            mentions: Array.from(mentionedUsers)
         });
 
     } catch (error) {
         console.error('Error en handler harem:', error);
         await conn.reply(m.chat, 
-            `✘ Error al cargar el harem: ${error.message || 'Error desconocido'}`, 
+            `✘ Error al cargar el harem: ${error.message}\nPor favor reporta este error.`, 
             m
         );
     }
