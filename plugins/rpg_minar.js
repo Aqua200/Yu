@@ -154,3 +154,8 @@ function getRandomEvent() {
   ];
   return events[Math.floor(Math.random() * events.length)];
 }
+handler.command = ['minar'];
+handler.tags = ['rpg'];
+handler.help = ['minar'];
+handler.register = true;
+export default handler;
