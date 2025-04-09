@@ -47,15 +47,26 @@ let handler = async (m, { conn, args }) => {
             return await conn.reply(m.chat, '❀ No se pudo identificar al usuario.', m);
         }
 
-        // Filtramos todos los personajes del usuario (tanto reclamados como regalados)
-        const userCharacters = allCharacters.filter(c => 
-            c.user === userId || (c.isGifted && c.originalUser === userId)
-        );
+        // CORRECCIÓN PRINCIPAL: Filtrado correcto de todos los personajes
+        const userCharacters = allCharacters.filter(c => {
+            // Personajes reclamados directamente
+            if (c.user === userId && !c.isGifted) return true;
+            // Personajes regalados (recibidos)
+            if (c.isGifted && c.user === userId) return true;
+            // Personajes regalados (enviados - si quieres mostrarlos)
+            // if (c.isGifted && c.originalUser === userId) return true;
+            return false;
+        });
 
-        // Contamos por separado
+        // Estadísticas precisas
         const totalClaimed = allCharacters.filter(c => c.user === userId && !c.isGifted).length;
-        const totalGifted = allCharacters.filter(c => c.isGifted && c.originalUser === userId).length;
+        const totalGiftedReceived = allCharacters.filter(c => c.isGifted && c.user === userId).length;
         const totalInHarem = userCharacters.length;
+
+        // Verificación de consistencia
+        if (totalClaimed + totalGiftedReceived !== totalInHarem) {
+            console.warn('Advertencia: El total no coincide con la suma de reclamados y regalados');
+        }
 
         if (totalInHarem === 0) {
             return await conn.reply(m.chat, '❀ No tienes personajes en tu harem.', m);
@@ -75,14 +86,11 @@ let handler = async (m, { conn, args }) => {
 
         let message = `✿ ESTADÍSTICAS DEL HAREM ✿\n`;
         message += `⌦ Usuario: @${userId}\n`;
-        message += `♡ Reclamados: ${totalClaimed} | Regalados: ${totalGifted}\n`;
+        message += `♡ Reclamados: ${totalClaimed} | Regalados recibidos: ${totalGiftedReceived}\n`;
         message += `♡ Total en harem: ${totalInHarem}\n\n`;
-        message += `✿ TODOS TUS PERSONAJES ✿\n\n`;
+        message += `✿ LISTA DE PERSONAJES ✿\n\n`;
 
-        // Ordenamos por valor (opcional)
-        const sortedCharacters = [...userCharacters].sort((a, b) => (b.value || 0) - (a.value || 0));
-
-        sortedCharacters.slice(startIndex, endIndex).forEach((character, index) => {
+        userCharacters.slice(startIndex, endIndex).forEach((character, index) => {
             const position = startIndex + index + 1;
             const giftTag = character.isGifted ? ' (Regalado)' : '';
             message += `» ${position}. ${character.name} (${character.value})${giftTag}\n`;
