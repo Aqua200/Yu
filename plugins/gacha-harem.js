@@ -86,13 +86,10 @@ let handler = async (m, { conn, args }) => {
         const startIndex = (page - 1) * charactersPerPage;
         const endIndex = Math.min(startIndex + charactersPerPage, totalInHarem);
 
-        let message = `✿ ESTADÍSTICAS DEL HAREM ✿\n`;
-        message += `⌦ Usuario: @${userId}\n`;
-        message += `♡ Reclamados directamente: ${totalClaimed}\n`;
-        message += `♡ Regalos recibidos: ${totalGiftsReceived}\n`;
-        message += `♡ Total en harem: ${totalInHarem}\n\n`;
-        message += `✿ LISTA COMPLETA DE PERSONAJES ✿\n\n`;
-
+        let message = `✿ Personajes reclamados ✿\n`
+        message += `⌦ Usuario: @${userId.split('@')[0]}\n`
+        message += `♡ Personajes: *(${totalCharacters}):*\n\n`
+        
         // Ordenar por valor descendente y luego por nombre
         const sortedCharacters = [...userCharacters].sort((a, b) => {
             if (b.value !== a.value) return b.value - a.value;
