@@ -14,26 +14,42 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     let premium = user.premium ? '✅' : '❌';
 
-    let text = `╭━〔 Inventario de ${name} 〕⬣\n` +
-               `┋ 💸 *${moneda} en Cartera:* ${user.coin || 0}\n` +  
-               `┋ 🏦 *${moneda} en Banco:* ${user.bank || 0}\n` + 
-               `┋ ♦️ *Esmeraldas:* ${user.emerald || 0}\n` + 
-               `┋ 🔩 *Hierro:* ${user.iron || 0}\n` +  
-               `┋ 🏅 *Oro:* ${user.gold || 0}\n` + 
-               `┋ 🕋 *Carbón:* ${user.coal || 0}\n` +  
-               `┋ 🪨 *Piedra:* ${user.stone || 0}\n` +  
-               `┋ ✨ *Experiencia:* ${user.exp || 0}\n` + 
-               `┋ ❤️ *Salud:* ${user.health || 100}\n` + 
-               `┋ 💎 *Diamantes:* ${user.diamond || 0}\n` +   
-               `┋ 🍬 *Dulces:* ${user.candies || 0}\n` + 
-               `┋ 🎁 *Regalos:* ${user.gifts || 0}\n` + 
-               `┋ 🎟️ *Tokens:* ${user.joincount || 0}\n` +  
-               `┋ ⚜️ *Premium:* ${premium}\n` + 
-               `┋ ⏳ *Última Aventura:* ${user.lastAdventure ? moment(user.lastAdventure).fromNow() : 'Nunca'}\n` + 
-               `┋ 📅 *Fecha:* ${new Date().toLocaleString('id-ID')}\n` +
-               `╰━━━━━━━━━━━━⬣`;
+    // Sección de Monedas y Recursos Básicos
+    let text = `╭━〔 📦 Inventario de ${name} 〕━⬣\n` +
+               `├─┬─ *💵 Economía* ─\n` +
+               `│ ├ 💸 *${moneda} en Cartera:* ${user.coin || 0}\n` +  
+               `│ └ 🏦 *${moneda} en Banco:* ${user.bank || 0}\n\n` +
+               
+               // Sección de Materiales de Minería
+               `├─┬─ *⛏️ Materiales de Minería* ─\n` +
+               `│ ├ 💎 *Diamantes:* ${user.diamond || 0}\n` +
+               `│ ├ ♦️ *Esmeraldas:* ${user.emerald || 0}\n` + 
+               `│ ├ 🏅 *Oro:* ${user.gold || 0}\n` +
+               `│ ├ 🔩 *Hierro:* ${user.iron || 0}\n` +  
+               `│ ├ 🕋 *Carbón:* ${user.coal || 0}\n` +
+               `│ └ 🪨 *Piedra:* ${user.stone || 0}\n\n` +
+               
+               // Sección de Otros Recursos
+               `├─┬─ *🎁 Otros Recursos* ─\n` +
+               `│ ├ 🍬 *Dulces:* ${user.candies || 0}\n` +
+               `│ ├ 🎁 *Regalos:* ${user.gifts || 0}\n` +
+               `│ └ 🎟️ *Tokens:* ${user.joincount || 0}\n\n` +
+               
+               // Sección de Estadísticas
+               `├─┬─ *📊 Estadísticas* ─\n` +
+               `│ ├ ✨ *Experiencia:* ${user.exp || 0}\n` +
+               `│ ├ ❤️ *Salud:* ${user.health || 100}\n` +
+               `│ └ ⚜️ *Premium:* ${premium}\n\n` +
+               
+               // Sección de Actividad
+               `├─┬─ *⏳ Actividad* ─\n` +
+               `│ ├ Últ. Aventura: ${user.lastAdventure ? moment(user.lastAdventure).fromNow() : 'Nunca'}\n` +
+               `│ └ Últ. Minería: ${user.lastmining ? moment(user.lastmining).fromNow() : 'Nunca'}\n` +
+               
+               `╰━━━━━━━━━━━━━━━━⬣\n` +
+               `📅 *Fecha:* ${new Date().toLocaleString('es-ES')}`;
 
-    await conn.sendFile(m.chat, img, 'yuki.jpg', text, fkontak);
+    await conn.sendFile(m.chat, img, 'inventory.jpg', text, m);
 }
 
 handler.help = ['inventario', 'inv'];
