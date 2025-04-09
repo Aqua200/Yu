@@ -1,6 +1,9 @@
 import db from '../lib/database.js';
 
-const moneda = '¥'; // Símbolo de yenes (o cambia a tu moneda)
+const moneda = '¥'; // Símbolo de yenes
+const MAX_USOS = 20; // Número máximo de usos antes de llegar al mínimo
+const MIN_PERCENT = 90; // Porcentaje mínimo (90% del precio base)
+const RECUPERACION_POR_HORA = 5; // Porcentaje que se recupera por hora
 
 let handler = async (m, { conn, usedPrefix, args, command }) => {
     let user = global.db.data.users[m.sender];
@@ -16,8 +19,38 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
         diamond: { basePrice: 800, emoji: '💎', name: 'Diamante' }
     };
 
-    // Modificador de precios (85% a 115%)
-    const priceModifier = (Math.random() * 0.3) + 0.85;
+    // Inicializar datos del mercado si no existen
+    if (!global.db.data.market) {
+        global.db.data.market = {
+            usos: 0,
+            lastUpdate: Date.now(),
+            currentModifier: 1.0
+        };
+    }
+
+    // Calcular recuperación del mercado basado en el tiempo
+    const horasDesdeUltimaActualizacion = (Date.now() - global.db.data.market.lastUpdate) / (1000 * 60 * 60);
+    const recuperacion = Math.min(horasDesdeUltimaActualizacion * RECUPERACION_POR_HORA, 100);
+    
+    // Actualizar modificador del mercado
+    global.db.data.market.currentModifier = Math.min(
+        1.0, // Máximo 100%
+        global.db.data.market.currentModifier + (recuperacion / 100)
+    );
+    global.db.data.market.lastUpdate = Date.now();
+
+    // Función para obtener el modificador actual con fluctuación
+    const getCurrentModifier = () => {
+        // Base: 100% - (usos * reducción por uso)
+        const baseModifier = Math.max(
+            MIN_PERCENT / 100, 
+            1.0 - (global.db.data.market.usos * 0.005) // 0.5% de reducción por uso
+        );
+        
+        // Aplicar fluctuación aleatoria (±5%)
+        const fluctuation = (Math.random() * 0.1) - 0.05;
+        return Math.min(1.0, Math.max(MIN_PERCENT / 100, baseModifier + fluctuation));
+    };
 
     // Función para formatear yenes
     const formatYen = (amount) => {
@@ -30,10 +63,14 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
         let soldItems = [];
         let hasMaterials = false;
         
+        // Incrementar contador de usos del mercado
+        global.db.data.market.usos += 1;
+        const currentModifier = getCurrentModifier();
+        
         for (const [mat, data] of Object.entries(materialPrices)) {
             if (user[mat] > 0) {
                 hasMaterials = true;
-                const price = Math.round(data.basePrice * priceModifier);
+                const price = Math.round(data.basePrice * currentModifier);
                 const earned = user[mat] * price;
                 totalEarned += earned;
                 soldItems.push(`▸ ${data.emoji} ${data.name}: ${user[mat]} → ${formatYen(earned)}`);
@@ -52,7 +89,8 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
                     `Has obtenido: *${formatYen(totalEarned)}*\n\n` +
                     `📦 Materiales vendidos:\n${soldItems.join('\n')}\n\n` +
                     `💴 Total en yenes: ${formatYen(user.coin)}\n` +
-                    `📊 Precios del día: ${Math.round(priceModifier * 100)}%`
+                    `📊 Estado del mercado: ${Math.round(currentModifier * 100)}% (${global.db.data.market.usos} ventas hoy)\n` +
+                    `📉 Precios disminuyen con el uso (mínimo ${MIN_PERCENT}%)`
         };
     };
 
@@ -71,20 +109,24 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
 
     // Mostrar lista de materiales
     if (!args[0]) {
+        const currentModifier = getCurrentModifier();
         let list = `🏪 *Tienda de Materiales* 🏪\n\n`;
-        list += `📈 Fluctuación: ${Math.round(priceModifier * 100)}%\n`;
+        list += `📈 Estado del mercado: ${Math.round(currentModifier * 100)}%\n`;
+        list += `📊 Ventas hoy: ${global.db.data.market.usos} (máx ${MAX_USOS})\n`;
+        list += `📉 Mínimo alcanzable: ${MIN_PERCENT}%\n`;
         list += `💴 Tus yenes: ${formatYen(user.coin)}\n\n`;
         
         for (const [mat, data] of Object.entries(materialPrices)) {
-            const price = Math.round(data.basePrice * priceModifier);
+            const price = Math.round(data.basePrice * currentModifier);
             list += `${data.emoji} *${data.name}:* ${formatYen(price)} c/u (Tienes: ${user[mat] || 0})\n`;
         }
         
         list += `\n💡 Usa:\n• ${usedPrefix}vender <material> <cantidad>\n• ${usedPrefix}venderm (vender todo)`;
+        list += `\n\n⚠️ Los precios bajan con cada venta (recuperan ${RECUPERACION_POR_HORA}% por hora)`;
         
         return conn.sendMessage(m.chat, {
             text: list,
-            footer: '💰 Sistema económico japonés',
+            footer: '💰 Sistema económico japonés - Mercado variable',
             title: '⛩️ Mercado de Materiales'
         }, { quoted: m });
     }
@@ -121,7 +163,10 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
         return conn.reply(m.chat, `No tienes suficiente ${matInfo.name}. Solo tienes ${user[matKey]}`, m);
     }
 
-    const price = Math.round(matInfo.basePrice * priceModifier);
+    // Incrementar contador de usos del mercado
+    global.db.data.market.usos += 1;
+    const currentModifier = getCurrentModifier();
+    const price = Math.round(matInfo.basePrice * currentModifier);
     const total = price * amount;
     
     user[matKey] -= amount;
@@ -131,11 +176,12 @@ let handler = async (m, { conn, usedPrefix, args, command }) => {
         text: `🎌 *Venta Exitosa* 🎌\n\n` +
               `${matInfo.emoji} *${matInfo.name}*\n` +
               `📦 Vendiste: ${amount} unidades\n` +
-              `💴 Precio unitario: ${formatYen(price)}\n` +
+              `💴 Precio unitario: ${formatYen(price)} (${Math.round(currentModifier * 100)}%)\n` +
               `💰 Total obtenido: *${formatYen(total)}*\n\n` +
               `🏦 Yenes totales: ${formatYen(user.coin)}\n` +
+              `📊 Ventas hoy: ${global.db.data.market.usos} (máx ${MAX_USOS})\n` +
               `📅 ${new Date().toLocaleDateString('ja-JP')}`,
-        footer: 'Arigatou gozaimasu!',
+        footer: 'Los precios bajan con cada venta, pero se recuperan con el tiempo',
         title: 'RECIBO DE VENTA'
     }, { quoted: m });
 }
