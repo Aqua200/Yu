@@ -48,6 +48,15 @@ let handler = async (m, { conn }) => {
         `${diamond ? `💎 *Diamante*: ${diamond}\n` : ''}\n` +
         `⚒️ *Durabilidad restante de la picota*: ${isNaN(durabilityPercentage) ? 'Desconocida' : `${durabilityPercentage.toFixed(0)}%`}`;
 
+    // Se obtienen las situaciones buenas o malas
+    const evento = obtenerSituacion();
+    info += `\n\n🌟 ${evento.texto}`;
+
+    // Aplicamos las recompensas o castigos
+    user.health += evento.efecto.vida || 0;
+    user.coin += evento.efecto.yenes || 0;
+    user.exp += evento.efecto.exp || 0;
+
     await conn.sendFile(m.chat, lugar.img, 'mineria.jpg', info, fkontak);
     await m.react('⛏️');
 
@@ -71,14 +80,6 @@ let handler = async (m, { conn }) => {
         conn.reply(m.chat, '❌ Tu picota se ha roto. Usa el comando *reparar* para arreglarla.', m);
     }
 }
-
-handler.help = ['minar'];
-handler.tags = ['economy'];
-handler.command = ['minar', 'miming', 'mine'];
-handler.register = true;
-handler.group = true;
-
-export default handler;
 
 // Función para seleccionar un número aleatorio dentro de un rango
 function pickRandomRange(range) {
@@ -112,3 +113,34 @@ function msToTime(duration) {
 
     return minutes + 'm y ' + seconds + 's';
 }
+
+// Función para obtener una situación buena o mala aleatoria
+function obtenerSituacion() {
+    const situacionesBuenas = [
+        { texto: "🎉 ¡Has encontrado un montón de monedas!", efecto: { yenes: 100 } },
+        { texto: "✨ ¡Una esmeralda extra!", efecto: { yenes: 50, exp: 10 } },
+        { texto: "💪 ¡Te sientes más fuerte! Has ganado un poco de salud.", efecto: { vida: 20 } },
+        { texto: "🛠️ ¡Has encontrado herramientas extra! Ganaste 30 de durabilidad en tu picota.", efecto: { exp: 20 } },
+        { texto: "🌟 ¡Has encontrado un cofre del tesoro!", efecto: { yenes: 150, exp: 25 } }
+    ];
+
+    const situacionesMalas = [
+        { texto: "💥 ¡Un derrumbe te ha hecho daño!", efecto: { vida: -20 } },
+        { texto: "⚡ ¡Un rayo te golpeó y dañó tu salud!", efecto: { vida: -30 } },
+        { texto: "🔥 ¡El calor del volcán te ha dejado exhausto!", efecto: { exp: -10 } },
+        { texto: "⚠️ ¡Un monstruo te atacó! Has perdido algo de salud.", efecto: { vida: -40 } },
+        { texto: "⛔ ¡Te has resbalado y caíste, perdiendo algo de tiempo!", efecto: { exp: -15 } }
+    ];
+
+    const esBuena = Math.random() < 0.5;
+    const situaciones = esBuena ? situacionesBuenas : situacionesMalas;
+    return situaciones[Math.floor(Math.random() * situaciones.length)];
+}
+
+handler.help = ['minar'];
+handler.tags = ['economy'];
+handler.command = ['minar', 'miming', 'mine'];
+handler.register = true;
+handler.group = true;
+
+export default handler;
