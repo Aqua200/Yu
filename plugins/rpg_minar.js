@@ -9,7 +9,7 @@ let handler = async (m, { conn }) => {
     }
 
     let lugares = [
-        { nombre: "⛏️ Cueva", img: "https://files.catbox.moe/8rz842.jpg", probabilidad: 25, minerales: { coin: [10, 50], iron: [5, 20], gold: [2, 10], coal: [10, 50], stone: [300, 800] } },
+        { nombre: "⛏️ Cueva", img: "https://files.catbox.moe/mtsv8m.jpg", probabilidad: 25, minerales: { coin: [10, 50], iron: [5, 20], gold: [2, 10], coal: [10, 50], stone: [300, 800] } },
         { nombre: "🌋 Volcán", img: "https://qu.ax/CDdWW.jpeg", probabilidad: 25, minerales: { coin: [30, 90], iron: [15, 40], gold: [10, 50], coal: [30, 100], stone: [700, 4000] } },
         { nombre: "🏚️ Mina abandonada", img: "https://qu.ax/tZvvf.jpeg", probabilidad: 50, minerales: { coin: [50, 120], iron: [20, 50], gold: [15, 40], coal: [30, 100], stone: [600, 2000] } },
         { nombre: "🌲 Bosque subterráneo", img: "https://qu.ax/FzCtg.jpeg", probabilidad: 50, minerales: { coin: [40, 100], iron: [15, 40], gold: [10, 30], coal: [20, 80], stone: [500, 1500] } },
