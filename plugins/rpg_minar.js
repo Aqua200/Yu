@@ -1,5 +1,3 @@
-const cooldowns = {};
-
 const handler = async (m, { conn }) => {
     const user = global.db.data.users[m.sender];
     if (!user) return;
@@ -7,6 +5,13 @@ const handler = async (m, { conn }) => {
     // Verificar estado de la picota
     if (!user.pickaxedurability || user.pickaxedurability <= 0) {
         return conn.reply(m.chat, '🔨 *¡Pico roto!*\n\n⚒️ Tu pico está completamente roto. Repáralo con *!reparar* o compra uno nuevo antes de minar.', m);
+    }
+
+    // Verificar cooldown (10 minutos)
+    const cooldownTime = 600000; // 10 minutos en milisegundos
+    if (Date.now() - user.lastmining < cooldownTime) {
+        const remaining = formatCooldown(cooldownTime - (Date.now() - user.lastmining));
+        return conn.reply(m.chat, `⏳ *¡Espera un poco!*\n\nDebes esperar *${remaining}* para minar nuevamente.\n\n💡 Recuerda que el cooldown es de 10 minutos.`, m);
     }
 
     // Lugares de minería con sus propiedades
@@ -73,13 +78,6 @@ const handler = async (m, { conn }) => {
         }
     ];
 
-    // Verificar cooldown
-    const cooldownTime = user.lastmining + 600000;
-    if (Date.now() - user.lastmining < 600000) {
-        const remaining = formatCooldown(cooldownTime - Date.now());
-        return conn.reply(m.chat, `⏳ *¡Espera un poco!*\n\nDebes esperar *${remaining}* para minar nuevamente.\n\n💡 Recuerda que el cooldown es de 10 minutos.`, m);
-    }
-
     // Seleccionar ubicación y recursos
     const location = selectByProbability(miningLocations);
     const resources = {
@@ -88,7 +86,7 @@ const handler = async (m, { conn }) => {
         gold: getRandomInRange(location.resources.gold),
         coal: getRandomInRange(location.resources.coal),
         stone: getRandomInRange(location.resources.stone),
-        emerald: getRandomValue([1, 5, 7, 8]),
+        emerald: Math.random() < 0.3 ? getRandomValue([1, 5, 7, 8]) : 0,
         diamond: Math.random() < 0.05 ? getRandomValue([1, 2, 3]) : 0
     };
 
@@ -97,7 +95,7 @@ const handler = async (m, { conn }) => {
     const maxDurability = 100;
     const durabilityPercentage = (user.pickaxedurability / maxDurability) * 100;
 
-    // Evento aleatorio
+    // Evento aleatorio (sin efectos negativos de salud)
     const randomEvent = getRandomEvent();
     
     // Construir mensaje de resultados
@@ -105,13 +103,13 @@ const handler = async (m, { conn }) => {
         `📊 *Resultados de minería*\n` +
         `▸ 🔹 *Experiencia*: ${experience} XP\n` +
         `▸ 💰 *Monedas*: ${resources.coin}\n` +
-        `▸ 💚 *Esmeralda*: ${resources.emerald}\n` +
+        `${resources.emerald > 0 ? `▸ 💚 *Esmeralda*: ${resources.emerald}\n` : ''}` +
         `▸ 🔩 *Hierro*: ${resources.iron}\n` +
         `▸ 🏅 *Oro*: ${resources.gold}\n` +
         `▸ ⚫ *Carbón*: ${resources.coal}\n` +
         `▸ 🪨 *Piedra*: ${resources.stone}\n` +
-        `${resources.diamond ? `▸ 💎 *Diamante*: ${resources.diamond}\n` : ''}\n` +
-        `⚒️ *Estado del pico*: ${isNaN(durabilityPercentage) ? 'Desconocido' : `${durabilityPercentage.toFixed(0)}%`}\n\n` +
+        `${resources.diamond > 0 ? `▸ 💎 *Diamante*: ${resources.diamond}\n` : ''}` +
+        `\n⚒️ *Estado del pico*: ${isNaN(durabilityPercentage) ? 'Desconocido' : `${durabilityPercentage.toFixed(0)}%`}\n\n` +
         `🎲 *Evento especial*: ${randomEvent.text}\n\n` +
         `💡 *Consejo*: Repara tu pico con *!reparar* cuando esté bajo al 20%`;
 
@@ -119,8 +117,7 @@ const handler = async (m, { conn }) => {
     await conn.sendFile(m.chat, location.image, 'mining.jpg', resultMessage, m);
     await m.react('⛏️');
 
-    // Actualizar estadísticas del usuario
-    user.health -= 50;
+    // Actualizar estadísticas del usuario (sin quitar salud)
     user.pickaxedurability -= 30;
     user.coin += resources.coin;
     user.iron += resources.iron;
@@ -132,14 +129,13 @@ const handler = async (m, { conn }) => {
     user.exp += experience;
     user.lastmining = Date.now();
 
-    // Aplicar efectos del evento
-    user.health += randomEvent.effect.health || 0;
+    // Aplicar efectos del evento (sin quitar salud)
     user.coin += randomEvent.effect.coins || 0;
     user.exp += randomEvent.effect.exp || 0;
 
     // Verificar estado del pico
     if (user.pickaxedurability <= 20 && user.pickaxedurability > 0) {
-        conn.reply(m.chat, '⚠️ *¡Atención!*\n\nTu pico está a punto de romperse (${user.pickaxedurability}% de durabilidad).\nUsa *!reparar* para arreglarlo.', m);
+        conn.reply(m.chat, `⚠️ *¡Atención!*\n\nTu pico está a punto de romperse (${Math.floor(durabilityPercentage)}% de durabilidad).\nUsa *!reparar* para arreglarlo.`, m);
         await m.react('⚠️');
     }
 
@@ -148,17 +144,15 @@ const handler = async (m, { conn }) => {
     }
 }
 
-// Función para obtener un valor aleatorio dentro de un rango
+// Funciones auxiliares (sin cambios)
 function getRandomInRange([min, max]) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Función para seleccionar un valor aleatorio de un array
 function getRandomValue(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-// Función para seleccionar ubicación basada en probabilidad
 function selectByProbability(items) {
     const totalProbability = items.reduce((sum, item) => sum + item.probability, 0);
     const randomValue = Math.random() * totalProbability;
@@ -170,34 +164,24 @@ function selectByProbability(items) {
     }
 }
 
-// Función para formatear el tiempo de cooldown
 function formatCooldown(milliseconds) {
-    const seconds = Math.floor((milliseconds / 1000) % 60);
-    const minutes = Math.floor((milliseconds / (1000 * 60)) % 60);
-
-    return `${minutes.toString().padStart(2, '0')} minutos y ${seconds.toString().padStart(2, '0')} segundos`;
+    const minutes = Math.floor(milliseconds / 60000);
+    const seconds = Math.floor((milliseconds % 60000) / 1000);
+    return `${minutes} minuto${minutes !== 1 ? 's' : ''} y ${seconds} segundo${seconds !== 1 ? 's' : ''}`;
 }
 
-// Función para generar eventos aleatorios
+// Eventos modificados para no quitar salud
 function getRandomEvent() {
-    const positiveEvents = [
+    const events = [
         { text: "🎉 ¡Has encontrado un tesoro escondido! +100 monedas", effect: { coins: 100 } },
         { text: "✨ ¡Una veta de minerales raros! +50 monedas y 10 XP", effect: { coins: 50, exp: 10 } },
-        { text: "💪 ¡Encontraste una poción de salud! +20 de salud", effect: { health: 20 } },
+        { text: "💪 ¡Encontraste una poción de energía! +20 XP", effect: { exp: 20 } },
         { text: "🛠️ ¡Materiales de refuerzo para tu pico! +20 XP", effect: { exp: 20 } },
-        { text: "🌟 ¡Cofre del tesoro legendario! +150 monedas y 25 XP", effect: { coins: 150, exp: 25 } }
+        { text: "🌟 ¡Cofre del tesoro legendario! +150 monedas y 25 XP", effect: { coins: 150, exp: 25 } },
+        { text: "⏳ ¡Trabajaste más rápido de lo normal! Cooldown reducido", effect: { reduceCooldown: true } },
+        { text: "🔍 ¡Encontraste un atajo en la mina! +30 XP", effect: { exp: 30 } },
+        { text: "💼 ¡Contrato de minería completado! +80 monedas", effect: { coins: 80 } }
     ];
-
-    const negativeEvents = [
-        { text: "💥 ¡Un derrumbe te ha golpeado! -20 de salud", effect: { health: -20 } },
-        { text: "⚡ ¡Una descarga eléctrica en la mina! -30 de salud", effect: { health: -30 } },
-        { text: "🔥 ¡El calor te agotó! -10 XP", effect: { exp: -10 } },
-        { text: "⚠️ ¡Un enemigo te atacó! -40 de salud", effect: { health: -40 } },
-        { text: "⛔ ¡Perdiste tiempo por un camino equivocado! -15 XP", effect: { exp: -15 } }
-    ];
-
-    const isPositive = Math.random() < 0.5;
-    const events = isPositive ? positiveEvents : negativeEvents;
     return events[Math.floor(Math.random() * events.length)];
 }
 
