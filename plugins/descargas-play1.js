@@ -5,12 +5,11 @@ import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
+const streamPipeline = promisify(pipeline);
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-const streamPipeline = promisify(pipeline);
-
-// Esto es necesario en ESM para __dirname
+// Para que __dirname funcione en ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -31,7 +30,7 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     const title = video.title;
     const fduration = video.timestamp;
     const views = video.views.toLocaleString();
-    const channel = video.author?.name || 'Desconocido';
+    const channel = video.author.name || 'Desconocido';
 
     const infoMessage = `
 ╔═══════════════╗
@@ -66,11 +65,10 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!json.status || !json.data?.url) throw new Error("No se pudo obtener el audio");
 
     const tmpDir = path.join(__dirname, '../tmp');
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
-    const timestamp = Date.now();
-    const rawPath = path.join(tmpDir, `${timestamp}_raw.m4a`);
-    const finalPath = path.join(tmpDir, `${timestamp}_final.mp3`);
+    const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`);
+    const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`);
 
     const audioRes = await axios.get(json.data.url, { responseType: 'stream' });
     await streamPipeline(audioRes.data, fs.createWriteStream(rawPath));
@@ -104,9 +102,9 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
   }
 };
 
-handler.help = ['play <búsqueda>'];
-handler.tags = ['downloader'];
-handler.command = /^play$/i;
+handler.help = ['play'];
+handler.command = ['play'];
+handler.tags = ['música'];
 handler.register = true;
 
 export default handler;
