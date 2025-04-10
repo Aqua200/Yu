@@ -91,14 +91,11 @@ let handler = async (m, { conn, isPrems }) => {
   user.energia -= 1
   user.coin += situacionElegida.recompensa
 
-  // Enviar imagen directamente desde la URL
-  await conn.sendFile(m.chat, personajeElegido.imagen, null, mensaje, m)
-
   // ==================== [ COOLDOWN & EXP ] ====================
   user.exp = (user.exp || 0) + Math.floor(Math.random() * 15) + 5
 
   // Establecer expNecesaria después de la actualización de exp
-  let expNecesaria = 100 * (user.level || 1)
+  let expNecesaria = 100 * (user.level || 1) // Inicializar expNecesaria correctamente
   let nivelUp = user.exp >= expNecesaria
 
   if (nivelUp) {
@@ -109,6 +106,9 @@ let handler = async (m, { conn, isPrems }) => {
       contextInfo: { mentionedJid: [m.sender] } 
     })
   }
+
+  // Enviar imagen directamente desde la URL
+  await conn.sendFile(m.chat, personajeElegido.imagen, null, mensaje, m)
 
   // ==================== [ FUNCIONES AUXILIARES ] ====================
   function toNum(number) {
