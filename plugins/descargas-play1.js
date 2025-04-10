@@ -1,12 +1,5 @@
 import yts from 'yt-search';
 
-// Definir estas variables si no están definidas en otro lugar
-const emoji = '🎵';
-const rwait = '⏳';
-const done = '✅';
-const dev = 'TuNombre';
-const fkontak = {}; // Define esto adecuadamente
-
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) throw `${emoji} Por favor ingresa la música que deseas descargar.`;
 
@@ -39,10 +32,17 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         viewOnce: true,
         headerType: 4,
       }, { quoted: fkontak });
-      m.react('🕒');
+      
+      // Alternativa segura a m.react()
+      if (conn.sendReaction) {
+        await conn.sendReaction(m.chat, '🕒', m.key);
+      }
 
     } else if (command === 'yta' || command === 'ytmp3') {
-      m.react(rwait);
+      if (conn.sendReaction) {
+        await conn.sendReaction(m.chat, rwait, m.key);
+      }
+      
       let audio;
       const apis = [
         `https://api.alyachan.dev/api/youtube?url=${videoInfo.url}&type=mp3&apikey=Gata-Dios`,
@@ -64,10 +64,16 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
       if (!audio?.data?.url) throw "No se pudo obtener el audio de ninguna API.";
       await conn.sendFile(m.chat, audio.data.url, `${videoInfo.title}.mp3`, null, m, null, { mimetype: "audio/mpeg" });
-      m.react(done);
+      
+      if (conn.sendReaction) {
+        await conn.sendReaction(m.chat, done, m.key);
+      }
 
     } else if (command === 'ytv' || command === 'ytmp4') {
-      m.react(rwait);
+      if (conn.sendReaction) {
+        await conn.sendReaction(m.chat, rwait, m.key);
+      }
+      
       let video;
       const apis = [
         `https://api.alyachan.dev/api/youtube?url=${videoInfo.url}&type=mp4&apikey=Gata-Dios`,
@@ -93,14 +99,17 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         caption: `*${videoInfo.title}*`,
         mimetype: "video/mp4"
       }, { quoted: m });
-      m.react(done);
+      
+      if (conn.sendReaction) {
+        await conn.sendReaction(m.chat, done, m.key);
+      }
 
     } else {
       throw "Comando no reconocido.";
     }
   } catch (error) {
     console.error(error);
-    m.reply(`❌ Error: ${error.message || error}`);
+    await conn.sendMessage(m.chat, { text: `❌ Error: ${error.message || error}` }, { quoted: m });
   }
 };
 
