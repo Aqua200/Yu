@@ -46,8 +46,8 @@ let handler = async (m, { conn, isPrems }) => {
     }
   ]
 
-  // ==================== [ MEJORA #3: EVENTO DE COLABORACIÓN (89%) ] ====================
-  if (Math.random() < 0.89) {
+  // ==================== [ MEJORA #3: EVENTO DE COLABORACIÓN (100%) ] ====================
+  if (true) { // Evento siempre activo (100%)
     const personajesColaboracion = [
       {
         nombre: 'Rudy Greyrat',
@@ -81,6 +81,14 @@ let handler = async (m, { conn, isPrems }) => {
           { descripcion: 'Lilia Greyrat, sorprendida por el entorno, te pide ayuda para entender cómo funcionan las cosas en Kurogane. Como agradecimiento, te da una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
           { descripcion: 'Lilia te pide que la acompañes en una misión secreta. Si tienes éxito, serás recompensado generosamente.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
         ]
+      },
+      {
+        nombre: 'Roxy Migurdia',
+        imagen: 'https://files.catbox.moe/roxy_image.jpg', // URL de la imagen de Roxy
+        situaciones: [
+          { descripcion: 'Roxy está buscando un antiguo artefacto mágico. Ayúdala a encontrarlo y obtendrás una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+          { descripcion: 'Roxy te ofrece enseñarte un hechizo avanzado a cambio de tu ayuda. Recibes una recompensa por tu esfuerzo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
+        ]
       }
     ]
 
@@ -108,6 +116,24 @@ let handler = async (m, { conn, isPrems }) => {
 
     // Enviar imagen directamente desde la URL
     await conn.sendFile(m.chat, personajeElegido.imagen, null, mensaje, m)
+  } else {
+    // Si no es un evento, la misión normal puede ocurrir
+    const situacionesNormales = [
+      { descripcion: 'Exploras el bosque en busca de oro.', recompensa: 50 },
+      { descripcion: 'Encuentras un mapa antiguo en la mazmorra.', recompensa: 100 },
+      { descripcion: 'Un árbol cae y te da un cristal raro.', recompensa: 150 }
+    ]
+
+    // Elegir una misión normal aleatoria
+    const situacionNormal = pickRandom(situacionesNormales)
+
+    // Enviar misión normal
+    let mensajeNormal = `🌙✨ 𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪 ✨🌙\n\n` +
+                        `🌳 *Misión: Explorando Kurogane*\n` +
+                        `📜 ${situacionNormal.descripcion}\n\n` +
+                        `💰 *${toNum(situacionNormal.recompensa)}* ${moneda}`
+
+    await conn.sendMessage(m.chat, mensajeNormal, m)
   }
 
   // ==================== [ COOLDOWN & EXP ] ====================
