@@ -1,66 +1,80 @@
-let cooldowns = {}
+let users = global.db.data.users; // Asegúrate de tener tu base de datos global
 
-let handler = async (m, { conn }) => {
-  let user = global.db.data.users[m.sender]
-  let tiempo = 5 * 60 // 5 minutos
-  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
-    const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
-    conn.reply(m.chat, `✨ Debes esperar *${tiempo2}* para volver al *teibol* otra vez.`, m)
-    return
+function obtenerRango(nivel) {
+  if (nivel >= 30) return 'Leyenda del Teibol';
+  if (nivel >= 20) return 'Reina del Teibol';
+  if (nivel >= 10) return 'Teibolera Estrella';
+  if (nivel >= 5) return 'Teibolera Junior';
+  return 'Principiante';
+}
+
+// Comando .teibol
+async function teibol(m, { conn }) {
+  let user = users[m.sender];
+  if (!user.teibol) {
+    user.teibol = {
+      nivel: 1,
+      yenes: 0,
+      exp: 0,
+      lastWork: 0,
+    };
   }
-  let rsl = Math.floor(Math.random() * 500)
-  cooldowns[m.sender] = Date.now()
-  await conn.reply(m.chat, `\n${pickRandom(teibol)} *${toNum(rsl)}* ( *${rsl}* ) 💸`, m)
-  user.coin += rsl
+
+  let { nivel, yenes, exp } = user.teibol;
+  let rango = obtenerRango(nivel);
+
+  let perfil = `
+「 *Perfil de Teibolera* 」
+➤ Nivel: ${nivel}
+➤ Rango: ${rango}
+➤ Experiencia: ${exp}/100
+➤ Yenes: ¥${yenes}
+`.trim();
+  
+  await conn.reply(m.chat, perfil, m);
 }
 
-handler.help = ['teibol']
-handler.tags = ['economy']
-handler.command = ['teibol', 'strip', 'bailar']
-handler.group = true
-handler.register = true
-
-export default handler
-
-function toNum(number) {
-  if (number >= 1000 && number < 1000000) {
-    return (number / 1000).toFixed(1) + 'k'
-  } else if (number >= 1000000) {
-    return (number / 1000000).toFixed(1) + 'M'
-  } else if (number <= -1000 && number > -1000000) {
-    return (number / 1000).toFixed(1) + 'k'
-  } else if (number <= -1000000) {
-    return (number / 1000000).toFixed(1) + 'M'
-  } else {
-    return number.toString()
+// Comando .trabajar
+async function trabajar(m, { conn }) {
+  let user = users[m.sender];
+  if (!user.teibol) {
+    user.teibol = {
+      nivel: 1,
+      yenes: 0,
+      exp: 0,
+      lastWork: 0,
+    };
   }
+
+  let now = Date.now();
+  let cooldown = 60000; // 1 minuto en milisegundos
+  if (now - user.teibol.lastWork < cooldown) {
+    let tiempoRestante = Math.ceil((cooldown - (now - user.teibol.lastWork)) / 1000);
+    return conn.reply(m.chat, `Debes esperar ${tiempoRestante} segundos para volver a trabajar.`, m);
+  }
+
+  let { nivel } = user.teibol;
+  let yenesGanados = 100 * nivel; // A más nivel, más yenes
+  user.teibol.yenes += yenesGanados;
+  user.teibol.exp += 10; // Cada trabajo da 10 exp
+  user.teibol.lastWork = now; // Actualiza el último trabajo
+
+  // Subir de nivel
+  if (user.teibol.exp >= 100) {
+    user.teibol.exp = 0;
+    user.teibol.nivel += 1;
+    let nuevoRango = obtenerRango(user.teibol.nivel);
+    await conn.reply(m.chat, `¡Felicidades! Subiste a *Nivel ${user.teibol.nivel}* y ahora eres *${nuevoRango}*!`, m);
+  }
+
+  await conn.reply(m.chat, `Trabajaste en el teibol y ganaste ¥${yenesGanados} yenes.`, m);
 }
 
-function segundosAHMS(segundos) {
-  let minutos = Math.floor((segundos % 3600) / 60)
-  let segundosRestantes = segundos % 60
-  return `${minutos} minutos y ${segundosRestantes} segundos`
-}
+// Exportar comandos si usas handler
+handler.command = /^teibol$/i;
+handler.teibol = teibol;
 
-function pickRandom(list) {
-  return list[Math.floor(list.length * Math.random())]
-}
+handler2.command = /^trabajar$/i;
+handler2.trabajar = trabajar;
 
-const teibol = [
-  "Bailaste en el escenario y ganaste",
-  "Diste un show privado y recibiste propina de",
-  "Los clientes quedaron fascinados con tu baile, te pagaron",
-  "Participaste en un concurso de baile y ganaste",
-  "Fuiste contratada para un evento VIP y recibiste",
-  "Te aplaudieron tanto que te llovieron billetes por",
-  "Un cliente enamorado te regaló",
-  "Bailaste en la barra y conseguiste",
-  "Hiciste un show especial de medianoche y ganaste",
-  "Diste clases de baile sensual y cobraste",
-  "Modelaste lencería en el club y te pagaron",
-  "Hiciste un truco nuevo en el tubo y ganaste",
-  "Tu sensualidad conquistó al público y recibiste",
-  "Tu actuación especial de San Valentín te dejó",
-  "Un cliente famoso te dejó una propina de",
-  "Bailaste en la zona VIP y ganaste",
-]
+export { teibol, trabajar };
