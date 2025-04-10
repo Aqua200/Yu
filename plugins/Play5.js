@@ -104,4 +104,9 @@ const handler = async (m, { conn, text, args, usedPrefix, command }) => {
         conn.sendMessage(m.chat, { text: `⚠️ Error: ${error}` }, { quoted: m });
     }
 };
+handler.help = ['play5'];
+handler.command = ['play5'];
+handler.tags = ['música'];
+handler.register = true;
+
 export default handler;
