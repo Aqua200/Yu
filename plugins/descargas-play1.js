@@ -93,7 +93,7 @@ const handler = async (m, { conn, text }) => {
             contextInfo: {
                 externalAdReply: {
                     title: title,
-                    body: "2B Beta",
+                    body: "𝑁𝑖𝑒𝑅: 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑎 𝟸𝐵",
                     mediaType: 1,
                     previewType: "PHOTO",
                     thumbnailUrl: thumbnail,
