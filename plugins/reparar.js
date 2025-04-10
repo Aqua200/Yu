@@ -12,6 +12,9 @@ let handler = async (m, { conn }) => {
     const costGold = 10;
     const costYen = 500;
 
+    // Calcular dinero total (coin + bank)
+    const totalMoney = (user.coin || 0) + (user.bank || 0);
+
     // Intentar reparar con materiales primero
     if (user.iron >= costIron && user.gold >= costGold) {
         user.iron -= costIron;
@@ -22,13 +25,21 @@ let handler = async (m, { conn }) => {
             `🔩 -${costIron} hierro | 🏅 -${costGold} oro\n` +
             `⚒️ Durabilidad: 100/100`, m);
     } 
-    // Si no tiene materiales, intentar con yenes
-    else if (user.money >= costYen) {
-        user.money -= costYen;
+    // Si no tiene materiales, intentar con yenes (coin + bank)
+    else if (totalMoney >= costYen) {
+        // Primero deducir de coin, luego de bank si es necesario
+        if (user.coin >= costYen) {
+            user.coin -= costYen;
+        } else {
+            const remaining = costYen - (user.coin || 0);
+            user.coin = 0;
+            user.bank -= remaining;
+        }
+        
         user.pickaxedurability = 100;
         return conn.reply(m.chat, 
             `✅ *Pico reparado con yenes:*\n` +
-            `💴 -${costYen} yenes\n` +
+            `💴 -${costYen} yenes (${user.coin} en mano | ${user.bank} en banco)\n` +
             `⚒️ Durabilidad: 100/100`, m);
     }
     // Si no tiene nada
@@ -41,7 +52,7 @@ let handler = async (m, { conn }) => {
             `💴 ${costYen} yenes\n\n` +
             `Actualmente tienes:\n` +
             `🔩 ${user.iron}/${costIron} hierro | 🏅 ${user.gold}/${costGold} oro\n` +
-            `💴 ${user.money}/${costYen} yenes`, m);
+            `💴 ${totalMoney}/${costYen} yenes (${user.coin} en mano | ${user.bank} en banco)`, m);
     }
 }
 
