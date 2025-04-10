@@ -114,8 +114,9 @@ const handler = async (m, { conn, text }) => {
     }
 };
 
+handler.help = ['play'];
 handler.command = ['play'];
-handler.help = ['play'].map(v => v + ' <texto>');
-handler.tags = ['downloader'];
+handler.tags = ['música'];
+handler.register = true;
 
 export default handler;
