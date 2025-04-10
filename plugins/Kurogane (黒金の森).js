@@ -24,117 +24,75 @@ let handler = async (m, { conn, isPrems }) => {
     m)
   }
 
-  // ==================== [ LUGARES & SITUACIONES ] ====================
-  const lugares = [
+  // ==================== [ EVENTO DE COLABORACIÓN (100%) ] ====================
+  const personajesColaboracion = [
     {
-      nombre: 'Bosque encantado 🌲',
-      imagen: 'https://files.catbox.moe/rh5vun.jpeg',
+      nombre: 'Rudy Greyrat',
+      imagen: 'https://files.catbox.moe/78uoi5.jpg', // URL de la imagen de Rudeus
       situaciones: [
-        { descripcion: 'Hallazgo: Un amuleto místico brilla entre las hojas.', recompensa: 150 },
-        { descripcion: '¡Una espada legendaria yace en una cueva oculta!', recompensa: 200 },
-        { descripcion: 'La fuente cristalina te muestra un futuro misterioso...', recompensa: 100 }
+        { descripcion: 'La familia Greyrat ha sido teletransportada a Kurogane. Ayúdales a orientarse y obtendrás su apoyo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+        { descripcion: 'Rudeus te ayuda a encontrar un objeto mágico raro. Recibes una recompensa por tu ayuda.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+        { descripcion: 'Rudeus comparte sus conocimientos mágicos contigo. ¡Estás más cerca de dominar un hechizo poderoso!', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
       ]
     },
     {
-      nombre: 'Mazmorra olvidada 🏰',
-      imagen: 'https://files.catbox.moe/fu141j.jpeg',
+      nombre: 'Paul Greyrat',
+      imagen: 'https://files.catbox.moe/q3xgzm.jpg', // URL de la imagen de Paul
       situaciones: [
-        { descripcion: 'Encuentras una espada oxidada con aura oscura.', recompensa: 250 },
-        { descripcion: '¡Resuelves un enigma y abres un cofre dorado!', recompensa: 300 },
-        { descripcion: 'Una sombra susurra: "¿Intercambiarías algo por poder?"', recompensa: 50 }
+        { descripcion: 'Paul Greyrat llega a Kurogane con una misión. Ayúdalo a volver a su mundo y recibirás una recompensa significativa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+        { descripcion: 'El entrenamiento de Paul es intenso, pero si lo sigues, te dará su bendición y una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
+      ]
+    },
+    {
+      nombre: 'Zenith Greyrat',
+      imagen: 'https://files.catbox.moe/2zkp0g.jpg', // URL de la imagen de Zenith
+      situaciones: [
+        { descripcion: 'Zenith Greyrat es teletransportada a Kurogane. Ayúdala con sus tareas y obtendrás un generoso pago.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+        { descripcion: 'Zenith cocina para ti una deliciosa comida. Es una receta secreta que te llena de energía.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
+      ]
+    },
+    {
+      nombre: 'Lilia Greyrat',
+      imagen: 'https://files.catbox.moe/h27smp.jpg', // URL de la imagen de Lilia
+      situaciones: [
+        { descripcion: 'Lilia Greyrat, sorprendida por el entorno, te pide ayuda para entender cómo funcionan las cosas en Kurogane. Como agradecimiento, te da una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+        { descripcion: 'Lilia te pide que la acompañes en una misión secreta. Si tienes éxito, serás recompensado generosamente.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
+      ]
+    },
+    {
+      nombre: 'Roxy Migurdia',
+      imagen: 'https://files.catbox.moe/9su3lk.jpg', // URL de la imagen de Roxy
+      situaciones: [
+        { descripcion: 'Roxy está buscando un antiguo artefacto mágico. Ayúdala a encontrarlo y obtendrás una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+        { descripcion: 'Roxy te ofrece enseñarte un hechizo avanzado a cambio de tu ayuda. Recibes una recompensa por tu esfuerzo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
       ]
     }
   ]
 
-  // ==================== [ MEJORA #3: EVENTO DE COLABORACIÓN (100%) ] ====================
-  if (true) { // Evento siempre activo (100%)
-    const personajesColaboracion = [
-      {
-        nombre: 'Rudy Greyrat',
-        imagen: 'https://files.catbox.moe/78uoi5.jpg', // URL de la imagen de Rudeus
-        situaciones: [
-          { descripcion: 'La familia Greyrat ha sido teletransportada a Kurogane. Ayúdales a orientarse y obtendrás su apoyo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
-          { descripcion: 'Rudeus te ayuda a encontrar un objeto mágico raro. Recibes una recompensa por tu ayuda.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
-          { descripcion: 'Rudeus comparte sus conocimientos mágicos contigo. ¡Estás más cerca de dominar un hechizo poderoso!', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
-        ]
-      },
-      {
-        nombre: 'Paul Greyrat',
-        imagen: 'https://files.catbox.moe/q3xgzm.jpg', // URL de la imagen de Paul
-        situaciones: [
-          { descripcion: 'Paul Greyrat llega a Kurogane con una misión. Ayúdalo a volver a su mundo y recibirás una recompensa significativa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
-          { descripcion: 'El entrenamiento de Paul es intenso, pero si lo sigues, te dará su bendición y una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
-        ]
-      },
-      {
-        nombre: 'Zenith Greyrat',
-        imagen: 'https://files.catbox.moe/2zkp0g.jpg', // URL de la imagen de Zenith
-        situaciones: [
-          { descripcion: 'Zenith Greyrat es teletransportada a Kurogane. Ayúdala con sus tareas y obtendrás un generoso pago.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
-          { descripcion: 'Zenith cocina para ti una deliciosa comida. Es una receta secreta que te llena de energía.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
-        ]
-      },
-      {
-        nombre: 'Lilia Greyrat',
-        imagen: 'https://files.catbox.moe/h27smp.jpg', // URL de la imagen de Lilia
-        situaciones: [
-          { descripcion: 'Lilia Greyrat, sorprendida por el entorno, te pide ayuda para entender cómo funcionan las cosas en Kurogane. Como agradecimiento, te da una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
-          { descripcion: 'Lilia te pide que la acompañes en una misión secreta. Si tienes éxito, serás recompensado generosamente.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
-        ]
-      },
-      {
-        nombre: 'Roxy Migurdia',
-        imagen: 'https://files.catbox.moe/9su3lk.jpg', // URL de la imagen de Roxy
-        situaciones: [
-          { descripcion: 'Roxy está buscando un antiguo artefacto mágico. Ayúdala a encontrarlo y obtendrás una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
-          { descripcion: 'Roxy te ofrece enseñarte un hechizo avanzado a cambio de tu ayuda. Recibes una recompensa por tu esfuerzo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
-        ]
-      }
-    ]
+  // Elegir un personaje aleatorio
+  const personajeElegido = pickRandom(personajesColaboracion)
+  const situacionElegida = pickRandom(personajeElegido.situaciones)
 
-    // Elegir un personaje aleatorio
-    const personajeElegido = pickRandom(personajesColaboracion)
-    const situacionElegida = pickRandom(personajeElegido.situaciones)
-
-    // ==================== [ MEJORA #7: BENEFICIO PREMIUM (+30%) ] ====================
-    if (isPrems) {
-      situacionElegida.recompensa = Math.floor(situacionElegida.recompensa * 1.3)
-    }
-
-    // ==================== [ MENSAJE DE FELICIDAD ] ====================
-    let mensaje = `🎉✨ *¡Felicidades! Has tocado la colaboración de ${personajeElegido.nombre}* ✨🎉\n\n` +
-                  `🏯 *Colaboración: ${personajeElegido.nombre}*\n` +
-                  `📜 ${situacionElegida.descripcion}\n\n` +
-                  `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n` +
-                  `⚡ Energía: ${user.energia}/10\n` +
-                  `✨ EXP: ${user.exp}/${expNecesaria} (Nvl ${user.level || 1})`
-
-    // Actualizaciones finales
-    cooldowns[m.sender] = Date.now()
-    user.energia -= 1
-    user.coin += situacionElegida.recompensa
-
-    // Enviar imagen directamente desde la URL
-    await conn.sendFile(m.chat, personajeElegido.imagen, null, mensaje, m)
-  } else {
-    // Si no es un evento, la misión normal puede ocurrir
-    const situacionesNormales = [
-      { descripcion: 'Exploras el bosque en busca de oro.', recompensa: 50 },
-      { descripcion: 'Encuentras un mapa antiguo en la mazmorra.', recompensa: 100 },
-      { descripcion: 'Un árbol cae y te da un cristal raro.', recompensa: 150 }
-    ]
-
-    // Elegir una misión normal aleatoria
-    const situacionNormal = pickRandom(situacionesNormales)
-
-    // Enviar misión normal
-    let mensajeNormal = `🌙✨ 𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪 ✨🌙\n\n` +
-                        `🌳 *Misión: Explorando Kurogane*\n` +
-                        `📜 ${situacionNormal.descripcion}\n\n` +
-                        `💰 *${toNum(situacionNormal.recompensa)}* ${moneda}`
-
-    await conn.sendMessage(m.chat, mensajeNormal, m)
+  // ==================== [ MEJORA #7: BENEFICIO PREMIUM (+30%) ] ====================
+  if (isPrems) {
+    situacionElegida.recompensa = Math.floor(situacionElegida.recompensa * 1.3)
   }
+
+  // ==================== [ MENSAJE DE FELICIDAD ] ====================
+  let mensaje = `🎉✨ *¡Felicidades! Has tocado la colaboración de ${personajeElegido.nombre}* ✨🎉\n\n` +
+                `🏯 *Colaboración: ${personajeElegido.nombre}*\n` +
+                `📜 ${situacionElegida.descripcion}\n\n` +
+                `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n` +
+                `⚡ Energía: ${user.energia}/10\n` +
+                `✨ EXP: ${user.exp || 0}/${expNecesaria} (Nvl ${user.level || 1})`
+
+  // Actualizaciones finales
+  cooldowns[m.sender] = Date.now()
+  user.energia -= 1
+  user.coin += situacionElegida.recompensa
+
+  // Enviar imagen directamente desde la URL
+  await conn.sendFile(m.chat, personajeElegido.imagen, null, mensaje, m)
 
   // ==================== [ COOLDOWN & EXP ] ====================
   user.exp = (user.exp || 0) + Math.floor(Math.random() * 15) + 5
