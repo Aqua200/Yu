@@ -8,16 +8,34 @@ let handler = async (m, { conn }) => {
 
     let costIron = 20;  // Cantidad de hierro requerido para reparar
     let costGold = 10;  // Cantidad de oro requerido
+    let costYen = 500;  // Costo en yenes si no tiene materiales
 
-    if (user.iron < costIron || user.gold < costGold) {
-        return conn.reply(m.chat, `❌ No tienes suficientes materiales para reparar la picota.\n🔩 *Hierro necesario:* ${costIron}\n🏅 *Oro necesario:* ${costGold}`, m);
+    // Verificar si tiene materiales o suficiente dinero
+    const hasMaterials = user.iron >= costIron && user.gold >= costGold;
+    const hasYen = user.money >= costYen;
+
+    if (!hasMaterials && !hasYen) {
+        return conn.reply(m.chat, 
+            `❌ No tienes suficientes recursos para reparar la picota.\n` +
+            `🔩 *Hierro necesario:* ${costIron}\n` +
+            `🏅 *Oro necesario:* ${costGold}\n` +
+            `💴 *O puedes pagar:* ${costYen} yenes`, 
+            m);
     }
 
-    user.iron -= costIron;
-    user.gold -= costGold;
+    if (hasMaterials) {
+        // Reparar con materiales
+        user.iron -= costIron;
+        user.gold -= costGold;
+    } else {
+        // Reparar con yenes
+        user.money -= costYen;
+    }
+
     user.pickaxedurability = 100; // Restaura la durabilidad a 100
 
-    conn.reply(m.chat, '✅ Tu picota ha sido reparada con éxito y ahora tiene *100* de durabilidad.', m);
+    const paymentMethod = hasMaterials ? "materiales" : `${costYen} yenes`;
+    conn.reply(m.chat, `✅ Tu picota ha sido reparada con éxito usando ${paymentMethod} y ahora tiene *100* de durabilidad.`, m);
 }
 
 handler.help = ['reparar'];
