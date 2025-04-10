@@ -38,9 +38,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     let user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {});
 
     // Asegurar propiedades iniciales
-    ['yenes', 'vecesTrabajado', 'nivelTeibol', 'expTeibol'].forEach(prop => {
-        user[prop] = user[prop] || 0;
-    });
+    if (typeof user.yenes !== 'number') user.yenes = 0;
+    if (typeof user.vecesTrabajado !== 'number') user.vecesTrabajado = 0;
+    if (typeof user.nivelTeibol !== 'number') user.nivelTeibol = 1;
+    if (typeof user.expTeibol !== 'number') user.expTeibol = 0;
 
     const cooldownTime = tiempoEspera * 60 * 1000; // 15 minutos en milisegundos
     
@@ -73,7 +74,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
             });
         }
 
-        user.yenes += total;
+        user.yenes += total; // Aquí se suman correctamente los yenes
         user.vecesTrabajado++;
         cooldownTeibol[m.sender] = Date.now();
 
@@ -104,8 +105,8 @@ let handler = async (m, { conn, usedPrefix, command }) => {
             `▸ Rango: *${rango.nombre}* (Nivel ${rangoKey})\n` +
             `▸ Yenes: ${moneda}${user.yenes}\n` +
             `▸ Turnos trabajados: ${user.vecesTrabajado}\n` +
-            `▸ Nivel: ${user.nivelTeibol} (${user.expTeibol}/${100 * user.nivelTeibol} EXP)\n\n` +
-            (tiempoRest > 0 ? `⏳ Puedes trabajar en: *${msAMinutos(tiempoRest)}*` : `✅ ¡Listo para trabajar!`);
+            `▸ Nivel Personal: ${user.nivelTeibol} (${user.expTeibol}/${100 * user.nivelTeibol} EXP)\n` +
+            `▸ Tiempo para próximo turno: ${tiempoRest > 0 ? msAMinutos(tiempoRest) : 'Disponible'}`;
 
         await conn.reply(m.chat, texto, m, { mentions: [m.sender] });
     }
