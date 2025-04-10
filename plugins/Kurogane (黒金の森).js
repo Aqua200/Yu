@@ -46,19 +46,30 @@ let handler = async (m, { conn, isPrems }) => {
     }
   ]
 
-  // ==================== [ MEJORA #3: EVENTO RARO (5%) ] ====================
-  if (Math.random() < 0.05) {
+  // ==================== [ MEJORA #6: COLABORACIÓN CON MUSHOKU TENSEI (89% de probabilidad) ] ====================
+  if (Math.random() < 0.89) {
     lugares.push({
-      nombre: 'DRAGÓN DORADO 🐉✨',
-      imagen: 'https://files.catbox.moe/abgoij.PNG',
+      nombre: 'Gremio de Aventureros 🏙️',
+      imagen: 'https://files.catbox.moe/j3rtft.jpg',  // Imagen inspirada en el anime o de personajes
       situaciones: [
         { 
-          descripcion: '¡EVENTO RARO! Derrotas al dragón y obtienes un tesoro épico.', 
-          recompensa: 1000 
+          descripcion: '¡Rudeus te invita a unirte al gremio y obtener una misión especial!', 
+          recompensa: Math.floor(Math.random() * 11000) + 10000 // Recompensa entre 10,000 y 20,000 yenes
+        },
+        { 
+          descripcion: '¡Una carta de Eris te da un nuevo conjunto de armaduras mágicas!', 
+          recompensa: Math.floor(Math.random() * 11000) + 10000 // Recompensa entre 10,000 y 20,000 yenes
+        },
+        { 
+          descripcion: '¡La sabiduría de Rudeus te ayuda a mejorar tu magia!', 
+          recompensa: Math.floor(Math.random() * 11000) + 10000 // Recompensa entre 10,000 y 20,000 yenes
         }
       ]
     })
   }
+
+  // ==================== [ MEJORA #3: EVENTO RARO (Eliminado el dragón dorado) ====================
+  // El evento del Dragón Dorado ha sido eliminado.
 
   // Selección aleatoria
   const lugarElegido = pickRandom(lugares)
@@ -89,16 +100,18 @@ let handler = async (m, { conn, isPrems }) => {
   user.coin += situacionElegida.recompensa
 
   // ==================== [ MENSAJE FINAL ] ====================
-  let mensaje = `╭━━━ ∘◦ ✦ ◦∘ ━━━╮\n` +
+  let mensaje = `✨ *¡Estás de suerte! Te tocó una colaboración especial con *Mushoku Tensei*!*\n\n` +
+                `╭━━━ ∘◦ ✦ ◦∘ ━━━╮\n` +
                 `  𓆩 𝑲𝒖𝒓𝒐𝒈𝒂𝒏𝒆 𓆪\n` +
                 `╰━━━ ∘◦ ✦ ◦∘ ━━━╯\n\n` +
                 `🏯 *${lugarElegido.nombre}*\n` +
                 `📜 ${situacionElegida.descripcion}\n\n` +
                 `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n` +
                 `⚡ Energía: ${user.energia}/10\n` +
-                `✨ EXP: ${user.exp}/${expNecesaria} (Nvl ${user.level || 1})`
+                `✨ EXP: ${user.exp}/${expNecesaria} (Nvl ${user.level || 1})\n\n` +
+                `👀 *Personaje de *Mushoku Tensei*:*`
 
-  await conn.sendFile(m.chat, lugarElegido.imagen, 'kurogane.jpg', mensaje, m)
+  await conn.sendFile(m.chat, lugarElegido.imagen, 'rudeus.jpg', mensaje, m)
 }
 
 // ==================== [ FUNCIONES AUXILIARES ] ====================
