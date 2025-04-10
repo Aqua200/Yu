@@ -76,7 +76,7 @@ let handler = async (m, { conn, isPrems }) => {
       },
       {
         nombre: 'Lilia Greyrat',
-        imagen: 'https://files.catbox.moe/6y8cm8.jpg', // URL de la imagen de Lilia
+        imagen: 'https://files.catbox.moe/h27smp.jpg', // URL de la imagen de Lilia
         situaciones: [
           { descripcion: 'Lilia Greyrat, sorprendida por el entorno, te pide ayuda para entender cómo funcionan las cosas en Kurogane. Como agradecimiento, te da una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
           { descripcion: 'Lilia te pide que la acompañes en una misión secreta. Si tienes éxito, serás recompensado generosamente.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
