@@ -109,10 +109,10 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }, { quoted: m });
 }
 
-handler.help = ['teibol', 'trabajar'];
-handler.tags = ['economy', 'rpg'];
-handler.command = ['teibol', 'trabajar'];
-handler.group = true;
-handler.register = true;
+handler.help = ['kurogane']
+handler.tags = ['economy']
+handler.command = ['kurogane']
+handler.group = true
+export default handler
 
 export default handler;
