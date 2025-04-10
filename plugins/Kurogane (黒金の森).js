@@ -84,7 +84,7 @@ let handler = async (m, { conn, isPrems }) => {
                 `📜 ${situacionElegida.descripcion}\n\n` +
                 `💰 *${toNum(situacionElegida.recompensa)}* ${moneda}\n` +
                 `⚡ Energía: ${user.energia}/10\n` +
-                `✨ EXP: ${user.exp || 0}/${expNecesaria} (Nvl ${user.level || 1})`
+                `✨ EXP: ${user.exp || 0}/${100 * (user.level || 1)} (Nvl ${user.level || 1})`
 
   // Actualizaciones finales
   cooldowns[m.sender] = Date.now()
@@ -94,11 +94,8 @@ let handler = async (m, { conn, isPrems }) => {
   // ==================== [ COOLDOWN & EXP ] ====================
   user.exp = (user.exp || 0) + Math.floor(Math.random() * 15) + 5
 
-  // Establecer expNecesaria después de la actualización de exp
-  let expNecesaria = 100 * (user.level || 1) // Inicializar expNecesaria correctamente
-  let nivelUp = user.exp >= expNecesaria
-
-  if (nivelUp) {
+  // Subida de nivel sin la necesidad de expNecesaria
+  if (user.exp >= 100 * (user.level || 1)) {
     user.level = (user.level || 0) + 1
     user.exp = 0
     conn.sendMessage(m.chat, { 
