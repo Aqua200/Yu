@@ -1,11 +1,17 @@
-const axios = require('axios');
-const yts = require('yt-search');
-const fs = require('fs');
-const path = require('path');
-const ffmpeg = require('fluent-ffmpeg');
-const { pipeline } = require('stream');
-const { promisify } = require('util');
+import axios from 'axios';
+import yts from 'yt-search';
+import fs from 'fs';
+import path from 'path';
+import ffmpeg from 'fluent-ffmpeg';
+import { pipeline } from 'stream';
+import { promisify } from 'util';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 const streamPipeline = promisify(pipeline);
+
+// Crear __dirname en ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const handler = async (m, { conn, usedPrefix, command, text }) => {
   if (!text) {
@@ -59,13 +65,15 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!json.status || !json.data?.url) throw new Error("No se pudo obtener el audio");
 
     const tmpDir = path.join(__dirname, '../tmp');
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
-    const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`);
-    const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`);
+    const fileName = Date.now();
+    const rawPath = path.join(tmpDir, `${fileName}_raw.m4a`);
+    const finalPath = path.join(tmpDir, `${fileName}_final.mp3`);
 
     const audioRes = await axios.get(json.data.url, { responseType: 'stream' });
-    await streamPipeline(audioRes.data, fs.createWriteStream(rawPath));
+    const rawStream = fs.createWriteStream(rawPath);
+    await streamPipeline(audioRes.data, rawStream);
 
     await new Promise((resolve, reject) => {
       ffmpeg(rawPath)
@@ -78,7 +86,7 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     });
 
     await conn.sendMessage(m.chat, {
-      audio: fs.readFileSync(finalPath),
+      audio: { url: `file://${finalPath}` },
       mimetype: 'audio/mpeg',
       fileName: `${title}.mp3`,
       ptt: false
@@ -101,4 +109,4 @@ handler.tags = ['downloader'];
 handler.command = /^play$/i;
 handler.register = true;
 
-module.exports = handler;
+export default handler;
