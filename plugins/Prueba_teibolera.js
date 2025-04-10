@@ -101,7 +101,9 @@ let handler = async (m, { conn, usedPrefix, command }) => {
         // Mostrar top 5
         text += `🌟 *TOP 5 DEL TEIBOL* 🌟\n\n`;
         text += top10.slice(0, 5).map((user, i) => {
-            return `${i + 1}. @${user.jid.split`@`[0]} » ${user.nombreRango} (¥${user.yenes})`;
+            return `${i + 1}. @${user.jid.split`@`[0]} » ${rangosTeibol[Object.keys(rangosTeibol)
+                .reverse()
+                .find(r => user.yenes >= rangosTeibol[r].requerido) || 0].nombre} (¥${user.yenes})`;
         }).join('\n');
         
         await conn.sendMessage(m.chat, { 
@@ -115,4 +117,5 @@ handler.help = ['teibol', 'trabajar']
 handler.tags = ['economy']
 handler.command = ['teibol', 'trabajar']
 handler.group = true
+
 export default handler
