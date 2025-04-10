@@ -7,9 +7,10 @@ import { pipeline } from 'stream';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+
 const streamPipeline = promisify(pipeline);
 
-// Crear __dirname en ESM
+// Esto es necesario en ESM para __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -30,7 +31,7 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     const title = video.title;
     const fduration = video.timestamp;
     const views = video.views.toLocaleString();
-    const channel = video.author.name || 'Desconocido';
+    const channel = video.author?.name || 'Desconocido';
 
     const infoMessage = `
 ╔═══════════════╗
@@ -65,15 +66,14 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     if (!json.status || !json.data?.url) throw new Error("No se pudo obtener el audio");
 
     const tmpDir = path.join(__dirname, '../tmp');
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
 
-    const fileName = Date.now();
-    const rawPath = path.join(tmpDir, `${fileName}_raw.m4a`);
-    const finalPath = path.join(tmpDir, `${fileName}_final.mp3`);
+    const timestamp = Date.now();
+    const rawPath = path.join(tmpDir, `${timestamp}_raw.m4a`);
+    const finalPath = path.join(tmpDir, `${timestamp}_final.mp3`);
 
     const audioRes = await axios.get(json.data.url, { responseType: 'stream' });
-    const rawStream = fs.createWriteStream(rawPath);
-    await streamPipeline(audioRes.data, rawStream);
+    await streamPipeline(audioRes.data, fs.createWriteStream(rawPath));
 
     await new Promise((resolve, reject) => {
       ffmpeg(rawPath)
@@ -86,7 +86,7 @@ const handler = async (m, { conn, usedPrefix, command, text }) => {
     });
 
     await conn.sendMessage(m.chat, {
-      audio: { url: `file://${finalPath}` },
+      audio: fs.readFileSync(finalPath),
       mimetype: 'audio/mpeg',
       fileName: `${title}.mp3`,
       ptt: false
