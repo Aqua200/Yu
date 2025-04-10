@@ -66,45 +66,42 @@ ${url || 'Desconocido'}
     
     if (command === 'play') {
       try {
-        // Usando Akuari API para audio (MP3)
-        const apiResponse = await axios.get(`https://api.akuari.my.id/downloader/youtube?link=${url}`);
-        const audioUrl = apiResponse.data.mp3[1]?.url; // Ajusta según la estructura de respuesta
-        
-        if (!audioUrl) throw new Error('No se pudo obtener el enlace de audio.');
+        // API Vreden para MP3
+        const api = await (await fetch(`https://api.vreden.my.id/api/ytmp3?url=${url}`)).json();
+        if (!api.result || !api.result.url) throw new Error('Error en la API de audio');
         
         await conn.sendMessage(m.chat, { 
-          audio: { url: audioUrl }, 
+          audio: { url: api.result.url }, 
           fileName: `${title}.mp3`, 
           mimetype: 'audio/mpeg' 
         }, { quoted: m });
-        
+
       } catch (e) {
         console.error('Error al enviar el audio:', e.message);
-        return conn.reply(m.chat, 'No se pudo enviar el audio, intente nuevamente más tarde.', m);
+        return conn.reply(m.chat, 'Error al descargar el audio', m);
       }
+      
     } else if (command === 'play2') {
       try {
-        // Usando Akuari API para video (MP4)
-        const apiResponse = await axios.get(`https://api.akuari.my.id/downloader/youtube?link=${url}`);
-        const videoUrl = apiResponse.data.mp4[1]?.url; // Ajusta según la estructura de respuesta
-        
-        if (!videoUrl) throw new Error('No se pudo obtener el enlace de video.');
+        // API Vreden para MP4
+        const response = await fetch(`https://api.vreden.my.id/api/ytmp4?url=${url}`);
+        const videoData = await response.json();
+        if (!videoData.result || !videoData.result.url) throw new Error('Error en la API de video');
         
         await conn.sendMessage(m.chat, { 
-          video: { url: videoUrl }, 
+          video: { url: videoData.result.url }, 
           fileName: `${title}.mp4`, 
           mimetype: 'video/mp4', 
           caption: wm, 
           thumbnail: thumb 
         }, { quoted: m });
-        
+
       } catch (e) {
         console.error('Error al enviar el video:', e.message);
-        return conn.reply(m.chat, 'No se pudo enviar el video, intente nuevamente más tarde.', m);
+        return conn.reply(m.chat, 'Error al descargar el video', m);
       }
-    } else {
-      return conn.reply(m.chat, 'Comando no válido.', m);
     }
+    
   } catch (error) {
     return m.reply(`❌ Ocurrió un error: ${error.message}`);
   }
