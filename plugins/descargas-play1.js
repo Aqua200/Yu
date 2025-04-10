@@ -119,5 +119,9 @@ const handler = async (msg, { conn, text }) => {
   }
 };
 
+handler.help = ['play'];
 handler.command = ['play'];
-module.exports = handler;
+handler.tags = ['música'];
+handler.register = true;
+
+export default handler;
