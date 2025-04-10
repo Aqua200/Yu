@@ -68,7 +68,7 @@ let handler = async (m, { conn, isPrems }) => {
       },
       {
         nombre: 'Zenith Greyrat',
-        imagen: 'https://files.catbox.moe/7gdb0r.jpg', // URL de la imagen de Zenith
+        imagen: 'https://files.catbox.moe/2zkp0g.jpg', // URL de la imagen de Zenith
         situaciones: [
           { descripcion: 'Zenith Greyrat es teletransportada a Kurogane. Ayúdala con sus tareas y obtendrás un generoso pago.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
           { descripcion: 'Zenith cocina para ti una deliciosa comida. Es una receta secreta que te llena de energía.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
