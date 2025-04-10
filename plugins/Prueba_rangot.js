@@ -1,47 +1,49 @@
-// Sistema de rangos equilibrado (no demasiado extenso)
-const rangosTeibol = {
-    0: { 
-        nombre: "Mesera Novata", 
-        requerido: 0, 
-        pago: [100, 300], 
-        clientes: 1,
-        color: "#CCCCCC"
-    },
-    1: { 
-        nombre: "Bailarina Bronce", 
-        requerido: 10000, 
-        pago: [300, 600], 
-        clientes: 2,
-        color: "#CD7F32"
-    },
-    2: { 
-        nombre: "Bailarina Plata", 
-        requerido: 30000, 
-        pago: [500, 900], 
-        clientes: 2,
-        color: "#C0C0C0"
-    },
-    3: { 
-        nombre: "Showgirl Oro", 
-        requerido: 70000, 
-        pago: [800, 1500], 
-        clientes: 3,
-        color: "#FFD700"
-    },
-    4: { 
-        nombre: "Diosa Platino", 
-        requerido: 150000, 
-        pago: [1200, 2500], 
-        clientes: 4,
-        color: "#E5E4E2"
-    },
-    5: { 
-        nombre: "Reina Diamante", 
-        requerido: 300000, 
-        pago: [2000, 4000], 
-        clientes: 5,
-        color: "#B9F2FF"
-    }
+const rangosTeiboleras = {
+    0: { nombre: "🍼 Mesera Novata", requerido: 0, pago: [100, 300], clientes: 1, color: "#CCCCCC", emoji: "🍼" },
+    1: { nombre: "🥉 Acompañante Bronce", requerido: 2000, pago: [200, 400], clientes: 1, color: "#CD7F32", emoji: "🥉" },
+    2: { nombre: "👯 Bailarina Principiante", requerido: 5000, pago: [300, 500], clientes: 1, color: "#C0C0C0", emoji: "👯" },
+    3: { nombre: "🍷 Seductora de Barra", requerido: 10000, pago: [400, 600], clientes: 2, color: "#FF69B4", emoji: "🍷" },
+    4: { nombre: "💃 Showgirl en Prácticas", requerido: 20000, pago: [500, 800], clientes: 2, color: "#FF1493", emoji: "💃" },
+    5: { nombre: "✨ Fantasía de Plata", requerido: 35000, pago: [600, 900], clientes: 2, color: "#E6E6FA", emoji: "✨" },
+    6: { nombre: "🐱 Gata de Noche", requerido: 50000, pago: [700, 1100], clientes: 3, color: "#9370DB", emoji: "🐱" },
+    7: { nombre: "🐺 Loba Solitaria", requerido: 75000, pago: [800, 1300], clientes: 3, color: "#800080", emoji: "🐺" },
+    8: { nombre: "🏽 Dama del Pole", requerido: 100000, pago: [900, 1500], clientes: 3, color: "#FF00FF", emoji: "🏽" },
+    9: { nombre: "🌟 Estrella Emergente", requerido: 150000, pago: [1000, 1800], clientes: 4, color: "#FFD700", emoji: "🌟" },
+    10: { nombre: "🍬 Bombón de Caramelo", requerido: 200000, pago: [1200, 2000], clientes: 4, color: "#FF6347", emoji: "🍬" },
+    11: { nombre: "😇 Ángel del Club", requerido: 250000, pago: [1400, 2200], clientes: 4, color: "#ADD8E6", emoji: "😇" },
+    12: { nombre: "👁️ Ojos de Jade", requerido: 300000, pago: [1600, 2500], clientes: 5, color: "#00FA9A", emoji: "👁️" },
+    13: { nombre: "� Perla del Teibol", requerido: 400000, pago: [1800, 2800], clientes: 5, color: "#B9F2FF", emoji: "�" },
+    14: { nombre: "👠 Reina del Taconazo", requerido: 500000, pago: [2000, 3200], clientes: 5, color: "#FF0000", emoji: "👠" },
+    15: { nombre: "🔥 Diosa del Lap Dance", requerido: 650000, pago: [2300, 3600], clientes: 6, color: "#FF4500", emoji: "🔥" },
+    16: { nombre: "🦊 Zorrita Dorada", requerido: 800000, pago: [2600, 4000], clientes: 6, color: "#FFD700", emoji: "🦊" },
+    17: { nombre: "🐍 Veneno de Serpiente", requerido: 1000000, pago: [3000, 4500], clientes: 6, color: "#32CD32", emoji: "🐍" },
+    18: { nombre: "💜 Leyenda del Privado", requerido: 1200000, pago: [3500, 5000], clientes: 7, color: "#9932CC", emoji: "💜" },
+    19: { nombre: "🎴 Fantasía VIP", requerido: 1500000, pago: [4000, 6000], clientes: 7, color: "#9400D3", emoji: "🎴" },
+    20: { nombre: "🏮 Jade Prohibido", requerido: 1800000, pago: [4500, 7000], clientes: 7, color: "#00FF7F", emoji: "🏮" },
+    21: { nombre: "👹 Oni Tentadora", requerido: 2200000, pago: [5000, 8000], clientes: 8, color: "#8B0000", emoji: "👹" },
+    22: { nombre: "🎎 Geisha del Table Dance", requerido: 2600000, pago: [6000, 9000], clientes: 8, color: "#FF00FF", emoji: "🎎" },
+    23: { nombre: "⚔️ Samurái Sensual", requerido: 3000000, pago: [7000, 10000], clientes: 8, color: "#800000", emoji: "⚔️" },
+    24: { nombre: "💮 Gueisha de Élite", requerido: 3500000, pago: [8000, 12000], clientes: 9, color: "#FF1493", emoji: "💮" },
+    25: { nombre: "🔥 Diosa del Pole Exótico", requerido: 4000000, pago: [9000, 14000], clientes: 9, color: "#FF8C00", emoji: "🔥" },
+    26: { nombre: "👑 Emperatriz del Cabaret", requerido: 4500000, pago: [10000, 16000], clientes: 9, color: "#C0C0C0", emoji: "👑" },
+    27: { nombre: "🌹 Rosa de Shanghái", requerido: 5000000, pago: [12000, 18000], clientes: 10, color: "#FF6347", emoji: "🌹" },
+    28: { nombre: "🦚 Fénix del Teibol", requerido: 6000000, pago: [14000, 22000], clientes: 10, color: "#FF4500", emoji: "🦚" },
+    29: { nombre: "💎 Diamante Negro", requerido: 7000000, pago: [16000, 25000], clientes: 10, color: "#000000", emoji: "💎" },
+    30: { nombre: "💀 Catrina Viviente", requerido: 8000000, pago: [18000, 30000], clientes: 12, color: "#000000", emoji: "💀" },
+    31: { nombre: "🌺 Xochiquetzal del Nightclub", requerido: 9000000, pago: [20000, 35000], clientes: 12, color: "#FF00FF", emoji: "🌺" },
+    32: { nombre: "🐉 Dragón de Seducción", requerido: 10000000, pago: [25000, 40000], clientes: 12, color: "#FF8C00", emoji: "🐉" },
+    33: { nombre: "🥷 Ninja del Deseo", requerido: 12000000, pago: [30000, 50000], clientes: 15, color: "#4B0082", emoji: "🥷" },
+    34: { nombre: "🎐 Misterio de Oriente", requerido: 14000000, pago: [35000, 60000], clientes: 15, color: "#9400D3", emoji: "🎐" },
+    35: { nombre: "🐍 Quetzalcóatl del Strip", requerido: 16000000, pago: [40000, 70000], clientes: 15, color: "#00FF7F", emoji: "🐍" },
+    36: { nombre: "👑 Emperatriz del Jade", requerido: 18000000, pago: [45000, 80000], clientes: 18, color: "#00FA9A", emoji: "👑" },
+    37: { nombre: "🧜‍♀️ Sirena del Privado", requerido: 20000000, pago: [50000, 90000], clientes: 18, color: "#20B2AA", emoji: "🧜‍♀️" },
+    38: { nombre: "✨ Leyenda Viva del Table Dance", requerido: 25000000, pago: [60000, 100000], clientes: 18, color: "#FFD700", emoji: "✨" },
+    39: { nombre: "👑 Reina del Underworld", requerido: 30000000, pago: [70000, 120000], clientes: 20, color: "#800080", emoji: "👑" },
+    40: { nombre: "💀 Santa Muerte Dorada", requerido: 35000000, pago: [80000, 140000], clientes: 20, color: "#FFD700", emoji: "💀" },
+    41: { nombre: "🌙 Tsukuyomi No Megami", requerido: 40000000, pago: [90000, 160000], clientes: 20, color: "#4B0082", emoji: "🌙" },
+    42: { nombre: "🏮 Diosa del Farol Rojo", requerido: 45000000, pago: [100000, 180000], clientes: 25, color: "#FF0000", emoji: "🏮" },
+    43: { nombre: "⚔️ Shogun del Placer", requerido: 50000000, pago: [120000, 200000], clientes: 25, color: "#8B0000", emoji: "⚔️" },
+    44: { nombre: "👑🔥 DIOSA DEL TEIBOL", requerido: 60000000, pago: [150000, 250000], clientes: 30, color: "#FF00FF", emoji: "👑🔥" }
 };
 
-export default rangosTeibol;
+export default rangosTeiboleras;
