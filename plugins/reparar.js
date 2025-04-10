@@ -15,13 +15,15 @@ let handler = async (m, { conn }) => {
         // Reparar con materiales
         user.iron -= costIron;
         user.gold -= costGold;
-        conn.reply(m.chat, '✅ Tu picota ha sido reparada con éxito usando materiales y ahora tiene *100* de durabilidad.', m);
+        user.pickaxedurability = 100;
+        return conn.reply(m.chat, '✅ Tu picota ha sido reparada con éxito usando materiales y ahora tiene *100* de durabilidad.', m);
     } 
     // Si no tiene materiales, verificar si tiene yenes
     else if (user.money >= costYen) {
         // Reparar con yenes
         user.money -= costYen;
-        conn.reply(m.chat, `✅ Tu picota ha sido reparada con éxito usando ${costYen} yenes y ahora tiene *100* de durabilidad.`, m);
+        user.pickaxedurability = 100;
+        return conn.reply(m.chat, `✅ Tu picota ha sido reparada con éxito usando ${costYen} yenes y ahora tiene *100* de durabilidad.`, m);
     }
     // Si no tiene ni materiales ni yenes
     else {
@@ -32,8 +34,6 @@ let handler = async (m, { conn }) => {
             `💴 *O necesitas:* ${costYen} yenes`, 
             m);
     }
-
-    user.pickaxedurability = 100; // Restaura la durabilidad a 100
 }
 
 handler.help = ['reparar'];
