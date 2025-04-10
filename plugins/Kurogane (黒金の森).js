@@ -84,7 +84,7 @@ let handler = async (m, { conn, isPrems }) => {
       },
       {
         nombre: 'Roxy Migurdia',
-        imagen: 'https://files.catbox.moe/roxy_image.jpg', // URL de la imagen de Roxy
+        imagen: 'https://files.catbox.moe/9su3lk.jpg', // URL de la imagen de Roxy
         situaciones: [
           { descripcion: 'Roxy está buscando un antiguo artefacto mágico. Ayúdala a encontrarlo y obtendrás una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
           { descripcion: 'Roxy te ofrece enseñarte un hechizo avanzado a cambio de tu ayuda. Recibes una recompensa por tu esfuerzo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
