@@ -51,7 +51,7 @@ let handler = async (m, { conn, isPrems }) => {
     const personajesColaboracion = [
       {
         nombre: 'Rudy Greyrat',
-        imagen: 'https://files.catbox.moe/7tpkp5.jpg', // URL de la imagen de Rudeus
+        imagen: 'https://files.catbox.moe/78uoi5.jpg', // URL de la imagen de Rudeus
         situaciones: [
           { descripcion: 'La familia Greyrat ha sido teletransportada a Kurogane. Ayúdales a orientarse y obtendrás su apoyo.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
           { descripcion: 'Rudeus te ayuda a encontrar un objeto mágico raro. Recibes una recompensa por tu ayuda.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
