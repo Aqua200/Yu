@@ -1,3 +1,7 @@
+// plugins/teibol.js
+
+import { rangoTeibol } from './_rango-teibol.js'
+
 let cooldowns = {}
 
 let handler = async (m, { conn }) => {
@@ -10,7 +14,7 @@ let handler = async (m, { conn }) => {
   }
   let rsl = Math.floor(Math.random() * 500)
   cooldowns[m.sender] = Date.now()
-  await conn.reply(m.chat, `\n${pickRandom(teibol)} *${toNum(rsl)}* ( *${rsl}* ) 💸`, m)
+  await conn.reply(m.chat, `\n${pickRandom(teibol)} *${toNum(rsl)}* ( *${rsl}* ) 💸\n\n🏅 Rango actual: ${rangoTeibol(user.coin)}`, m)
   user.coin += rsl
 }
 
