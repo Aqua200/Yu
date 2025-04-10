@@ -7,99 +7,101 @@ const streamPipeline = promisify(pipeline);
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) {
-        await conn.reply(m.chat, `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${usedPrefix}${command}* La Factoría - Perdoname`, m);
-        return;
+        return conn.reply(m.chat, `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${usedPrefix}${command}* La Factoría - Perdoname`, m);
     }
 
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
     try {
-        // Búsqueda del audio usando la API
-        const apiUrl = `https://api.neoxr.eu/api/ytplay?query=${encodeURIComponent(text)}&apikey=russellxz`;
-        const response = await axios.get(apiUrl);
+        // Primero intentamos con la API principal
+        let apiUrl = `https://api.neoxr.eu/api/ytplay?query=${encodeURIComponent(text)}&apikey=russellxz`;
+        let response = await axios.get(apiUrl, { timeout: 10000 });
         
+        // Si falla, probamos con una API alternativa
         if (!response.data?.status || !response.data?.data?.audio) {
-            throw new Error('No se pudo obtener el audio');
+            apiUrl = `https://api.lolhuman.xyz/api/ytplay2?apikey=tu_api_key&query=${encodeURIComponent(text)}`;
+            response = await axios.get(apiUrl, { timeout: 10000 });
         }
 
-        const audioData = {
-            url: response.data.data.audio,
-            title: response.data.data.title || 'audio',
-            thumbnail: response.data.data.thumbnail,
-            duration: response.data.data.duration || '0:00',
-            id: response.data.data.id || ''
+        if (!response.data?.status || !response.data?.result?.audio || !response.data?.data?.audio) {
+            // Último intento con otra API
+            apiUrl = `https://api.dhamzxploit.my.id/api/ytplay?query=${encodeURIComponent(text)}`;
+            response = await axios.get(apiUrl, { timeout: 10000 });
+            
+            if (!response.data?.result) {
+                throw new Error('No se pudo obtener el audio de ninguna fuente');
+            }
+        }
+
+        const audioData = response.data?.result || response.data?.data || {
+            url: response.data.result.audio,
+            title: response.data.result.title || text,
+            thumbnail: response.data.result.thumbnail || 'https://i.ibb.co/df4Q7tV/audio-default.jpg',
+            duration: response.data.result.duration || '0:00',
+            id: response.data.result.id || ''
         };
 
         const audioLink = `https://www.youtube.com/watch?v=${audioData.id}`;
 
         const captionPreview = `
 ╔═════════════════╗
-║✦ 𝗕𝗼𝘁 ✦
+║✦  𝗕𝗼𝘁 ✦
 ╚═════════════════╝
 
-🎵 *𝙄𝗻𝗳𝗼 𝗱𝗲𝗹 𝗮𝘂𝗱𝗶𝗼:*  
-╭───────────────╮  
+🎵 *Información del audio:*  
+╭────────────────╮  
 ├ 🎵 *Título:* ${audioData.title}
 ├ ⏱️ *Duración:* ${audioData.duration}
-└ 🔗 *Link:* ${audioLink}
-╰───────────────╯
+├ 📌 *Calidad:* Alta
+└ 🔗 *Enlace:* ${audioLink}
+╰────────────────╯
 
-📥 *Opciones de Descarga:*  
-┣ 🎵 *Audio HQ:* _${usedPrefix}play5 ${text}_
-┣ 🎵 *Audio LQ:* _${usedPrefix}play1 ${text}_
-┣ 🎥 *Video:* _${usedPrefix}play6 ${text}_
-┗ ⚠️ *¿No se reproduce?* Usa _${usedPrefix}ff_
+📥 *Otras opciones:*  
+┣ 🎵 *Audio normal:* ${usedPrefix}play1 ${text}
+┣ 🎥 *Versión video:* ${usedPrefix}play6 ${text}
+┗ 🔍 *Buscar otra:* ${usedPrefix}play5 [nuevo nombre]
 
-⏳ *Procesado por tu bot favorita*
-═════════════════════  
-        𖥔  Bot 𖥔
-═════════════════════`;
+⏳ *Procesado*`, { quoted: m });
 
-        await conn.sendMessage(m.chat, {
-            image: { url: audioData.thumbnail },
-            caption: captionPreview
-        }, { quoted: m });
-
-        const tmpDir = path.join(process.cwd(), 'tmp');
-        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
-        const filename = `${Date.now()}_audio.mp3`;
-        const filePath = path.join(tmpDir, filename);
-
-        // Descargar el audio
-        const res = await axios.get(audioData.url, {
-            responseType: 'stream',
-            headers: { 'User-Agent': 'Mozilla/5.0' }
+        await conn.sendMessage(m.chat, { 
+            image: { url: audioData.thumbnail }, 
+            caption: captionPreview 
         });
-        await streamPipeline(res.data, fs.createWriteStream(filePath));
 
-        // Verificar tamaño del 📂 
-        const stats = fs.statSync(filePath);
-        if (!stats || stats.size < 100000) {
-            fs.unlinkSync(filePath);
-            throw new Error('El audio descargado está vacío o incompleto');
-        }
-
-        const finalText = `🎵 Aquí tiene su audio en alta calidad.\n\nDisfrútelo y continúe explorando el mundo digital.\n\n© Bot`;
+        // Descarga directa sin almacenamiento temporal
+        const audioStream = await axios.get(audioData.url, {
+            responseType: 'stream',
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            timeout: 30000
+        });
 
         await conn.sendMessage(m.chat, {
-            audio: fs.readFileSync(filePath),
+            audio: audioStream.data,
             mimetype: 'audio/mpeg',
             fileName: `${audioData.title}.mp3`,
-            caption: finalText
+            caption: '🎵 Audio listo para disfrutar\n\n©  Bot'
         }, { quoted: m });
 
-        fs.unlinkSync(filePath);
-
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
+
     } catch (err) {
         console.error('Error en play5:', err);
-        await conn.reply(m.chat, `❌ *Error:* ${err.message}\n\nPrueba con otro nombre o usa *${usedPrefix}play1* para versión de menor calidad`, m);
+        
+        const errorMsg = `❌ *Error al obtener el audio*:\n\n`
+            + `1. Revisa el nombre de la canción\n`
+            + `2. Intenta con *${usedPrefix}play1 ${text}* (calidad estándar)\n`
+            + `3. Prueba otro nombre o artista\n\n`
+            + `*Ejemplo:* ${usedPrefix}play5 Cali y El Dandee - Porfa`;
+
+        await conn.reply(m.chat, errorMsg, m);
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
     }
 };
 
 handler.help = ['play5 <búsqueda>'];
 handler.tags = ['downloader'];
-handler.command = ['play5', 'musica', 'audiohq'];
+handler.command = ['play5', 'musica', 'audiohq', 'musicahq'];
+handler.limit = true;
+handler.register = true;
 
 export default handler;
