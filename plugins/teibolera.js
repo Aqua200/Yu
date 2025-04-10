@@ -1,116 +1,145 @@
-let cooldowns = {}
+let handler = async (m, { conn, args, participants, usedPrefix, command }) => {
+    // Configuración del sistema de teibol
+    const nombreSistema = '🏮 Teibol VIP';
+    const moneda = 'Yenes';
+    const emoji = '💴';
+    const cooldownTrabajo = 2 * 60 * 60 * 1000; // 2 horas de cooldown
 
-let handler = async (m, { conn, text, command, usedPrefix }) => {
-  let users = global.db.data.users
-  let senderId = m.sender
-  let senderName = conn.getName(senderId)
+    // Rangos y sus beneficios
+    const rangos = {
+        0: { nombre: 'Mesera', requerido: 0, pago: [100, 300], clientes: 1 },
+        1: { nombre: 'Bailarina', requerido: 5000, pago: [300, 600], clientes: 2 },
+        2: { nombre: 'Streaper', requerido: 15000, pago: [600, 1200], clientes: 3 },
+        3: { nombre: 'Vip', requerido: 35000, pago: [1200, 2500], clientes: 4 },
+        4: { nombre: 'Diosa', requerido: 75000, pago: [2500, 5000], clientes: 5 },
+        5: { nombre: 'Reina', requerido: 150000, pago: [5000, 10000], clientes: 6 }
+    };
 
-  // Tiempo de espera reducido (3 minutos) para más ganancias
-  let tiempo = 3 * 60
-  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
-    let tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
-    m.reply(`⏳ ${senderName}, el *Club VIP* está lleno... Vuelve en *${tiempo2}* para otro show.`)
-    return
-  }
-  cooldowns[m.sender] = Date.now()
-
-  // Montos aumentados (en yenes ¥)
-  let minAmount = 5000 // ¥ (equivalente a ~$50 USD)
-  let maxAmount = 30000 // ¥ (equivalente a ~$300 USD)
-  let amountTaken = Math.floor(Math.random() * (maxAmount - minAmount + 1)) + minAmount
-
-  // Sistema de "Suerte" basado en reputación (gana hasta 3x más)
-  let userRep = users[senderId].rep || 1
-  let luckMultiplier = 1 + (Math.random() * userRep * 0.3) // Hasta 3x con reputación alta
-  let finalAmount = Math.floor(amountTaken * luckMultiplier)
-
-  // Cliente VIP (20% de probabilidad)
-  let isVipClient = Math.random() < 0.2
-  if (isVipClient) finalAmount *= 2
-
-  // Tipos de shows premium
-  let randomOption = Math.floor(Math.random() * 5)
-  switch (randomOption) {
-    case 0: // Show en el pole
-      users[senderId].money += finalAmount
-      conn.reply(m.chat,
-        `💎 *POLE DANCE VIP* 💎\n` +
-        `▸ Movimientos profesionales\n` +
-        `▸ ${isVipClient ? '✨ CLIENTE MILLONARIO ✨' : ''}\n` +
-        `▸ Ganaste: *¥${finalAmount.toLocaleString()}*\n` +
-        `${luckMultiplier > 1.5 ? `🏆 BONUS: x${luckMultiplier.toFixed(1)} (Reputación)` : ''}`, m)
-      break
-
-    case 1: // Privado con champán
-      let bonusChampagne = Math.floor(finalAmount * 1.5)
-      users[senderId].money += bonusChampagne
-      conn.reply(m.chat,
-        `🍾 *PRIVADO CON CHAMPÁN* 🥂\n` +
-        `▸ Botella de Dom Pérignon\n` +
-        `▸ Propina extra: *¥${(bonusChampagne - finalAmount).toLocaleString()}*\n` +
-        `▸ Total: *¥${bonusChampagne.toLocaleString()}*`, m)
-      break
-
-    case 2: // Show grupal
-      let groupEarnings = finalAmount * 3
-      users[senderId].money += groupEarnings
-      conn.reply(m.chat,
-        `👯‍♀️ *SHOW GRUPAL* 💃\n` +
-        `▸ 5 clientes embobados\n` +
-        `▸ Lluvia de billetes: *¥${groupEarnings.toLocaleString()}*`, m)
-      break
-
-    case 3: // Contrato exclusivo (¡Máximas ganancias!)
-      let contractMoney = finalAmount * 5
-      users[senderId].money += contractMoney
-      conn.reply(m.chat,
-        `📜 *CONTRATO EXCLUSIVO* 💵\n` +
-        `▸ 1 semana de shows privados\n` +
-        `▸ Adelanto: *¥${contractMoney.toLocaleString()}*\n` +
-        `🚨 ¡NUEVO RÉCORD!`, m)
-      break
-
-    case 4: // Mal día (solo 10% de probabilidad de perder)
-      if (Math.random() < 0.1) {
-        let smallPenalty = Math.floor(finalAmount * 0.2)
-        users[senderId].money -= smallPenalty
-        conn.reply(m.chat,
-          `🌧️ *DÍA TRISTE* 😢\n` +
-          `▸ Solo 2 clientes\n` +
-          `▸ Multa por llegar tarde: *-¥${smallPenalty.toLocaleString()}*`, m)
-      } else {
-        // En vez de perder, gana normal
-        users[senderId].money += finalAmount
-        conn.reply(m.chat,
-          `💃 *SHOW ESTÁNDAR* 💵\n` +
-          `▸ Ganancia mínima: *¥${finalAmount.toLocaleString()}*`, m)
-      }
-      break
-  }
-
-  // Aumentar reputación cada 5 shows
-  if (!users[senderId].showCount) users[senderId].showCount = 0
-  users[senderId].showCount++
-  if (users[senderId].showCount % 5 === 0) {
-    users[senderId].rep = (users[senderId].rep || 0) + 1
-    conn.sendMessage(m.chat, {
-      text: `🌟 *¡NUEVO NIVEL!* 🌟\n▸ Reputación: ${users[senderId].rep}\n▸ Ahora ganas más yenes en cada show!`
-    }, { quoted: m })
-  }
-
-  global.db.write()
+    // Obtener usuario
+    let user = global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {});
+    
+    // Inicializar propiedades
+    if (!user.yenes) user.yenes = 0;
+    if (!user.rango) user.rango = 0;
+    if (!user.vecesTrabajado) user.vecesTrabajado = 0;
+    if (!user.ultimoTrabajo) user.ultimoTrabajo = 0;
+    
+    // Verificar cooldown
+    let tiempoRestante = cooldownTrabajo - (new Date() - user.ultimoTrabajo);
+    if (tiempoRestante > 0 && command === 'trabajar') {
+        let horas = Math.floor(tiempoRestante / (1000 * 60 * 60));
+        let minutos = Math.floor((tiempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+        return conn.reply(m.chat, 
+            `⏳ *Espera un poco!* No puedes trabajar ahora.\n` +
+            `Podrás trabajar de nuevo en *${horas}h ${minutos}m*.\n\n` +
+            `Usa *${usedPrefix}teibol* para ver tu estado.`, 
+            m);
+    }
+    
+    // Comando para trabajar
+    if (command === 'trabajar' || command === 'trabajart') {
+        // Calcular ganancias basadas en rango
+        const rangoActual = rangos[user.rango];
+        const [min, max] = rangoActual.pago;
+        const ganancia = Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        // Bonificación por clientes atendidos
+        const clientes = rangoActual.clientes;
+        const bonificacionClientes = Math.floor(ganancia * 0.2 * clientes);
+        const totalGanado = ganancia + bonificacionClientes;
+        
+        // Actualizar datos del usuario
+        user.yenes += totalGanado;
+        user.vecesTrabajado += 1;
+        user.ultimoTrabajo = new Date() * 1;
+        
+        // Verificar ascenso de rango
+        let subioRango = false;
+        while (user.rango + 1 in rangos && user.yenes >= rangos[user.rango + 1].requerido) {
+            user.rango++;
+            subioRango = true;
+        }
+        
+        // Mensaje de trabajo completado
+        let texto = `*${nombreSistema} - Turno completado*\n\n`;
+        texto += `💃 *Trabajaste como ${rangoActual.nombre}*\n`;
+        texto += `👥 Atendiste a *${clientes} clientes*\n\n`;
+        texto += `💰 *Ganancias:*\n`;
+        texto += `▸ Base: ¥${ganancia}\n`;
+        texto += `▸ Bonificación: ¥${bonificacionClientes}\n`;
+        texto += `▸ Total: ¥${totalGanado}\n\n`;
+        texto += `🏦 Yenes totales: ¥${user.yenes}\n`;
+        
+        if (subioRango) {
+            texto += `\n🎉 *¡Felicidades!* Ahora eres *${rangos[user.rango].nombre}* 🎉\n`;
+        }
+        
+        texto += `\n⏳ *Próximo turno disponible en 2 horas*`;
+        
+        return conn.reply(m.chat, texto, m);
+    }
+    
+    // Comando para ver el teibol (estado y top)
+    // Obtener todos los usuarios
+    let users = Object.entries(global.db.data.users)
+        .filter(([_, u]) => u.yenes > 0)
+        .map(([key, value]) => {
+            return { 
+                ...value, 
+                jid: key,
+                total: value.yenes || 0
+            };
+        });
+    
+    // Ordenar por yenes
+    let sortedUsers = users.sort((a, b) => b.total - a.total);
+    let len = Math.min(10, sortedUsers.length);
+    
+    // Construir mensaje de estado
+    let text = `「 ${emoji} 」 *${nombreSistema}* 「 ${emoji} 」\n\n`;
+    
+    // Información personal
+    const rangoActual = rangos[user.rango];
+    text += `*❖ Usuario:* @${m.sender.split`@`[0]}\n`;
+    text += `*❖ Rango:* ${rangoActual.nombre}\n`;
+    text += `*❖ Yenes:* ¥${user.yenes}\n`;
+    text += `*❖ Turnos trabajados:* ${user.vecesTrabajado || 0}\n`;
+    text += `*❖ Clientes por turno:* ${rangoActual.clientes}\n`;
+    text += `*❖ Ganancias por turno:* ¥${rangoActual.pago[0]}-${rangoActual.pago[1]}\n\n`;
+    
+    // Mostrar tiempo restante si está en cooldown
+    if (user.ultimoTrabajo && (new Date() - user.ultimoTrabajo) < cooldownTrabajo) {
+        let tiempoRest = cooldownTrabajo - (new Date() - user.ultimoTrabajo);
+        let horas = Math.floor(tiempoRest / (1000 * 60 * 60));
+        let minutos = Math.floor((tiempoRest % (1000 * 60 * 60)) / (1000 * 60));
+        text += `⏳ *Tiempo para trabajar:* ${horas}h ${minutos}m\n\n`;
+    } else {
+        text += `✅ *Puedes trabajar ahora!*\nUsa *${usedPrefix}trabajar*\n\n`;
+    }
+    
+    // Tabla de líderes
+    text += `「 🏆 」 *TOP 10 DEL TEIBOL* 「 🏆 」\n\n`;
+    text += sortedUsers.slice(0, len).map(({ jid, total, rango = 0 }, i) => {
+        let rangoUser = rangos[rango] || rangos[0];
+        return `${i + 1}. @${jid.split`@`[0]} » *${rangoUser.nombre}* (¥${total})`;
+    }).join('\n');
+    
+    // Mostrar requisitos de rangos
+    text += `\n\n「 📈 」 *ASCENSO DE RANGO* 「 📈 」\n\n`;
+    text += Object.entries(rangos).slice(1).map(([nivel, {nombre, requerido}]) => {
+        return `▢ ${nombre}: ¥${requerido.toLocaleString()}`;
+    }).join('\n');
+    
+    // Enviar mensaje
+    await conn.reply(m.chat, text, m, { 
+        mentions: [...conn.parseMention(text), m.sender] 
+    });
 }
 
-handler.tags = ['rpg']
-handler.help = ['teibol']
-handler.command = ['teibol', 'clubvip', '夜の仕事'] // "夜の仕事" = "Trabajo nocturno" en japonés
-handler.register = true
-handler.group = true
+handler.help = ['teibol', 'trabajar'];
+handler.tags = ['economy', 'rpg', 'game'];
+handler.command = ['teibol', 'trabajar', 'trabajart'];
+handler.group = true;
+handler.register = true;
 
-export default handler
-
-function segundosAHMS(segundos) {
-  let minutos = Math.floor(segundos / 60)
-  let segundosRestantes = segundos % 60
-  return `${minutos} minuto${minutos !== 1 ? 's' : ''} y ${segundosRestantes} segundo${segundosRestantes !== 1 ? 's' : ''}`
-}
+export default handler;
