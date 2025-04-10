@@ -55,10 +55,6 @@ ${leerMas}
 > ✦ Reclama tu recompensa diaria.
 ᰔᩚ *#cofre*
 > ✦ Reclama un cofre diario lleno de recursos.
-ᰔᩚ *#weekly • #semanal*
-> ✦ Reclama tu regalo semanal.
-ᰔᩚ *#monthly • #mensual*
-> ✦ Reclama tu recompensa mensual.
 ᰔᩚ *#steal • #robar • #rob*
 > ✦ Intenta robarle ${moneda} a alguien.
 ᰔᩚ *#robarxp • #robxp*
@@ -66,21 +62,17 @@ ${leerMas}
 ᰔᩚ *#eboard • #baltop*
 > ✦ Ver el ranking de usuarios con más ${moneda}.
 ᰔᩚ *#aventura • #adventure*
-> ✦ Aventúrate en un nuevo reino y recolecta recursos.
+> ✦ proxima update 
 ᰔᩚ *#curar • #heal*
-> ✦ Cura tu salud para volverte aventurar.
-ᰔᩚ *#cazar • #hunt • #berburu*
-> ✦ Aventúrate en una caza de animales.
+> ✦ Cura tu salud 
+ᰔᩚ *next update*
+> ✦ proxima update 
 ᰔᩚ *#inv • #inventario*
 > ✦ Ver tu inventario con todos tus ítems.
 ᰔᩚ *#mazmorra • #explorar*
 > ✦ Explorar mazmorras para ganar ${moneda}.
-ᰔᩚ *#halloween*
-> ✦ Reclama tu dulce o truco (Solo en Halloween).
-ᰔᩚ *#christmas • #navidad*
-> ✦ Reclama tu regalo navideño (Solo en Navidad).
 ᰔᩚ *#kurogane*
-> ✦ para recoger materiales oro y hierro
+> ✦ para ganar yenes
 
  
 »⊹˚୨ *2B* ⊹
