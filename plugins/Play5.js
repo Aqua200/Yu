@@ -1,100 +1,102 @@
+import fetch from 'node-fetch';
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
-const streamPipeline = promisify(pipeline);
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) {
-        return conn.reply(m.chat, `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${usedPrefix}${command}* La Factoría - Perdoname`, m);
-    }
+const apis = {
+    delirius: 'https://delirius-apiofc.vercel.app/',
+    ryzen: 'https://apidl.asepharyana.cloud/',
+    rioo: 'https://restapi.apibotwa.biz.id/'
+};
 
-    await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-
+const handler = async (m, { conn, text, args, usedPrefix, command }) => {
     try {
-        // Primero intentamos con la API principal
-        let apiUrl = `https://api.neoxr.eu/api/ytplay?query=${encodeURIComponent(text)}&apikey=russellxz`;
-        let response = await axios.get(apiUrl, { timeout: 10000 });
-        
-        // Si falla, probamos con una API alternativa
-        if (!response.data?.status || !response.data?.data?.audio) {
-            apiUrl = `https://api.lolhuman.xyz/api/ytplay2?apikey=tu_api_key&query=${encodeURIComponent(text)}`;
-            response = await axios.get(apiUrl, { timeout: 10000 });
+        await conn.sendMessage(m.chat, { react: { text: "🎶", key: m.key } });
+
+        if (!text) {
+            return conn.sendMessage(m.chat, {
+                text: `⚠️ Escribe lo que deseas buscar en Spotify.\nEjemplo: *${usedPrefix + command}* Marshmello - Alone`
+            }, { quoted: m });
         }
 
-        if (!response.data?.status || !response.data?.result?.audio || !response.data?.data?.audio) {
-            // Último intento con otra API
-            apiUrl = `https://api.dhamzxploit.my.id/api/ytplay?query=${encodeURIComponent(text)}`;
-            response = await axios.get(apiUrl, { timeout: 10000 });
+        // Buscar en Spotify
+        const res = await axios.get(`${apis.delirius}search/spotify?q=${encodeURIComponent(text)}&limit=1`);
+        
+        if (!res.data.data || res.data.data.length === 0) {
+            throw '❌ No se encontraron resultados en Spotify.';
+        }
+
+        const result = res.data.data[0];
+        const img = result.image;
+        const url = result.url;
+        
+        // Información del track
+        const info = `⧁ 𝙏𝙄𝙏𝙐𝙇𝙊: ${result.title}
+⧁ 𝘼𝙍𝙏𝙄𝙎𝙏𝘼: ${result.artist}
+⧁ 𝘿𝙐𝙍𝘼𝘾𝙄𝙊́𝙉: ${result.duration}
+⧁ �𝙐𝘽𝙇𝙄𝘾𝘼𝘿𝙊: ${result.publish}
+⧁ 𝙋𝙊𝙋𝙐𝙇𝘼𝙍𝙄𝘿𝘼𝘿: ${result.popularity}
+⧁ 𝙀𝙉𝙇𝘼𝘾𝙀: ${url}
+
+🎶 *Enviando tu música...*`.trim();
+
+        await conn.sendMessage(m.chat, {
+            image: { url: img },
+            caption: info
+        }, { quoted: m });
+
+        // Función para enviar audio
+        const sendAudio = async (link) => {
+            const audioRes = await fetch(link);
+            const audioBuffer = await audioRes.arrayBuffer();
             
-            if (!response.data?.result) {
-                throw new Error('No se pudo obtener el audio de ninguna fuente');
+            await conn.sendMessage(m.chat, {
+                audio: Buffer.from(audioBuffer),
+                fileName: `${result.title}.mp3`,
+                mimetype: 'audio/mpeg'
+            }, { quoted: m });
+        };
+
+        // Intentar diferentes endpoints de descarga
+        const endpoints = [
+            `${apis.delirius}download/spotifydl?url=${encodeURIComponent(url)}`,
+            `${apis.delirius}download/spotifydlv3?url=${encodeURIComponent(url)}`,
+            `${apis.rioo}api/spotify?url=${encodeURIComponent(url)}`,
+            `${apis.ryzen}api/downloader/spotify?url=${encodeURIComponent(url)}`
+        ];
+
+        let success = false;
+        for (const endpoint of endpoints) {
+            try {
+                const dlRes = await fetch(endpoint);
+                const json = await dlRes.json();
+                
+                if (json.data?.url) {
+                    await sendAudio(json.data.url);
+                    success = true;
+                    break;
+                } else if (json.data?.response) {
+                    await sendAudio(json.data.response);
+                    success = true;
+                    break;
+                } else if (json.link) {
+                    await sendAudio(json.link);
+                    success = true;
+                    break;
+                }
+            } catch (e) {
+                console.error(`Error en endpoint ${endpoint}:`, e);
+                continue;
             }
         }
 
-        const audioData = response.data?.result || response.data?.data || {
-            url: response.data.result.audio,
-            title: response.data.result.title || text,
-            thumbnail: response.data.result.thumbnail || 'https://i.ibb.co/df4Q7tV/audio-default.jpg',
-            duration: response.data.result.duration || '0:00',
-            id: response.data.result.id || ''
-        };
+        if (!success) {
+            throw '❌ No se pudo descargar el audio desde ningún servidor disponible.';
+        }
 
-        const audioLink = `https://www.youtube.com/watch?v=${audioData.id}`;
-
-        const captionPreview = `
-╔═════════════════╗
-║✦  𝗕𝗼𝘁 ✦
-╚═════════════════╝
-
-🎵 *Información del audio:*  
-╭────────────────╮  
-├ 🎵 *Título:* ${audioData.title}
-├ ⏱️ *Duración:* ${audioData.duration}
-├ 📌 *Calidad:* Alta
-└ 🔗 *Enlace:* ${audioLink}
-╰────────────────╯
-
-📥 *Otras opciones:*  
-┣ 🎵 *Audio normal:* ${usedPrefix}play1 ${text}
-┣ 🎥 *Versión video:* ${usedPrefix}play6 ${text}
-┗ 🔍 *Buscar otra:* ${usedPrefix}play5 [nuevo nombre]
-
-⏳ *Procesado*`, { quoted: m });
-
-        await conn.sendMessage(m.chat, { 
-            image: { url: audioData.thumbnail }, 
-            caption: captionPreview 
-        });
-
-        // Descarga directa sin almacenamiento temporal
-        const audioStream = await axios.get(audioData.url, {
-            responseType: 'stream',
-            headers: { 'User-Agent': 'Mozilla/5.0' },
-            timeout: 30000
-        });
-
-        await conn.sendMessage(m.chat, {
-            audio: audioStream.data,
-            mimetype: 'audio/mpeg',
-            fileName: `${audioData.title}.mp3`,
-            caption: '🎵 Audio listo para disfrutar\n\n©  Bot'
+    } catch (error) {
+        console.error(error);
+        conn.sendMessage(m.chat, {
+            text: `❌ Ocurrió un error: ${error.message || error}`
         }, { quoted: m });
-
-        await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
-
-    } catch (err) {
-        console.error('Error en play5:', err);
-        
-        const errorMsg = `❌ *Error al obtener el audio*:\n\n`
-            + `1. Revisa el nombre de la canción\n`
-            + `2. Intenta con *${usedPrefix}play1 ${text}* (calidad estándar)\n`
-            + `3. Prueba otro nombre o artista\n\n`
-            + `*Ejemplo:* ${usedPrefix}play5 Cali y El Dandee - Porfa`;
-
-        await conn.reply(m.chat, errorMsg, m);
-        await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
     }
 };
 
