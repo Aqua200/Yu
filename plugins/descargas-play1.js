@@ -48,7 +48,7 @@ const ddownr = {
 const handler = async (m, { conn, text }) => {
     if (!text) {
         await conn.sendMessage(m.chat, {
-            text: `⚠️ Escribe el nombre de la canción.\nEjemplo: *${global.prefix}play Boza Yaya*`
+            text: `🤍 Escribe el nombre de la canción.\nEjemplo: .play pacman Alemán*`
         }, { quoted: m });
         return;
     }
