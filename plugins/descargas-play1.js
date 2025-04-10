@@ -1,110 +1,39 @@
 import axios from 'axios';
-import yts from 'yt-search';
-import fs from 'fs';
+import { writeFile } from 'fs/promises';
 import path from 'path';
-import ffmpeg from 'fluent-ffmpeg';
-import { pipeline } from 'stream';
-import { promisify } from 'util';
-const streamPipeline = promisify(pipeline);
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { pipeline } from 'stream/promises';
 
-// Para que __dirname funcione en ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const handler = async (m, { conn, usedPrefix, command, text }) => {
-  if (!text) {
-    return conn.reply(m.chat, `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${usedPrefix}play* bad bunny diles`, m);
-  }
-
-  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+const handler = async (m, { conn, text, args, usedPrefix, command }) => {
+  if (!text) throw `✦ Ingresa el título o enlace de un video de YouTube.`;
 
   try {
-    const search = await yts(text);
-    const video = search.videos[0];
-    if (!video) throw new Error('No se encontraron resultados');
+    const apiURL = `https://aemt.me/youtube/playmp3?q=${encodeURIComponent(text)}`;
+    const { data } = await axios.get(apiURL);
 
-    const videoUrl = video.url;
-    const thumbnail = video.thumbnail;
-    const title = video.title;
-    const fduration = video.timestamp;
-    const views = video.views.toLocaleString();
-    const channel = video.author.name || 'Desconocido';
+    if (!data.status || !data.audio) throw new Error('❌ No se pudo obtener el audio');
 
-    const infoMessage = `
-╔═══════════════╗
-   ✦ Música ✦
-╚═══════════════╝
-
-📀 *Info del audio:*  
-├ 🎼 *Título:* ${title}
-├ ⏱️ *Duración:* ${fduration}
-├ 👁️ *Vistas:* ${views}
-├ 👤 *Autor:* ${channel}
-└ 🔗 *Enlace:* ${videoUrl}
-
-📥 *Opciones:*  
-┣ 🎵 _${usedPrefix}play1 ${text}_
-┣ 🎥 _${usedPrefix}play2 ${text}_
-┣ 🎥 _${usedPrefix}play6 ${text}_
-┗ ⚠️ *¿No se reproduce?* Usa _${usedPrefix}ff_
-
-⏳ Procesando audio...
-═══════════════════`;
-
-    await conn.sendMessage(m.chat, {
-      image: { url: thumbnail },
-      caption: infoMessage
-    }, { quoted: m });
-
-    const apiURL = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(videoUrl)}&type=audio&quality=128kbps&apikey=russellxz`;
-    const res = await axios.get(apiURL);
-    const json = res.data;
-
-    if (!json.status || !json.data?.url) throw new Error("No se pudo obtener el audio");
-
-    const tmpDir = path.join(__dirname, '../tmp');
-    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
-
-    const rawPath = path.join(tmpDir, `${Date.now()}_raw.m4a`);
-    const finalPath = path.join(tmpDir, `${Date.now()}_final.mp3`);
-
-    const audioRes = await axios.get(json.data.url, { responseType: 'stream' });
-    await streamPipeline(audioRes.data, fs.createWriteStream(rawPath));
-
-    await new Promise((resolve, reject) => {
-      ffmpeg(rawPath)
-        .audioCodec('libmp3lame')
-        .audioBitrate('128k')
-        .format('mp3')
-        .save(finalPath)
-        .on('end', resolve)
-        .on('error', reject);
+    const filename = path.join(tmpdir(), `${Date.now()}.mp3`);
+    const audioStream = await axios({
+      method: 'get',
+      url: data.audio,
+      responseType: 'stream'
     });
 
-    await conn.sendMessage(m.chat, {
-      audio: fs.readFileSync(finalPath),
-      mimetype: 'audio/mpeg',
-      fileName: `${title}.mp3`,
-      ptt: false
-    }, { quoted: m });
+    await pipeline(audioStream.data, writeFile(filename));
 
-    fs.unlinkSync(rawPath);
-    fs.unlinkSync(finalPath);
-
-    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
-
-  } catch (err) {
-    console.error(err);
-    await conn.reply(m.chat, `❌ *Error:* ${err.message}`, m);
-    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
+    await conn.sendFile(m.chat, filename, 'audio.mp3', null, m, true, { mimetype: 'audio/mpeg' });
+  } catch (e) {
+    console.error(e);
+    throw '❌ *Error:* No se pudo obtener el audio';
   }
 };
 
 handler.help = ['play'];
-handler.command = ['play'];
 handler.tags = ['música'];
+handler.command = ['play'];
 handler.register = true;
 
 export default handler;
