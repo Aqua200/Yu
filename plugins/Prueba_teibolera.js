@@ -1,34 +1,66 @@
-import { xpRange } from '../lib/levelling.js';
-const cooldownTeibol = {};
+let cooldowns = {}
 
-const handler = async (m, { conn, usedPrefix }) => {
-  const user = global.db.data.users[m.sender];
-  const tiempoDeEspera = 600000; // 10 minutos
-  const antes = cooldownTeibol[m.sender] || 0;
-  const ahora = Date.now();
-
-  if (ahora - antes < tiempoDeEspera) {
-    const falta = ((tiempoDeEspera - (ahora - antes)) / 60000).toFixed(1);
-    return m.reply(`Debes esperar ${falta} minutos para trabajar de nuevo.`);
+let handler = async (m, { conn }) => {
+  let user = global.db.data.users[m.sender]
+  let tiempo = 5 * 60 // 5 minutos
+  if (cooldowns[m.sender] && Date.now() - cooldowns[m.sender] < tiempo * 1000) {
+    const tiempo2 = segundosAHMS(Math.ceil((cooldowns[m.sender] + tiempo * 1000 - Date.now()) / 1000))
+    conn.reply(m.chat, `✨ Debes esperar *${tiempo2}* para volver al *teibol* otra vez.`, m)
+    return
   }
+  let rsl = Math.floor(Math.random() * 500)
+  cooldowns[m.sender] = Date.now()
+  await conn.reply(m.chat, `\n${pickRandom(teibol)} *${toNum(rsl)}* ( *${rsl}* ) 💸`, m)
+  user.coin += rsl
+}
 
-  // Random de yenes ganados
-  const yenesGanados = Math.floor(Math.random() * 500) + 100; // entre 100 y 599 yenes
+handler.help = ['teibol']
+handler.tags = ['economy']
+handler.command = ['teibol', 'strip', 'bailar']
+handler.group = true
+handler.register = true
 
-  // Mensaje de éxito
-  m.reply(`¡Buen trabajo! Ganaste ¥${yenesGanados} en el teibol.`);
+export default handler
 
-  // Suma yenes y aumenta contador de trabajos
-  user.yenes += yenesGanados;
-  user.vecesTrabajado++;
+function toNum(number) {
+  if (number >= 1000 && number < 1000000) {
+    return (number / 1000).toFixed(1) + 'k'
+  } else if (number >= 1000000) {
+    return (number / 1000000).toFixed(1) + 'M'
+  } else if (number <= -1000 && number > -1000000) {
+    return (number / 1000).toFixed(1) + 'k'
+  } else if (number <= -1000000) {
+    return (number / 1000000).toFixed(1) + 'M'
+  } else {
+    return number.toString()
+  }
+}
 
-  // Actualiza cooldown
-  cooldownTeibol[m.sender] = ahora;
+function segundosAHMS(segundos) {
+  let minutos = Math.floor((segundos % 3600) / 60)
+  let segundosRestantes = segundos % 60
+  return `${minutos} minutos y ${segundosRestantes} segundos`
+}
 
-  // Guarda cambios en la base de datos
-  global.db.data.users[m.sender] = user;
-  await global.db.write();
-};
+function pickRandom(list) {
+  return list[Math.floor(list.length * Math.random())]
+}
 
-handler.command = ['trabajoteibol', 'teibol'];
-export default handler;
+const teibol = [
+  "Bailaste en el escenario y ganaste",
+  "Diste un show privado y recibiste propina de",
+  "Los clientes quedaron fascinados con tu baile, te pagaron",
+  "Participaste en un concurso de baile y ganaste",
+  "Fuiste contratada para un evento VIP y recibiste",
+  "Te aplaudieron tanto que te llovieron billetes por",
+  "Un cliente enamorado te regaló",
+  "Bailaste en la barra y conseguiste",
+  "Hiciste un show especial de medianoche y ganaste",
+  "Diste clases de baile sensual y cobraste",
+  "Modelaste lencería en el club y te pagaron",
+  "Hiciste un truco nuevo en el tubo y ganaste",
+  "Tu sensualidad conquistó al público y recibiste",
+  "Tu actuación especial de San Valentín te dejó",
+  "Un cliente famoso te dejó una propina de",
+  "Bailaste en la zona VIP y ganaste",
+]
