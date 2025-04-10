@@ -1,9 +1,9 @@
 let cooldowns = {}
-let moneda = '💰' // Emoji de moneda (puedes cambiarlo)
+let moneda = '¥' // Emoji de moneda (puedes cambiarlo)
 
 let handler = async (m, { conn, isPrems }) => {
   let user = global.db.data.users[m.sender]
-  let tiempo = 5 * 60 // 5 minutos de cooldown base
+  let tiempo = 15 * 60 // 5 minutos de cooldown base
 
   // ==================== [ MEJORA #4: ENERGÍA ] ====================
   user.energia = user.energia || 10 // Energía máxima: 10
