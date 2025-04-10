@@ -1,38 +1,47 @@
 let handler = async (m, { conn }) => {
     let user = global.db.data.users[m.sender];
-    if (!user) return;
+    if (!user) throw '⚠️ No se encontraron tus datos';
 
+    // Verificar si el pico ya está reparado
     if (user.pickaxedurability >= 100) {
-        return conn.reply(m.chat, '⚒️ Tu picota no necesita reparaciones.', m);
+        return conn.reply(m.chat, '⚒️ Tu pico ya está al máximo de durabilidad (100).', m);
     }
 
-    let costIron = 20;  // Cantidad de hierro requerido para reparar
-    let costGold = 10;  // Cantidad de oro requerido
-    let costYen = 500;  // Costo en yenes si no tiene materiales
+    // Costos
+    const costIron = 20;
+    const costGold = 10;
+    const costYen = 500;
 
-    // Primero verificar si tiene materiales
+    // Intentar reparar con materiales primero
     if (user.iron >= costIron && user.gold >= costGold) {
-        // Reparar con materiales
         user.iron -= costIron;
         user.gold -= costGold;
         user.pickaxedurability = 100;
-        return conn.reply(m.chat, '✅ Tu picota ha sido reparada con éxito usando materiales y ahora tiene *100* de durabilidad.', m);
+        return conn.reply(m.chat, 
+            `✅ *Pico reparado con materiales:*\n` +
+            `🔩 -${costIron} hierro | 🏅 -${costGold} oro\n` +
+            `⚒️ Durabilidad: 100/100`, m);
     } 
-    // Si no tiene materiales, verificar si tiene yenes
+    // Si no tiene materiales, intentar con yenes
     else if (user.money >= costYen) {
-        // Reparar con yenes
         user.money -= costYen;
         user.pickaxedurability = 100;
-        return conn.reply(m.chat, `✅ Tu picota ha sido reparada con éxito usando ${costYen} yenes y ahora tiene *100* de durabilidad.`, m);
+        return conn.reply(m.chat, 
+            `✅ *Pico reparado con yenes:*\n` +
+            `💴 -${costYen} yenes\n` +
+            `⚒️ Durabilidad: 100/100`, m);
     }
-    // Si no tiene ni materiales ni yenes
+    // Si no tiene nada
     else {
         return conn.reply(m.chat, 
-            `❌ No tienes suficientes recursos para reparar la picota.\n` +
-            `🔩 *Hierro necesario:* ${costIron}\n` +
-            `🏅 *Oro necesario:* ${costGold}\n` +
-            `💴 *O necesitas:* ${costYen} yenes`, 
-            m);
+            `❌ *No tienes recursos suficientes*\n` +
+            `Para reparar necesitas:\n` +
+            `🔩 ${costIron} hierro + 🏅 ${costGold} oro\n` +
+            `*O*\n` +
+            `💴 ${costYen} yenes\n\n` +
+            `Actualmente tienes:\n` +
+            `🔩 ${user.iron}/${costIron} hierro | 🏅 ${user.gold}/${costGold} oro\n` +
+            `💴 ${user.money}/${costYen} yenes`, m);
     }
 }
 
