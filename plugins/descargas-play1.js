@@ -53,7 +53,7 @@ const handler = async (m, { conn, text }) => {
         return;
     }
 
-    await conn.sendMessage(m.chat, { react: { text: "🎶", key: m.key } });
+    await conn.sendMessage(m.chat, { react: { text: "🖤", key: m.key } });
 
     try {
         const search = await yts(text);
