@@ -66,53 +66,53 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     }
     
     // Comando para ver el teibol
-    // Obtener top 10
-    const top10 = obtenerTopTeibol(global.db.data.users);
-    
-    // Determinar rango y posición del usuario
-    const rangoUsuario = Object.keys(rangosTeibol)
-        .reverse()
-        .find(r => user.yenes >= rangosTeibol[r].requerido) || 0;
-    
-    const posicionUsuario = top10.findIndex(u => u.jid === m.sender);
-    
-    // Construir mensaje
-    let text = `*💎 CLUB TEIBOL VIP 💎*\n\n`;
-    text += `▸ Usuario: @${m.sender.split`@`[0]}\n`;
-    text += `▸ Rango: *${rangosTeibol[rangoUsuario].nombre}*\n`;
-    text += `▸ Yenes: ¥${user.yenes}\n`;
-    text += `▸ Turnos trabajados: ${user.vecesTrabajado}\n\n`;
-    
-    if (posicionUsuario >= 0) {
-        text += `🏅 Posición en el top: *${posicionUsuario + 1}°*\n\n`;
+    if (command === 'teibol') {
+        // Obtener top 10
+        const top10 = obtenerTopTeibol(global.db.data.users);
+        
+        // Determinar rango y posición del usuario
+        const rangoUsuario = Object.keys(rangosTeibol)
+            .reverse()
+            .find(r => user.yenes >= rangosTeibol[r].requerido) || 0;
+        
+        const posicionUsuario = top10.findIndex(u => u.jid === m.sender);
+        
+        // Construir mensaje
+        let text = `*💎 CLUB TEIBOL VIP 💎*\n\n`;
+        text += `▸ Usuario: @${m.sender.split`@`[0]}\n`;
+        text += `▸ Rango: *${rangosTeibol[rangoUsuario].nombre}*\n`;
+        text += `▸ Yenes: ¥${user.yenes}\n`;
+        text += `▸ Turnos trabajados: ${user.vecesTrabajado}\n\n`;
+        
+        if (posicionUsuario >= 0) {
+            text += `🏅 Posición en el top: *${posicionUsuario + 1}°*\n\n`;
+        }
+        
+        // Mostrar cooldown
+        const tiempoRest = cooldownTrabajo - (Date.now() - user.ultimoTrabajo);
+        if (tiempoRest > 0) {
+            const horas = Math.floor(tiempoRest / (1000 * 60 * 60));
+            const minutos = Math.floor((tiempoRest % (1000 * 60 * 60)) / (1000 * 60));
+            text += `⏳ Puedes trabajar en: *${horas}h ${minutos}m*\n\n`;
+        } else {
+            text += `✅ *¡Puedes trabajar ahora!*\nUsa *${usedPrefix}trabajar*\n\n`;
+        }
+        
+        // Mostrar top 5
+        text += `🌟 *TOP 5 DEL TEIBOL* 🌟\n\n`;
+        text += top10.slice(0, 5).map((user, i) => {
+            return `${i + 1}. @${user.jid.split`@`[0]} » ${user.nombreRango} (¥${user.yenes})`;
+        }).join('\n');
+        
+        await conn.sendMessage(m.chat, { 
+            text, 
+            mentions: [...text.matchAll(/@(\d+)/g)].map(m => m[1] + '@s.whatsapp.net') 
+        }, { quoted: m });
     }
-    
-    // Mostrar cooldown
-    const tiempoRest = cooldownTrabajo - (Date.now() - user.ultimoTrabajo);
-    if (tiempoRest > 0) {
-        const horas = Math.floor(tiempoRest / (1000 * 60 * 60));
-        const minutos = Math.floor((tiempoRest % (1000 * 60 * 60)) / (1000 * 60));
-        text += `⏳ Puedes trabajar en: *${horas}h ${minutos}m*\n\n`;
-    } else {
-        text += `✅ *¡Puedes trabajar ahora!*\nUsa *${usedPrefix}trabajar*\n\n`;
-    }
-    
-    // Mostrar top 5
-    text += `🌟 *TOP 5 DEL TEIBOL* 🌟\n\n`;
-    text += top10.slice(0, 5).map((user, i) => {
-        return `${i + 1}. @${user.jid.split`@`[0]} » ${user.nombreRango} (¥${user.yenes})`;
-    }).join('\n');
-    
-    await conn.sendMessage(m.chat, { 
-        text, 
-        mentions: [...text.matchAll(/@(\d+)/g)].map(m => m[1] + '@s.whatsapp.net') 
-    }, { quoted: m });
 }
 
-handler.help = ['kurogane']
+handler.help = ['teibol', 'trabajar']
 handler.tags = ['economy']
-handler.command = ['kurogane']
+handler.command = ['teibol', 'trabajar']
 handler.group = true
 export default handler
-
-export default handler;
