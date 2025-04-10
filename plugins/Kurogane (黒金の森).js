@@ -96,6 +96,8 @@ let handler = async (m, { conn, isPrems }) => {
 
   // ==================== [ COOLDOWN & EXP ] ====================
   user.exp = (user.exp || 0) + Math.floor(Math.random() * 15) + 5
+
+  // Establecer expNecesaria después de la actualización de exp
   let expNecesaria = 100 * (user.level || 1)
   let nivelUp = user.exp >= expNecesaria
 
