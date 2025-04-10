@@ -60,9 +60,9 @@ let handler = async (m, { conn, isPrems }) => {
       },
       {
         nombre: 'Paul Greyrat',
-        imagen: 'https://files.catbox.moe/4hn8ht.jpg', // URL de la imagen de Paul
+        imagen: 'https://files.catbox.moe/q3xgzm.jpg', // URL de la imagen de Paul
         situaciones: [
-          { descripcion: 'Paul Greyrat llega a Kurogane con una misión. Ayúdalo a cumplirla y recibirás una recompensa significativa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
+          { descripcion: 'Paul Greyrat llega a Kurogane con una misión. Ayúdalo a volver a su mundo y recibirás una recompensa significativa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 },
           { descripcion: 'El entrenamiento de Paul es intenso, pero si lo sigues, te dará su bendición y una recompensa.', recompensa: Math.floor(Math.random() * (20000 - 10000 + 1)) + 10000 }
         ]
       },
