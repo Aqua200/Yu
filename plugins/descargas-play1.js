@@ -7,28 +7,12 @@ const { pipeline } = require('stream');
 const { promisify } = require('util');
 const streamPipeline = promisify(pipeline);
 
-const handler = async (msg, { conn, text }) => {
-  const rawID = conn.user?.id || "";
-  const subbotID = rawID.split(":")[0] + "@s.whatsapp.net";
-
-  // Cargar prefijo personalizado
-  const prefixPath = path.resolve("prefixes.json");
-  let prefixes = {};
-  if (fs.existsSync(prefixPath)) {
-    prefixes = JSON.parse(fs.readFileSync(prefixPath, "utf-8"));
-  }
-
-  const usedPrefix = prefixes[subbotID] || "."; // Por defecto .
-
+const handler = async (m, { conn, usedPrefix, command, text }) => {
   if (!text) {
-    return await conn.sendMessage(msg.key.remoteJid, {
-      text: `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${usedPrefix}play* bad bunny diles`
-    }, { quoted: msg });
+    return conn.reply(m.chat, `✳️ Usa el comando correctamente:\n\n📌 Ejemplo: *${usedPrefix}play* bad bunny diles`, m);
   }
 
-  await conn.sendMessage(msg.key.remoteJid, {
-    react: { text: '⏳', key: msg.key }
-  });
+  await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
 
   try {
     const search = await yts(text);
@@ -44,7 +28,7 @@ const handler = async (msg, { conn, text }) => {
 
     const infoMessage = `
 ╔═══════════════╗
-   ✦ prueba  ✦
+   ✦ Música ✦
 ╚═══════════════╝
 
 📀 *Info del audio:*  
@@ -63,10 +47,10 @@ const handler = async (msg, { conn, text }) => {
 ⏳ Procesando audio...
 ═══════════════════`;
 
-    await conn.sendMessage(msg.key.remoteJid, {
+    await conn.sendMessage(m.chat, {
       image: { url: thumbnail },
       caption: infoMessage
-    }, { quoted: msg });
+    }, { quoted: m });
 
     const apiURL = `https://api.neoxr.eu/api/youtube?url=${encodeURIComponent(videoUrl)}&type=audio&quality=128kbps&apikey=russellxz`;
     const res = await axios.get(apiURL);
@@ -93,35 +77,28 @@ const handler = async (msg, { conn, text }) => {
         .on('error', reject);
     });
 
-    await conn.sendMessage(msg.key.remoteJid, {
+    await conn.sendMessage(m.chat, {
       audio: fs.readFileSync(finalPath),
       mimetype: 'audio/mpeg',
       fileName: `${title}.mp3`,
       ptt: false
-    }, { quoted: msg });
+    }, { quoted: m });
 
     fs.unlinkSync(rawPath);
     fs.unlinkSync(finalPath);
 
-    await conn.sendMessage(msg.key.remoteJid, {
-      react: { text: '✅', key: msg.key }
-    });
+    await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
   } catch (err) {
     console.error(err);
-    await conn.sendMessage(msg.key.remoteJid, {
-      text: `❌ *Error:* ${err.message}`
-    }, { quoted: msg });
-
-    await conn.sendMessage(msg.key.remoteJid, {
-      react: { text: '❌', key: msg.key }
-    });
+    await conn.reply(m.chat, `❌ *Error:* ${err.message}`, m);
+    await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } });
   }
 };
 
-handler.help = ['play'];
-handler.command = ['play'];
-handler.tags = ['música'];
+handler.help = ['play <búsqueda>'];
+handler.tags = ['downloader'];
+handler.command = /^play$/i;
 handler.register = true;
 
-export default handler;
+module.exports = handler;
