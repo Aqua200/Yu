@@ -17,7 +17,18 @@ let handler = async (m, { conn, usedPrefix }) => {
 
 > *Para proteger tu dinero, ¡depósitalo en el banco usando #deposit!*`;
 
-    await conn.reply(m.chat, texto, m)
+    // Enviar mensaje con imagen pero sin descarga automática
+    await conn.sendMessage(m.chat, {
+        image: { url: "https://files.catbox.moe/wzheg1.jpg" }, // Reemplaza con tu URL
+        caption: texto,
+        contextInfo: {
+            externalAdReply: {
+                title: '💰 Balance Económico 💰',
+                body: `Usuario: ${conn.getName(who)}`,
+                thumbnail: null // Esto evita que se muestre miniaturas adicionales
+            }
+        }
+    }, { quoted: m })
 }
 
 handler.help = ['bal']
