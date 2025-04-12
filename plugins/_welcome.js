@@ -1,61 +1,86 @@
 import { WAMessageStubType } from '@whiskeysockets/baileys'
 
 export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return !0;
+  // Validaciones iniciales
+  if (!m.messageStubType || !m.isGroup) return;
+  if (!global.db.data.chats) global.db.data.chats = {};
+  if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {};
   
-  let chat = global.db.data.chats[m.chat]
-  let groupSize = participants.length
+  const chat = global.db.data.chats[m.chat];
+  let groupSize = participants.length;
   
-  if (m.messageStubType == 27) {
-    groupSize++;
-  } else if (m.messageStubType == 28 || m.messageStubType == 32) {
-    groupSize--;
+  // Actualizar conteo de miembros
+  switch (m.messageStubType) {
+    case WAMessageStubType.GROUP_PARTICIPANT_JOIN:
+      groupSize++;
+      break;
+    case WAMessageStubType.GROUP_PARTICIPANT_LEAVE:
+    case WAMessageStubType.GROUP_PARTICIPANT_REMOVE:
+      groupSize--;
+      break;
   }
 
-  if (chat.welcome && m.messageStubType == 27) {
-    let user = m.messageStubParameters[0].split('@')[0]
-    let bienvenida = `
-✦═════════════✦  
-   🤍 *BIENVENIDO(A)* 🤍  
-✦═════════════✦  
+  // Mensaje de BIENVENIDA (con imagen)
+  if (chat.welcome && m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_JOIN) {
+    const user = m.messageStubParameters[0]?.split('@')[0] || 'Usuario';
+    const welcomeMsg = `
+ *¡BIENVENIDO/A!* 
 
-   ✧ @${user}  
-   ✧ Al grupo: *${groupMetadata.subject}*  
-   ✧ Miembros: *${groupSize}*  
+    ✧ @${user}  
+    ✧ Al grupo: *${groupMetadata.subject || 'Sin nombre'}*  
+    ✧ Miembros: *${groupSize}*  
 
-   💜 *¡Disfruta tu estadía!*  
-   📜 *Normas:* Respeto y buen humor.  
+📜 *Normas:*  
+   ✔ Respeto a todos  
+   ✔ No spam  
+   ✔ Disfruta el grupo  
 
-✦═════════════✦  
-   🔹 Usa *#menu* para ver comandos  
-✦═════════════✦  
-    `
-    await conn.sendMessage(m.chat, { 
-      text: bienvenida, 
-      mentions: [m.messageStubParameters[0]] 
-    })
+ Usa *#menu* para ver comandos
+    `.trim();
+    
+    try {
+      await conn.sendMessage(m.chat, {
+        image: { url: 'https://i.imgur.com/fM3XvVT.jpeg' }, // Imagen de bienvenida
+        caption: welcomeMsg,
+        mentions: [m.messageStubParameters[0]]
+      });
+    } catch (e) {
+      console.error('Error en bienvenida:', e);
+      await conn.sendMessage(m.chat, {
+        text: welcomeMsg,
+        mentions: [m.messageStubParameters[0]]
+      });
+    }
   }
-  
-  if (chat.welcome && (m.messageStubType == 28 || m.messageStubType == 32)) {
-    let user = m.messageStubParameters[0].split('@')[0]
-    let despedida = `
-✦═════════════✦  
-   🖤 *ADIÓS* 🖤  
-✦═════════════✦  
 
-   ✧ @${user}  
-   ✧ Ha dejado: *${groupMetadata.subject}*  
-   ✧ Miembros restantes: *${groupSize}*  
+  // Mensaje de DESPEDIDA (con imagen)
+  if (chat.welcome && (
+      m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_LEAVE || 
+      m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_REMOVE
+  )) {
+    const user = m.messageStubParameters[0]?.split('@')[0] || 'Usuario';
+    const leaveMsg = `
+ *Adios* 
 
-   🌟 *¡Te esperamos de vuelta!*  
+   ✦ @${user}  
+   ✦ Ha dejado: *${groupMetadata.subject || 'el grupo'}*  
+   ✦ Miembros restantes: *${groupSize}*  
 
-✦═════════════✦  
-   🔸 Gracias por tu participación  
-✦═════════════✦  
-    `
-    await conn.sendMessage(m.chat, { 
-      text: despedida, 
-      mentions: [m.messageStubParameters[0]] 
-    })
+ *¡Esperamos verte de vuelta!*
+    `.trim();
+    
+    try {
+      await conn.sendMessage(m.chat, {
+        image: { url: 'https://i.imgur.com/6Mb3Y4n.jpeg' }, // Imagen de despedida
+        caption: leaveMsg,
+        mentions: [m.messageStubParameters[0]]
+      });
+    } catch (e) {
+      console.error('Error en despedida:', e);
+      await conn.sendMessage(m.chat, {
+        text: leaveMsg,
+        mentions: [m.messageStubParameters[0]]
+      });
+    }
   }
 }
