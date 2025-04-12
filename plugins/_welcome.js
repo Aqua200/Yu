@@ -40,7 +40,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     
     try {
       await conn.sendMessage(m.chat, {
-        image: { url: 'https://i.imgur.com/fM3XvVT.jpeg' }, // Imagen de bienvenida
+        image: { url: 'https://files.catbox.moe/acf346.jpg' }, // Imagen de bienvenida
         caption: welcomeMsg,
         mentions: [m.messageStubParameters[0]]
       });
@@ -71,7 +71,7 @@ export async function before(m, { conn, participants, groupMetadata }) {
     
     try {
       await conn.sendMessage(m.chat, {
-        image: { url: 'https://i.imgur.com/6Mb3Y4n.jpeg' }, // Imagen de despedida
+        image: { url: 'https://files.catbox.moe/acf346.jpg' }, // Imagen de despedida
         caption: leaveMsg,
         mentions: [m.messageStubParameters[0]]
       });
