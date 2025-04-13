@@ -1,167 +1,100 @@
-import axios from 'axios';
-import baileys from '@whiskeysockets/baileys';
-
-async function sendAlbumMessage(jid, medias, options = {}) {
-  if (typeof jid !== "string") {
-    throw new TypeError(`jid must be string, received: ${jid} (${jid?.constructor?.name})`);
+import _0x36ae01 from 'axios';
+const {
+  generateWAMessageContent,
+  generateWAMessageFromContent,
+  proto
+} = (await import("@whiskeysockets/baileys"))["default"];
+let handler = async (_0x10bd40, {
+  conn: _0x9c7141,
+  text: _0x27db11,
+  usedPrefix: _0x55e61b,
+  command: _0x5ad406
+}) => {
+  if (!_0x27db11) {
+    return _0x9c7141.reply(_0x10bd40.chat, "🤍 *¿Que quieres buscar en pinterest?*", _0x10bd40, rcanal);
   }
-
-  for (const media of medias) {
-    if (!media.type || (media.type !== "image" && media.type !== "video")) {
-      throw new TypeError(`media.type must be "image" or "video", received: ${media.type} (${media.type?.constructor?.name})`);
-    }
-    if (!media.data || (!media.data.url && !Buffer.isBuffer(media.data))) {
-      throw new TypeError(`media.data must be object with url or buffer, received: ${media.data} (${media.data?.constructor?.name})`);
-    }
-  }
-
-  if (medias.length < 2) {
-    throw new RangeError("Minimum 2 media");
-  }
-
-  const caption = options.text || options.caption || "";
-  const delay = !isNaN(options.delay) ? options.delay : 500;
-  delete options.text;
-  delete options.caption;
-  delete options.delay;
-
-  const album = baileys.generateWAMessageFromContent(
-    jid,
-    {
-      messageContextInfo: {},
-      albumMessage: {
-        expectedImageCount: medias.filter(media => media.type === "image").length,
-        expectedVideoCount: medias.filter(media => media.type === "video").length,
-        ...(options.quoted
-          ? {
-              contextInfo: {
-                remoteJid: options.quoted.key.remoteJid,
-                fromMe: options.quoted.key.fromMe,
-                stanzaId: options.quoted.key.id,
-                participant: options.quoted.key.participant || options.quoted.key.remoteJid,
-                quotedMessage: options.quoted.message,
-              },
-            }
-          : {}),
-      },
-    },
-    {}
-  );
-
-  await conn.relayMessage(album.key.remoteJid, album.message, { messageId: album.key.id });
-
-  for (let i = 0; i < medias.length; i++) {
-    const { type, data } = medias[i];
-    const img = await baileys.generateWAMessage(
-      album.key.remoteJid,
-      { [type]: data, ...(i === 0 ? { caption } : {}) },
-      { upload: conn.waUploadToServer }
-    );
-    img.message.messageContextInfo = {
-      messageAssociation: { associationType: 1, parentMessageKey: album.key },
-    };
-    await conn.relayMessage(img.key.remoteJid, img.message, { messageId: img.key.id });
-    await baileys.delay(delay);
-  }
-
-  return album;
-}
-
-const fetchPinterest = async (query) => {
-  const url = `https://www.pinterest.com/resource/BaseSearchResource/get/?data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%7D%2C%22context%22%3A%7B%7D%7D`;
-  
-  const headers = {
-    'authority': 'www.pinterest.com',
-    'accept': 'application/json',
-    'accept-language': 'en-US,en;q=0.9',
-    'referer': `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(query)}`,
-    'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"Windows"',
-    'sec-fetch-dest': 'empty',
-    'sec-fetch-mode': 'cors',
-    'sec-fetch-site': 'same-origin',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'x-app-version': 'a4ef0a3',
-    'x-pinterest-appstate': 'active',
-    'x-pinterest-source-url': `/search/pins/?q=${encodeURIComponent(query)}`,
-    'x-requested-with': 'XMLHttpRequest'
-  };
-
-  try {
-    const response = await axios.get(url, { 
-      headers,
-      transformResponse: [(data) => {
-        try {
-          return JSON.parse(data);
-        } catch (e) {
-          // Si falla el parseo, verifica si es un error de texto plano
-          if (typeof data === 'string' && data.includes('error')) {
-            throw new Error('Pinterest returned an error: ' + data);
-          }
-          throw e;
-        }
-      }]
+    await _0x10bd40.react(rwait);
+  async function _0x3f3fc7(_0x5f4723) {
+    const {
+      imageMessage: _0x14a396
+    } = await generateWAMessageContent({
+      'image': {
+        'url': _0x5f4723
+      }
+    }, {
+      'upload': _0x9c7141.waUploadToServer
     });
-
-    if (!response.data?.resource_response?.data?.results) {
-      throw new Error('Invalid Pinterest API response structure');
-    }
-
-    return response.data.resource_response.data.results
-      .filter(item => item?.images?.orig?.url)
-      .map(item => ({
-        image_large_url: item.images.orig.url,
-        image_medium_url: item.images['564x']?.url,
-        image_small_url: item.images['236x']?.url
-      }));
-  } catch (error) {
-    console.error('Pinterest API Error:', error.message);
-    throw new Error('Failed to fetch Pinterest results. Please try again later.');
+    return _0x14a396;
   }
-};
-
-let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply(`🔍 *Uso:* .pinterest <búsqueda>\nEjemplo: .pinterest paisajes`);
-
-  try {
-    await m.react('🕒');
-    
-    const results = await fetchPinterest(text);
-    
-    if (!results.length) {
-      await m.react('❌');
-      return conn.reply(m.chat, `⚠️ No se encontraron resultados para "${text}"`, m);
+  function _0x2af019(_0x27693a) {
+    for (let _0x5ce07a = _0x27693a.length - 1; _0x5ce07a > 0; _0x5ce07a--) {
+      const _0x4d6146 = Math.floor(Math.random() * (_0x5ce07a + 1));
+      [_0x27693a[_0x5ce07a], _0x27693a[_0x4d6146]] = [_0x27693a[_0x4d6146], _0x27693a[_0x5ce07a]];
     }
-
-    const medias = results.slice(0, 5).map(result => ({
-      type: 'image',
-      data: { url: result.image_large_url }
-    }));
-
-    if (medias.length === 1) {
-      await conn.sendMessage(m.chat, {
-        image: { url: medias[0].data.url },
-        caption: `🔍 *Resultados de Pinterest*\n\n• Búsqueda: *${text}*\n• Mostrando 1 de ${results.length} resultados`
-      }, { quoted: m });
-    } else {
-      await sendAlbumMessage(m.chat, medias, {
-        caption: `🔍 *Resultados de Pinterest*\n\n• Búsqueda: *${text}*\n• Mostrando ${medias.length} de ${results.length} resultados`,
-        quoted: m
-      });
-    }
-
-    await m.react('✅');
-  } catch (error) {
-    console.error('Handler Error:', error);
-    await m.react('❌');
-    await conn.reply(m.chat, `❌ Error al buscar: ${error.message}`, m);
   }
+  let _0x51323f = [];
+  let {
+    data: _0x4fc489
+  } = await _0x36ae01.get("https://www.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D" + _0x27db11 + "&data=%7B%22options%22%3A%7B%22isPrefetch%22%3Afalse%2C%22query%22%3A%22" + _0x27db11 + "%22%2C%22scope%22%3A%22pins%22%2C%22no_fetch_context_on_resource%22%3Afalse%7D%2C%22context%22%3A%7B%7D%7D&_=1619980301559");
+  let _0x5f34cb = _0x4fc489.resource_response.data.results.map(_0x33ba1c => _0x33ba1c.images.orig.url);
+  _0x2af019(_0x5f34cb);
+  let _0x3b2637 = _0x5f34cb.splice(0, 5);
+  let _0x2913ed = 1;
+  for (let _0x47c48a of _0x3b2637) {
+    _0x51323f.push({
+      'body': proto.Message.InteractiveMessage.Body.fromObject({
+        'text': "Imagen -" + (" " + _0x2913ed++)
+      }),
+      'footer': proto.Message.InteractiveMessage.Footer.fromObject({
+        'text': textbot
+      }),
+      'header': proto.Message.InteractiveMessage.Header.fromObject({
+        'title': '',
+        'hasMediaAttachment': true,
+        'imageMessage': await _0x3f3fc7(_0x47c48a)
+      }),
+      'nativeFlowMessage': proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        'buttons': [{
+          'name': "cta_url",
+          'buttonParamsJson': "{\"display_text\":\"url 📫\",\"Url\":\"https://www.pinterest.com/search/pins/?rs=typed&q=" + _0x27db11 + "\",\"merchant_url\":\"https://www.pinterest.com/search/pins/?rs=typed&q=" + _0x27db11 + "\"}"
+        }]
+      })
+    });
+  }
+  const _0x1ca5c6 = generateWAMessageFromContent(_0x10bd40.chat, {
+    'viewOnceMessage': {
+      'message': {
+        'messageContextInfo': {
+          'deviceListMetadata': {},
+          'deviceListMetadataVersion': 0x2
+        },
+        'interactiveMessage': proto.Message.InteractiveMessage.fromObject({
+          'body': proto.Message.InteractiveMessage.Body.create({
+            'text': "🤍 Resultado de : " + _0x27db11
+          }),
+          'footer': proto.Message.InteractiveMessage.Footer.create({
+            'text': "🔎 Pinterest - Busquedas"
+          }),
+          'header': proto.Message.InteractiveMessage.Header.create({
+            'hasMediaAttachment': false
+          }),
+          'carouselMessage': proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+            'cards': [..._0x51323f]
+          })
+        })
+      }
+    }
+  }, {
+    'quoted': _0x10bd40
+  });
+  await _0x10bd40.react(done);
+  await _0x9c7141.relayMessage(_0x10bd40.chat, _0x1ca5c6.message, {
+    'messageId': _0x1ca5c6.key.id
+  });
 };
-
-handler.help = ['pinterest <búsqueda>'];
-handler.command = ['pinterest', 'pin'];
-handler.tags = ['buscador'];
-handler.desc = 'Busca imágenes en Pinterest';
-
+handler.help = ["pinterest"];
+handler.tags = ["search"];
+handler.estrellas = 1;
+handler.register = true;
+handler.command = /^(pinterest)$/i;
 export default handler;
