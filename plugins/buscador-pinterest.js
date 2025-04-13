@@ -67,84 +67,95 @@ async function sendAlbumMessage(jid, medias, options = {}) {
   return album;
 }
 
-const pins = async (judul) => {
-  const link = `https://www.pinterest.com/resource/BaseSearchResource/get/?data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(judul)}%22%2C%22scope%22%3A%22pins%22%7D%2C%22context%22%3A%7B%7D%7D`;
+const fetchPinterest = async (query) => {
+  const url = `https://www.pinterest.com/resource/BaseSearchResource/get/?data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%7D%2C%22context%22%3A%7B%7D%7D`;
   
   const headers = {
+    'authority': 'www.pinterest.com',
     'accept': 'application/json',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    'referer': 'https://www.pinterest.com/',
+    'accept-language': 'en-US,en;q=0.9',
+    'referer': `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(query)}`,
+    'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'x-app-version': 'a4ef0a3',
+    'x-pinterest-appstate': 'active',
+    'x-pinterest-source-url': `/search/pins/?q=${encodeURIComponent(query)}`,
+    'x-requested-with': 'XMLHttpRequest'
   };
 
   try {
-    const res = await axios.get(link, { headers });
-    
-    // Verificar si la respuesta es válida
-    if (typeof res.data === 'string' && res.data.includes('error')) {
-      throw new Error('Respuesta inválida de Pinterest');
+    const response = await axios.get(url, { 
+      headers,
+      transformResponse: [(data) => {
+        try {
+          return JSON.parse(data);
+        } catch (e) {
+          // Si falla el parseo, verifica si es un error de texto plano
+          if (typeof data === 'string' && data.includes('error')) {
+            throw new Error('Pinterest returned an error: ' + data);
+          }
+          throw e;
+        }
+      }]
+    });
+
+    if (!response.data?.resource_response?.data?.results) {
+      throw new Error('Invalid Pinterest API response structure');
     }
 
-    if (res.data?.resource_response?.data?.results) {
-      return res.data.resource_response.data.results.map(item => {
-        if (item.images) {
-          return {
-            image_large_url: item.images.orig?.url || null,
-            image_medium_url: item.images['564x']?.url || null,
-            image_small_url: item.images['236x']?.url || null
-          };
-        }
-        return null;
-      }).filter(img => img !== null && img.image_large_url);
-    }
-    return [];
+    return response.data.resource_response.data.results
+      .filter(item => item?.images?.orig?.url)
+      .map(item => ({
+        image_large_url: item.images.orig.url,
+        image_medium_url: item.images['564x']?.url,
+        image_small_url: item.images['236x']?.url
+      }));
   } catch (error) {
-    console.error('Error al buscar en Pinterest:', error.message);
-    return [];
+    console.error('Pinterest API Error:', error.message);
+    throw new Error('Failed to fetch Pinterest results. Please try again later.');
   }
 };
 
 let handler = async (m, { conn, text }) => {
-  if (!text) return m.reply(`🔍 Por favor ingresa un término de búsqueda. Ejemplo: .pinterest gatos`);
+  if (!text) return m.reply(`🔍 *Uso:* .pinterest <búsqueda>\nEjemplo: .pinterest paisajes`);
 
   try {
     await m.react('🕒');
-    const results = await pins(text);
     
-    if (!results || results.length === 0) {
-      return conn.reply(m.chat, `❌ No se encontraron resultados para "${text}"`, m);
+    const results = await fetchPinterest(text);
+    
+    if (!results.length) {
+      await m.react('❌');
+      return conn.reply(m.chat, `⚠️ No se encontraron resultados para "${text}"`, m);
     }
 
-    const maxImages = Math.min(results.length, 5);
-    const medias = [];
+    const medias = results.slice(0, 5).map(result => ({
+      type: 'image',
+      data: { url: result.image_large_url }
+    }));
 
-    for (let i = 0; i < maxImages; i++) {
-      if (results[i].image_large_url) {
-        medias.push({
-          type: 'image',
-          data: { url: results[i].image_large_url }
-        });
-      }
-    }
-
-    if (medias.length < 2) {
-      // Si no hay suficientes imágenes para un álbum, envía una sola
+    if (medias.length === 1) {
       await conn.sendMessage(m.chat, {
         image: { url: medias[0].data.url },
-        caption: `🔍 Resultados de Pinterest\n\nBúsqueda: "${text}"\nMostrando 1 de ${results.length} resultados`
+        caption: `🔍 *Resultados de Pinterest*\n\n• Búsqueda: *${text}*\n• Mostrando 1 de ${results.length} resultados`
       }, { quoted: m });
     } else {
-      // Envía el álbum
       await sendAlbumMessage(m.chat, medias, {
-        caption: `🔍 Resultados de Pinterest\n\nBúsqueda: "${text}"\nMostrando ${maxImages} de ${results.length} resultados`,
+        caption: `🔍 *Resultados de Pinterest*\n\n• Búsqueda: *${text}*\n• Mostrando ${medias.length} de ${results.length} resultados`,
         quoted: m
       });
     }
 
     await m.react('✅');
   } catch (error) {
-    console.error(error);
-    await conn.reply(m.chat, '❌ Ocurrió un error al buscar en Pinterest', m);
+    console.error('Handler Error:', error);
     await m.react('❌');
+    await conn.reply(m.chat, `❌ Error al buscar: ${error.message}`, m);
   }
 };
 
