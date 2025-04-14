@@ -30,7 +30,7 @@ const handler = async (m, { conn }) => {
         },
         { 
             name: "🌋 *Volcán Ardiente*", 
-            image: "https://qu.ax/CDdWW.jpeg", 
+            image: "https://files.catbox.moe/dtdono.jpg", 
             probability: 25, 
             resources: { 
                 coin: [30, 90], 
