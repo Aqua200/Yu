@@ -42,7 +42,7 @@ const handler = async (m, { conn }) => {
         },
         { 
             name: "🏚️ *Mina Abandonada*", 
-            image: "https://qu.ax/tZvvf.jpeg", 
+            image: "https://files.catbox.moe/vhcmlx.jpg", 
             probability: 50, 
             resources: { 
                 coin: [50, 120], 
