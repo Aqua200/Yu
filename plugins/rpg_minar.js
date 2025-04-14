@@ -54,7 +54,7 @@ const handler = async (m, { conn }) => {
         },
         { 
             name: "🌲 *Bosque Subterráneo*", 
-            image: "https://qu.ax/FzCtg.jpeg", 
+            image: "https://files.catbox.moe/1z8dsm.jpg", 
             probability: 50, 
             resources: { 
                 coin: [40, 100], 
