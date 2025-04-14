@@ -18,7 +18,7 @@ const handler = async (m, { conn }) => {
     const miningLocations = [
         { 
             name: "🏔️ *Cueva Profunda*", 
-            image: "https://files.catbox.moe/mtsv8m.jpg", 
+            image: "https://files.catbox.moe/f91rfm.jpg", 
             probability: 25, 
             resources: { 
                 coin: [10, 50], 
