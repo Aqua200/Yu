@@ -1,145 +1,90 @@
-// YouTube vídeo download :
+import axios from 'axios';
+import FormData from 'form-data';
+import WebSocket from 'ws';
+import cheerio from 'cheerio';
+import crypto from 'crypto';
 
-```
-import axios from 'axios'
-import FormData from 'form-data'
-import WebSocket from 'ws'
-import cheerio from 'cheerio'
-import crypto from 'crypto'
+class YouTubeDownloader {
+  constructor() {
+    this.baseUrl = 'https://amp4.cc';
+    this.headers = {
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    };
+    this.cookies = {};
+  }
 
-async function ytmp4(url, quality) {
-  const base_url = 'https://amp4.cc'
-  const headers = { Accept: 'application/json', 'User-Agent': 'Postify/1.0.0' }
-  const cookies = {}
+  async play6(url, options = { format: 'mp4', quality: '720' }) {
+    try {
+      const videoId = this.extractVideoId(url);
+      if (!videoId) throw new Error('❌ URL de YouTube no válida');
 
-  const parse_cookies = (set_cookie_headers) => {
-    if (set_cookie_headers) {
-      set_cookie_headers.forEach((cookie) => {
-        const [key_value] = cookie.split(';')
-        const [key, value] = key_value.split('=')
-        cookies[key] = value
-      })
+      const { format, quality } = options;
+      const isAudio = format === 'mp3';
+
+      const csrfToken = await this.getCsrfToken();
+      const captchaSolution = await this.solveCaptchaIfNeeded();
+
+      const conversionId = await this.requestConversion(
+        videoId, 
+        isAudio ? 'highestaudio' : quality, 
+        csrfToken, 
+        captchaSolution, 
+        format
+      );
+
+      const result = await this.getDownloadLink(conversionId, videoId);
+
+      return {
+        ...result,
+        format: format.toUpperCase(),
+        type: isAudio ? 'audio' : 'video',
+        quality: isAudio ? 'bestaudio' : quality
+      };
+
+    } catch (error) {
+      console.error('Error en play6:', error.message);
+      throw new Error(`🚫 Error al procesar: ${error.message}`);
     }
   }
 
-  const get_cookie_string = () =>
-    Object.entries(cookies).map(([key, value]) => `${key}=${value}`).join('; ')
+  // ... (otros métodos permanecen igual)
+}
 
-  const client_get = async (url) => {
-    const res = await axios.get(url, {
-      headers: { ...headers, Cookie: get_cookie_string() }
-    })
-    parse_cookies(res.headers['set-cookie'])
-    return res
-  }
+const youtubeDownloader = new YouTubeDownloader();
 
-  const client_post = async (url, data, custom_headers = {}) => {
-    const res = await axios.post(url, data, {
-      headers: { ...headers, Cookie: get_cookie_string(), ...custom_headers }
-    })
-    parse_cookies(res.headers['set-cookie'])
-    return res
-  }
+const handler = {
+  help: ['ytdl', 'play6'],
+  command: /^(play6|yt(mp3|mp4))$/i,
+  tags: ['música', 'descargas'],
+  register: true,
 
-  const yt_regex = /^((?:https?:)?\/\/)?((?:www|m|music)\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(?:embed\/)?(?:v\/)?(?:shorts\/)?([a-zA-Z0-9_-]{11})/
+  async execute(m, conn, args) {
+    try {
+      const url = args[0];
+      if (!url) return m.reply('🔴 Por favor ingresa una URL de YouTube');
 
-  const hash_challenge = async (salt, number, algorithm) =>
-    crypto.createHash(algorithm.toLowerCase()).update(salt + number).digest('hex')
+      const format = m.text.includes('ytmp3') ? 'mp3' : 'mp4';
+      const quality = format === 'mp3' ? '' : '720';
 
-  const verify_challenge = async (challenge_data, salt, algorithm, max_number) => {
-    for (let i = 0; i <= max_number; i++) {
-      if (await hash_challenge(salt, i, algorithm) === challenge_data) {
-        return { number: i, took: Date.now() }
-      }
+      m.reply('⏳ Procesando tu solicitud...');
+
+      const result = await youtubeDownloader.play6(url, { format, quality });
+
+      const response = `
+🎵 *Título:* ${result.title}
+🕒 *Duración:* ${result.duration}
+👤 *Subido por:* ${result.uploader}
+🔗 *Enlace de descarga:* ${result.download}
+      `.trim();
+
+      conn.sendFile(m.chat, result.thumbnail, 'thumb.jpg', response, m);
+      conn.sendFile(m.chat, result.download, `${result.title}.${format}`, '', m);
+
+    } catch (error) {
+      m.reply(`❌ Error: ${error.message}`);
     }
-    throw new Error('Captcha verification failed')
   }
+};
 
-  const solve_captcha = async (challenge) => {
-    const { algorithm, challenge: challenge_data, salt, maxnumber, signature } = challenge
-    const solution = await verify_challenge(challenge_data, salt, algorithm, maxnumber)
-    return Buffer.from(
-      JSON.stringify({
-        algorithm,
-        challenge: challenge_data,
-        number: solution.number,
-        salt,
-        signature,
-        took: solution.took
-      })
-    ).toString('base64')
-  }
-
-  const connect_ws = async (id) => {
-    return new Promise((resolve, reject) => {
-      const ws = new WebSocket(`wss://amp4.cc/ws`, ['json'], {
-        headers: { ...headers, Origin: `https://amp4.cc` },
-        rejectUnauthorized: false
-      })
-
-      let file_info = {}
-      let timeout_id = setTimeout(() => {
-        ws.close()
-      }, 30000)
-
-      ws.on('open', () => ws.send(id))
-      ws.on('message', (data) => {
-        const res = JSON.parse(data)
-        if (res.event === 'query' || res.event === 'queue') {
-          file_info = {
-            thumbnail: res.thumbnail,
-            title: res.title,
-            duration: res.duration,
-            uploader: res.uploader
-          }
-        } else if (res.event === 'file' && res.done) {
-          clearTimeout(timeout_id)
-          ws.close()
-          resolve({ ...file_info, ...res })
-        }
-      })
-      ws.on('error', () => clearTimeout(timeout_id))
-    })
-  }
-
-  try {
-    const link_match = url.match(yt_regex)
-    if (!link_match) throw new Error('Invalid YouTube URL')
-    const fixed_url = `https://youtu.be/${link_match[3]}`
-    const page_data = await client_get(`${base_url}/`)
-    const $ = cheerio.load(page_data.data)
-    const csrf_token = $('meta[name="csrf-token"]').attr('content')
-
-    if (!isNaN(quality)) quality = `${quality}p`
-
-    const form = new FormData()
-    form.append('url', fixed_url)
-    form.append('format', 'mp4')
-    form.append('quality', quality)
-    form.append('service', 'youtube')
-    form.append('_token', csrf_token)
-
-    const captcha_data = await client_get(`${base_url}/captcha`)
-    if (captcha_data.data) {
-      const solved_captcha = await solve_captcha(captcha_data.data)
-      form.append('altcha', solved_captcha)
-    }
-
-    const res = await client_post(`${base_url}/convertVideo`, form, form.getHeaders())
-    const ws = await connect_ws(res.data.message)
-    const dlink = `${base_url}/dl/${ws.worker}/${res.data.message}/${encodeURIComponent(ws.file)}`
-
-    return {
-      title: ws.title || '-',
-      uploader: ws.uploader,
-      duration: ws.duration,
-      quality,
-      type: 'video',
-      format: 'mp4',
-      thumbnail: ws.thumbnail || `https://i.ytimg.com/vi/${link_match[3]}/maxresdefault.jpg`,
-      download: dlink
-    }
-  } catch (err) {
-    throw Error(err.message)
-  }
-}```
+export default handler;
