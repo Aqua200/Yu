@@ -1,67 +1,91 @@
-import axios from 'axios';
-import FormData from 'form-data';
-import WebSocket from 'ws';
-import cheerio from 'cheerio';
-import crypto from 'crypto';
+import yts from 'yt-search';
+import fetch from 'node-fetch';
+let limit = 320;
+let confirmation = {};
 
-class YouTubeDownloader {
-  constructor() {
-    this.baseUrl = 'https://amp4.cc';
-    this.headers = {
-      'Accept': 'application/json',
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+let handler = async (m, { conn, command, text, args, usedPrefix }) => {
+    if (!text) throw `✳️ ${mssg.example} *${usedPrefix + command}* Lil Peep hate my life`;
+
+    let res = await yts(text);
+    let vid = res.videos[0];
+    if (!vid) throw `✳️ Vídeo/Audio no encontrado`;
+
+    let { title, description, thumbnail, videoId, timestamp, views, ago, url } = vid;
+
+    let who = m.quoted ? m.quoted.sender : m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender;
+
+    let chat = global.db.data.chats[m.chat];
+
+    m.react('🎧'); 
+
+    let playMessage = `
+≡ *FG MUSIC*
+┌──────────────
+▢ 📌 *${mssg.title}:* ${vid.title}
+▢ 📆 *${mssg.aploud}:* ${vid.ago}
+▢ ⌚ *${mssg.duration}:* ${vid.timestamp}
+▢ 👀 *${mssg.views}:* ${vid.views.toLocaleString()}
+└──────────────`;
+
+if(business){
+    conn.sendFile(m.chat, thumbnail, "error.jpg", `${playMessage}\n\nEscribe:\n1️⃣ para recibir el archivo como MP3.\n2️⃣ para recibir el archivo como MP4.`, m);
+
+    // 
+    confirmation[m.sender] = {
+        sender: m.sender,
+        to: who,
+        url: url,
+        chat: chat, 
+        timeout: setTimeout(() => {
+            delete confirmation[m.sender];
+
+            //conn.reply(m.chat, `⏳ Tiempo de respuesta agotado. Vuelve a intentarlo.`, m);
+        }, 60000), // 1 minuto de espera
     };
-    this.cookies = {};
-  }
-
-  // ... (otros métodos se mantienen igual)
-
-  async searchVideo(query) {
-    try {
-      const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-      const response = await axios.get(searchUrl);
-      const $ = cheerio.load(response.data);
-      
-      // Extraer el primer resultado de búsqueda
-      const videoId = $('a#video-title').first().attr('href')?.split('v=')[1];
-      if (!videoId) throw new Error('No se encontraron resultados');
-      
-      return `https://youtu.be/${videoId}`;
-    } catch (error) {
-      throw new Error(`Error en la búsqueda: ${error.message}`);
-    }
-  }
+} else {
+    conn.sendButton(m.chat, playMessage, mssg.ig, thumbnail, [
+        ['🎶 MP3', `${usedPrefix}fgmp3 ${url}`],
+        ['🎥 MP4', `${usedPrefix}fgmp4 ${url}`]
+      ], m)
 }
 
-const youtubeDownloader = new YouTubeDownloader();
 
-const handler = async (m, { conn, args }) => {
-  try {
-    const input = args.join(' ');
-    if (!input) return m.reply('*🔴 Ingresa un nombre de canción o URL de YouTube*');
-    
-    let url;
-    // Detectar si es URL o búsqueda
-    if (input.match(/(https?:\/\/[^\s]+)/)) {
-      url = input.match(/(https?:\/\/[^\s]+)/)[0];
-    } else {
-      m.reply('*🔎 Buscando la canción...*');
-      url = await youtubeDownloader.searchVideo(input);
-    }
-
-    // Resto del código igual...
-    const isAudio = input.toLowerCase().includes('mp3');
-    // ... (continuar con el proceso de descarga)
-
-  } catch (error) {
-    m.reply(`*❌ Error:* ${error.message}`);
-    console.error(error);
-  }
-};
-
-handler.help = ['play6 <nombre/url>'];
-handler.command = ['play6'];
-handler.tags = ['música'];
-handler.register = true;
+}
+handler.help = ['play6'];
+handler.tags = ['dl'];
+handler.command = ['play6','playvid'];
+handler.disabled = false;
 
 export default handler;
+handler.before = async m => {
+    if (m.isBaileys) return; // Ignorar mensajes del bot
+    if (!(m.sender in confirmation)) return; // Solo continuar si hay confirmación pendiente
+
+    let { sender, timeout, url, chat } = confirmation[m.sender]; // Desestructuración que incluye la url y chat
+    if (m.text.trim() === '1') {
+        clearTimeout(timeout);
+        delete confirmation[m.sender];
+
+        let res = await fetch(global.API('fgmods', '/api/downloader/ytmp3', { url: url }, 'apikey'));
+        let data = await res.json();
+
+        let { title, dl_url, thumb, size, sizeB, duration } = data.result;
+        conn.sendFile(m.chat, dl_url, title + '.mp3', `≡  *FG YTDL*\n\n▢ *📌 ${mssg.title}* : ${title}`, m, false, { mimetype: 'audio/mpeg', asDocument: chat.useDocument });
+        m.react('✅');
+    } else if (m.text.trim() === '2') {
+        clearTimeout(timeout);
+        delete confirmation[m.sender];
+
+        let res = await fetch(global.API('fgmods', '/api/downloader/ytmp4', { url: url }, 'apikey'));
+        let data = await res.json();
+
+        let { title, dl_url, thumb, size, sizeB, duration } = data.result;
+        let isLimit = limit * 1024 < sizeB;
+
+        await conn.loadingMsg(m.chat, '📥 Descargando', ` ${isLimit ? `≡  *FG YTDL*\n\n▢ *⚖️${mssg.size}*: ${size}\n\n▢ _${mssg.limitdl}_ *+${limit} MB*` : '✅ Descarga Completada' }`, ["▬▭▭▭▭▭", "▬▬▭▭▭▭", "▬▬▬▭▭▭", "▬▬▬▬▭▭", "▬▬▬▬▬▭", "▬▬▬▬▬▬"], m);
+
+        if (!isLimit) conn.sendFile(m.chat, dl_url, title + '.mp4', `≡  *FG YTDL*\n*📌${mssg.title}:* ${title}\n*⚖️${mssg.size}:* ${size}`, m, false, { asDocument: chat.useDocument });
+        m.react('✅');
+    }
+
+}
