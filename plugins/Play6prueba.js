@@ -42,8 +42,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     }, { quoted: fkontak });
     m.react('🌱');
 };
-handler.command = handler.help = ['play', 'playvid', 'play2'];
-handler.tags = ['dl'];
+handler.help = ['play6'];
+handler.command = ['play6'];
+handler.tags = ['música'];
+handler.register = true;
+
 export default handler;
 
 const getVideoId = (url) => {
