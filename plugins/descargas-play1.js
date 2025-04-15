@@ -1,112 +1,165 @@
-import fetch from 'node-fetch';
-import axios from 'axios';
+import fetch from "node-fetch";
+import yts from 'yt-search';
+import axios from "axios";
 
-/*═══════『 APIS 』═══════*/
-const apis = {
-    delirius: 'https://delirius-apiofc.vercel.app/',
-    ryzen: 'https://apidl.asepharyana.cloud/',
-    rioo: 'https://restapi.apibotwa.biz.id/'
-};
-/*═══════════════════════*/
+const formatAudio = ['mp3', 'm4a', 'webm', 'acc', 'flac', 'opus', 'ogg', 'wav'];
+const formatVideo = ['360', '480', '720', '1080', '1440', '4k'];
 
-const handler = async (m, { conn, text, args, usedPrefix, command }) => {
-    try {
-        // ✦ Reacción rápida ✦
-        await conn.sendMessage(m.chat, { react: { text: "🎵", key: m.key } });
-
-        // ✦ Validar entrada ✦
-        if (!text) {
-            return conn.sendMessage(m.chat, {
-                text: `✧ Por favor escribe lo que deseas buscar en Spotify.\n\n➥ Ejemplo:\n➥ *${usedPrefix + command}* Alan Walker - Faded`
-            }, { quoted: m });
-        }
-
-        // ✦ Búsqueda en Spotify ✦
-        const res = await axios.get(`${apis.delirius}search/spotify?q=${encodeURIComponent(text)}&limit=1`);
-        
-        if (!res.data.data || res.data.data.length === 0) {
-            throw '✖ No se encontraron resultados en Spotify.';
-        }
-
-        const result = res.data.data[0];
-        const img = result.image;
-        const url = result.url;
-        
-        // ✦ Información estilizada ✦
-        const info = `
-╔═════『 𝙈𝙐𝙎𝙄𝘾𝘼 』═════╗
-┃ ✦ 𝗧𝗶𝘁𝘂𝗹𝗼: ${result.title}
-┃ ✦ 𝗔𝗿𝘁𝗶𝘀𝘁𝗮: ${result.artist}
-┃ ✦ 𝗗𝘂𝗿𝗮𝗰𝗶𝗼𝗻: ${result.duration}
-┃ ✦ 𝗣𝘂𝗯𝗹𝗶𝗰𝗮𝗱𝗼: ${result.publish}
-┃ ✦ 𝗣𝗼𝗽𝘂𝗹𝗮𝗿𝗶𝗱𝗮𝗱: ${result.popularity}
-┃ ✦ 𝗘𝗻𝗹𝗮𝗰𝗲: ${url}
-╚══════════════════╝
-
-⌛ *Preparando tu música...*`.trim();
-
-        await conn.sendMessage(m.chat, {
-            image: { url: img },
-            caption: info
-        }, { quoted: m });
-
-        // ✦ Función de envío de audio ✦
-        const sendAudio = async (link) => {
-            const audioRes = await fetch(link);
-            const audioBuffer = await audioRes.arrayBuffer();
-            
-            await conn.sendMessage(m.chat, {
-                audio: Buffer.from(audioBuffer),
-                fileName: `${result.title}.mp3`,
-                mimetype: 'audio/mpeg'
-            }, { quoted: m });
-        };
-
-        // ✦ Intentar descarga en múltiples servidores ✦
-        const endpoints = [
-            `${apis.delirius}download/spotifydl?url=${encodeURIComponent(url)}`,
-            `${apis.delirius}download/spotifydlv3?url=${encodeURIComponent(url)}`,
-            `${apis.rioo}api/spotify?url=${encodeURIComponent(url)}`,
-            `${apis.ryzen}api/downloader/spotify?url=${encodeURIComponent(url)}`
-        ];
-
-        let success = false;
-        for (const endpoint of endpoints) {
-            try {
-                const dlRes = await fetch(endpoint);
-                const json = await dlRes.json();
-                
-                if (json.data?.url) {
-                    await sendAudio(json.data.url);
-                    success = true;
-                    break;
-                } else if (json.data?.response) {
-                    await sendAudio(json.data.response);
-                    success = true;
-                    break;
-                } else if (json.link) {
-                    await sendAudio(json.link);
-                    success = true;
-                    break;
-                }
-            } catch (e) {
-                console.error(`⚠️ Error en el servidor ${endpoint}:`, e);
-                continue;
-            }
-        }
-
-        if (!success) {
-            throw '✖ No fue posible descargar el audio en este momento.';
-        }
-
-    } catch (error) {
-        console.error(error);
-        conn.sendMessage(m.chat, { text: `⚠️ Error: ${error}` }, { quoted: m });
+const ddownr = {
+  download: async (url, format) => {
+    if (!formatAudio.includes(format) && !formatVideo.includes(format)) {
+      throw new Error('Formato no soportado, verifica la lista de formatos disponibles.');
     }
+
+    const config = {
+      method: 'GET',
+      url: `https://p.oceansaver.in/ajax/download.php?format=${format}&url=${encodeURIComponent(url)}&api=dfcb6d76f2f6a9894gjkege8a4ab232222`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, como Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    };
+
+    try {
+      const response = await axios.request(config);
+
+      if (response.data && response.data.success) {
+        const { id, title, info } = response.data;
+        const { image } = info;
+        const downloadUrl = await ddownr.cekProgress(id);
+
+        return {
+          id: id,
+          image: image,
+          title: title,
+          downloadUrl: downloadUrl
+        };
+      } else {
+        throw new Error('Fallo al obtener los detalles del video.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  },
+  cekProgress: async (id) => {
+    const config = {
+      method: 'GET',
+      url: `https://p.oceansaver.in/ajax/progress.php?id=${id}`,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, como Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    };
+
+    try {
+      while (true) {
+        const response = await axios.request(config);
+
+        if (response.data && response.data.success && response.data.progress === 1000) {
+          return response.data.download_url;
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
 };
-handler.help = ['play'];
-handler.command = ['play'];
-handler.tags = ['música'];
-handler.register = true;
+
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+  try {
+    if (!text.trim()) {
+      return conn.reply(m.chat, `┌─⟢ *DESCARGA DE MÚSICA* ⟣─┐
+│
+│ ✦ Ingresa el nombre de la música a descargar.
+│
+└────────────────────┘`, m);
+    }
+
+    const search = await yts(text);
+    if (!search.all || search.all.length === 0) {
+      return m.reply('No se encontraron resultados para tu búsqueda.');
+    }
+
+    const videoInfo = search.all[0];
+    const { title, thumbnail, timestamp, views, ago, url } = videoInfo;
+    const vistas = formatViews(views);
+    const infoMessage = `「✦」Descargando *<${title}>*\n\n> ✦ Canal » *${videoInfo.author.name || 'Desconocido'}*\n> ✰ Vistas » *${views}*\n> ⴵ Duración » *${timestamp}*\n> ✐ Publicación » *${ago}*\n> 🜸 Link » ${url}\n`;
+       const thumb = (await conn.getFile(thumbnail))?.data;
+
+    const JT = {
+      contextInfo: {
+        externalAdReply: {
+          title: packname,
+          body: dev,
+          mediaType: 1,
+          previewType: 0,
+          mediaUrl: url,
+          sourceUrl: url,
+          thumbnail: thumb,
+          renderLargerThumbnail: true,
+        },
+      },
+    };
+
+      await conn.reply(m.chat, infoMessage, m, JT);
+
+    if (command === 'play' || command === 'yta' || command === 'mp3') {
+        const api = await ddownr.download(url, 'mp3');
+        const result = api.downloadUrl;
+        await conn.sendMessage(m.chat, { audio: { url: result }, mimetype: "audio/mpeg" }, { quoted: m });
+
+    } else if (command === 'play2' || command === 'ytv' || command === 'mp4') {
+      let sources = [
+        `https://api.siputzx.my.id/api/d/ytmp4?url=${url}`,
+        `https://api.zenkey.my.id/api/download/ytmp4?apikey=zenkey&url=${url}`,
+        `https://axeel.my.id/api/download/video?url=${encodeURIComponent(url)}`,
+        `https://delirius-apiofc.vercel.app/download/ytmp4?url=${url}`
+      ];
+
+      let success = false;
+      for (let source of sources) {
+        try {
+          const res = await fetch(source);
+          const { data, result, downloads } = await res.json();
+          let downloadUrl = data?.dl || result?.download?.url || downloads?.url || data?.download?.url;
+
+          if (downloadUrl) {
+            success = true;
+            await conn.sendMessage(m.chat, {
+              video: { url: downloadUrl },
+              fileName: `${title}.mp4`,
+              mimetype: 'video/mp4',
+              caption: ``,
+              thumbnail: thumb
+            }, { quoted: m });
+            break;
+          }
+        } catch (e) {
+          console.error(`Error con la fuente ${source}:`, e.message);
+        }
+      }
+
+      if (!success) {
+        return m.reply(` ✱ *No se pudo descargar el video:* No se encontró un enlace de descarga válido.`);
+      }
+    } else {
+      throw "Comando no reconocido.";
+    }
+  } catch (error) {
+    return m.reply(`𓁏 *Error:* ${error.message}`);
+  }
+};
+
+handler.command = handler.help = ['play', 'play2', 'mp3', 'yta', 'mp4', 'ytv']; 
+handler.tags = ['downloader'];
 
 export default handler;
+
+function formatViews(views) {
+  if (views >= 1000) {
+    return (views / 1000).toFixed(1) + 'k (' + views.toLocaleString() + ')';
+  } else {
+    return views.toString();
+  }
+}
