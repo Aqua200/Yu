@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 let limit = 320;
 let confirmation = {};
 
-// Definición de mensajes (para evitar ReferenceError)
+// Definición de mensajes
 const mssg = {
     example: '✳️ Ejemplo de uso',
     title: '📌 Título',
@@ -38,23 +38,11 @@ let handler = async (m, { conn, command, text, args, usedPrefix }) => {
 ▢ ${mssg.views}: ${vid.views.toLocaleString()}
 └──────────────`;
 
-    if (business) {
-        conn.sendFile(m.chat, thumbnail, "error.jpg", `${playMessage}\n\nEscribe:\n1️⃣ para MP3\n2️⃣ para MP4`, m);
-        confirmation[m.sender] = {
-            sender: m.sender,
-            to: who,
-            url: url,
-            chat: chat,
-            timeout: setTimeout(() => {
-                delete confirmation[m.sender];
-            }, 60000)
-        };
-    } else {
-        conn.sendButton(m.chat, playMessage, mssg.ig, thumbnail, [
-            ['🎶 MP3', `${usedPrefix}fgmp3 ${url}`],
-            ['🎥 MP4', `${usedPrefix}fgmp4 ${url}`]
-        ], m);
-    }
+    // Verificación de business eliminada (si no es necesaria)
+    conn.sendButton(m.chat, playMessage, mssg.ig, thumbnail, [
+        ['🎶 MP3', `${usedPrefix}fgmp3 ${url}`],
+        ['🎥 MP4', `${usedPrefix}fgmp4 ${url}`]
+    ], m);
 };
 
 handler.help = ['play6'];
