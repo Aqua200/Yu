@@ -66,7 +66,7 @@ const handler = async (m, { conn }) => {
         },
         { 
             name: "🌀 *Dimensión Oscura*", 
-            image: "https://files.catbox.moe/1movh2.jpg", 
+            image: "https://files.catbox.moe/cyp3tp.jpg", 
             probability: 50, 
             resources: { 
                 coin: [70, 200], 
