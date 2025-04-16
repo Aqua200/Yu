@@ -17,9 +17,9 @@ switch (true) {
 case isCommand1:
 let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
 let uniqid = `${who.split`@`[0]}`
-const path = `./${jadi}/${uniqid}`
+const sessionPath = `./${jadi}/${uniqid}`
 
-if (!await fs.existsSync(path)) {
+if (!await fs.existsSync(sessionPath)) {
 await conn.sendMessage(m.chat, { text: `${emoji} Usted no tiene una sesión, puede crear una usando:\n${usedPrefix + command}\n\nSi tiene una *(ID)* puede usar para saltarse el paso anterior usando:\n*${usedPrefix + command}* \`\`\`(ID)\`\`\`` }, { quoted: m })
 return
 }
@@ -44,32 +44,38 @@ break
 case isCommand3:
 //if (global.db.data.settings[conn.user.jid].jadibotmd) return m.reply(`${emoji} Este comando está desactivado por mi creador.`)
 const users = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws.socket && conn.ws.socket.readyState !== ws.CLOSED).map((conn) => conn)])];
+
 function convertirMsADiasHorasMinutosSegundos(ms) {
-        const segundos = Math.floor(ms / 1000)
-        const minutos = Math.floor(segundos / 60)
-        const horas = Math.floor(minutos / 60)
-        const días = Math.floor(horas / 24)
-        const segRest = segundos % 60
-        const minRest = minutos % 60
-        const horasRest = horas % 24
-        let resultado = ""
-        if (días !== 0) resultado += `${días} días, `
-        if (horasRest !== 0) resultado += `${horasRest} horas, `
-        if (minRest !== 0) resultado += `${minRest} minutos, `
-        if (segRest !== 0) resultado += `${segRest} segundos`
-        return resultado.trim()
-      }
-Online: ${ v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - global.conn.uptime) : v && v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - v.uptime) : "nueva actividad"}
-const message = users.map((v, index) => `• 「 ${index + 1} 」\n📎 Wa.me/${v.user.jid.replace(/[^0-9]/g, '')}?text=${usedPrefix}estado\n👤 Usuario: ${v.user.name || 'Sub-Bot'}\n🕑 Online: ${ v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - v.uptime) : 'Desconocido'}`).join('\n\n__________________________\n\n');
+    const segundos = Math.floor(ms / 1000);
+    const minutos = Math.floor(segundos / 60);
+    const horas = Math.floor(minutos / 60);
+    const días = Math.floor(horas / 24);
+    const segRest = segundos % 60;
+    const minRest = minutos % 60;
+    const horasRest = horas % 24;
+    
+    let resultado = "";
+    if (días !== 0) resultado += `${días} días, `;
+    if (horasRest !== 0) resultado += `${horasRest} horas, `;
+    if (minRest !== 0) resultado += `${minRest} minutos, `;
+    if (segRest !== 0) resultado += `${segRest} segundos`;
+    return resultado.trim();
+}
+
+const message = users.map((v, index) => {
+    const uptime = v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - v.uptime) : 'Desconocido';
+    return `• 「 ${index + 1} 」\n📎 Wa.me/${v.user.jid.replace(/[^0-9]/g, '')}?text=${usedPrefix}estado\n👤 Usuario: ${v.user.name || 'Sub-Bot'}\n🕑 Online: ${uptime}`;
+}).join('\n\n__________________________\n\n');
+
 const replyMessage = message.length === 0 ? `No hay Sub-Bots disponible por el momento, verifique mas tarde.` : message;
 const totalUsers = users.length;
 const responseMessage = `${emoji} LISTA DE *SUB-BOTS* ACTIVOS\n\n${emoji2} PUEDES PEDIR PERMISO PARA QUE TE DEJEN UNIR EL BOT A TÚ GRUPO\n\n\`\`\`CADA USUARIO SUB-BOT USA SUS FUNCIONES COMO QUIERA, EL NÚMERO PRINCIPAL NO SE HACE RESPONSABLE DEL USO DEL MAL USO DE ELLA \`\`\`\n\n*SUB-BOT CONECTADOS:* ${totalUsers || '0'}\n\n${replyMessage.trim()}`.trim();
-await _envio.sendMessage(m.chat, {text: responseMessage, mentions: _envio.parseMention(responseMessage)}, {quoted: m})
+await _envio.sendMessage(m.chat, {text: responseMessage, mentions: _envio.parseMention(responseMessage)}, {quoted: m});
 break   
 }}
 
 handler.tags = ['serbot']
 handler.help = ['sockets', 'deletesesion', 'pausarai']
-handler.command = ['deletesesion', 'deletebot', 'deletesession', 'deletesession', 'stop', 'pausarai', 'pausarbot', 'bots', 'sockets', 'socket']
+handler.command = ['deletesesion', 'deletebot', 'deletesession', 'deletesesaion', 'stop', 'pausarai', 'pausarbot', 'bots', 'sockets', 'socket']
 
 export default handler
