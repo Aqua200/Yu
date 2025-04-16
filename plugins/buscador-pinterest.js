@@ -80,11 +80,12 @@ const pinterest = async (m, { conn, text, usedPrefix, command }) => {
     }
 };
 
-handler.help = ["pinterest"];
-handler.tags = ["descargas"];
-handler.coin = 1;
-handler.group = true;
-handler.register = true
-handler.command = ['pinterest', 'pin'];
+// Solución: Asegurar que el handler esté correctamente configurado
+handler.help = ["pinterest <consulta>"];
+handler.tags = ["internet", "download"];
+handler.command = /^(pinterest|pin)$/i;  // Expresión regular para capturar variantes del comando
+handler.desc = "Busca imágenes en Pinterest";
+handler.register = true;
+handler.limit = true;
 
 export default handler;
