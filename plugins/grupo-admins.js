@@ -32,7 +32,8 @@ const handler = async (m, {conn, participants, groupMetadata, args}) => {
 
 handler.help = ['admins <texto>'];
 handler.tags = ['grupo'];
+// regex detect A word without case sensitive
+handler.customPrefix = /a|@/i;
 handler.command = /^(admins|@admins|dmins)$/i;
 handler.group = true;
-
 export default handler;
