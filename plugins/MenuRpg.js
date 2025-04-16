@@ -14,12 +14,13 @@ let handler = async (m, { conn, __dirname }) => {
 *𝐇𝐨𝐥𝐚 ${name}! 𝐒𝐨𝐲 ✦2B✦ (𝐁𝐨𝐭-𝐅𝐞𝐦)*  
 ╭─┈↷
 │ ✐ 𝓓𝓮𝓼𝓮𝓻𝓻𝓸𝓵𝓵𝓮𝓭 𝓹𝓸𝓻 Neykoor 💜
-│ ➥ Tiempo activa: *${muptime}*
+│ ➥ Tiempo activa: ${muptime}
 │ ✿ Temporada: *1 — El Florecer*  
 │ ✐ ꒷ꕤ💎 ᴄᴀɴᴀʟ ᴏғɪᴄɪᴀʟ:
 │ https://whatsapp.com/channel/0029VazHywx0rGiUAYluYB24
 ╰─────────────────
 ${leerMas}
+
 》───「 𝗖𝗢𝗠𝗔𝗡𝗗𝗢𝗦 」───《
 
 ✿ 𝗖𝗼𝗺𝗮𝗻𝗱𝗼𝘀 𝗱𝗲 *Rpg*:
@@ -29,7 +30,7 @@ ${leerMas}
 > ✦ Trabaja como prostituta y gana ${moneda}.
 ᰔᩚ *#cf • #suerte*
 > ✦ Apuesta tus ${moneda} a cara o cruz.
-ᰔᩚ *#crime • #crimen
+ᰔᩚ *#crime • #crimen*
 > ✦ Trabaja como ladrón para ganar ${moneda}.
 ᰔᩚ *#ruleta • #roulette • #rt*
 > ✦ Apuesta ${moneda} al color rojo o negro.
@@ -51,10 +52,6 @@ ${leerMas}
 > ✦ Trabaja como minero y recolecta recursos.
 ᰔᩚ *#buyall • #buy*
 > ✦ Compra ${moneda} con tu XP.
-ᰔᩚ *#daily • #diario*
-> ✦ Reclama tu recompensa diaria.
-ᰔᩚ *#cofre*
-> ✦ Reclama un cofre diario lleno de recursos.
 ᰔᩚ *#steal • #robar • #rob*
 > ✦ Intenta robarle ${moneda} a alguien.
 ᰔᩚ *#robarxp • #robxp*
