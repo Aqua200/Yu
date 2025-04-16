@@ -58,7 +58,8 @@ function convertirMsADiasHorasMinutosSegundos(ms) {
         if (minRest !== 0) resultado += `${minRest} minutos, `
         if (segRest !== 0) resultado += `${segRest} segundos`
         return resultado.trim()
-}
+      }
+Online: ${ v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - global.conn.uptime) : v && v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - v.uptime) : "nueva actividad"}
 const message = users.map((v, index) => `• 「 ${index + 1} 」\n📎 Wa.me/${v.user.jid.replace(/[^0-9]/g, '')}?text=${usedPrefix}estado\n👤 Usuario: ${v.user.name || 'Sub-Bot'}\n🕑 Online: ${ v.uptime ? convertirMsADiasHorasMinutosSegundos(Date.now() - v.uptime) : 'Desconocido'}`).join('\n\n__________________________\n\n');
 const replyMessage = message.length === 0 ? `No hay Sub-Bots disponible por el momento, verifique mas tarde.` : message;
 const totalUsers = users.length;
