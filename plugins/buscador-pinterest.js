@@ -4,11 +4,11 @@
 */
 
 import fetch from 'node-fetch';
-import baileys from '@whiskeysockets/baileys';
+import { generateWAMessageFromContent, generateWAMessage, delay as baileysDelay } from '@whiskeysockets/baileys';
 
-async function sendAlbumMessage(jid, medias, options = {}) {
+async function sendAlbumMessage(conn, jid, medias, options = {}) {
     if (typeof jid !== "string") throw new TypeError(`jid must be string, received: ${jid}`);
-    if (medias.length < 2) throw new RangeError("Se necesitan al menos 2 imágenes para un álbum");
+    if (!Array.isArray(medias) || medias.length < 2) throw new RangeError("Se necesitan al menos 2 imágenes para un álbum");
 
     const caption = options.text || options.caption || "";
     const delay = !isNaN(options.delay) ? options.delay : 500;
@@ -16,9 +16,17 @@ async function sendAlbumMessage(jid, medias, options = {}) {
     delete options.caption;
     delete options.delay;
 
-    const album = baileys.generateWAMessageFromContent(
+    const album = generateWAMessageFromContent(
         jid,
-        { messageContextInfo: {}, albumMessage: { expectedImageCount: medias.length } },
+        { 
+            messageContextInfo: {}, 
+            albumMessage: { 
+                title: caption,
+                description: '',
+                previewType: 0,
+                count: medias.length 
+            } 
+        },
         {}
     );
 
@@ -26,65 +34,80 @@ async function sendAlbumMessage(jid, medias, options = {}) {
 
     for (let i = 0; i < medias.length; i++) {
         const { type, data } = medias[i];
-        const img = await baileys.generateWAMessage(
-            album.key.remoteJid,
-            { [type]: data, ...(i === 0 ? { caption } : {}) },
+        const img = await generateWAMessage(
+            jid,
+            { 
+                [type]: data, 
+                mimetype: 'image/jpeg',
+                caption: i === 0 ? caption : '',
+                ...options 
+            },
             { upload: conn.waUploadToServer }
         );
+        
         img.message.messageContextInfo = {
-            messageAssociation: { associationType: 1, parentMessageKey: album.key },
+            messageAssociation: { 
+                associationType: 1, 
+                parentMessageKey: album.key 
+            },
         };
-        await conn.relayMessage(img.key.remoteJid, img.message, { messageId: img.key.id });
-        await baileys.delay(delay);
+        
+        await conn.relayMessage(jid, img.message, { messageId: img.key.id });
+        await baileysDelay(delay);
     }
     return album;
 }
 
-const pinterest = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) return conn.reply(m.chat, `*📌 Uso Correcto: ${usedPrefix + command} Megumin*`, m);
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) return conn.reply(m.chat, `📌 *Uso Correcto:* ${usedPrefix + command} *Megumin*`, m);
 
     await m.react('⏳');
-    conn.reply(m.chat, '📌 *Descargando imágenes de Pinterest...*', m, {
-        contextInfo: {
-            externalAdReply: {
-                mediaUrl: null,
-                mediaType: 1,
-                showAdAttribution: true,
-                title: packname,
-                body: wm,
-                previewType: 0,
-                thumbnail: icons,
-                sourceUrl: channel
-            }
-        }
+    await conn.sendMessage(m.chat, { 
+        text: '📤 *Descargando imágenes de Pinterest...*', 
+        contextInfo: { 
+            externalAdReply: { 
+                title: global.packname, 
+                body: global.wm, 
+                thumbnail: global.icons, 
+                mediaType: 1, 
+                showAdAttribution: true 
+            } 
+        } 
     });
 
     try {
-        const res = await fetch(`https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(text)}`);
+        const apiUrl = `https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(text)}`;
+        const res = await fetch(apiUrl);
         const data = await res.json();
 
         if (!Array.isArray(data) || data.length < 2) {
+            await m.react('❌');
             return conn.reply(m.chat, '❌ No se encontraron suficientes imágenes para un álbum.', m);
         }
 
-        const images = data.slice(0, 10).map(img => ({ type: "image", data: { url: img.image_large_url } }));
+        const images = data.slice(0, 10).map(img => ({ 
+            type: "imageMessage", 
+            data: { 
+                url: img.image_large_url,
+                mimetype: 'image/jpeg' 
+            } 
+        }));
 
-        const caption = `📌 *Resultados de búsqueda para:* ${text}`;
-        await sendAlbumMessage(m.chat, images, { caption, quoted: m });
-
+        const caption = `🔎 *Resultados para:* ${text}`;
+        await sendAlbumMessage(conn, m.chat, images, { caption, quoted: m });
         await m.react('✅');
     } catch (error) {
-        console.error(error);
+        console.error('Error en Pinterest API:', error);
         await m.react('❌');
-        conn.reply(m.chat, '⚠️ Hubo un error al obtener las imágenes de Pinterest.', m);
+        conn.reply(m.chat, '⚠️ Error al buscar imágenes. Intenta más tarde.', m);
     }
 };
 
-handler.help = ["pinterest"];
-handler.tags = ["descargas"];
-handler.coin = 1;
-handler.group = true;
-handler.register = true
-handler.command = ['pinterest', 'pin'];
+handler.help = ["pinterest <búsqueda>"];
+handler.tags = ["downloader"];
+handler.command = ["pinterest", "pin", "pins"];
+handler.diamond = false;
+handler.limit = true;
+handler.register = true;
 
 export default handler;
