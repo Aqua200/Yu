@@ -95,10 +95,19 @@ const pins = async (judul) => {
 
   try {
     const res = await axios.get(link, { headers });
-    if (res.data && res.data.resource_response && res.data.resource_response.data && res.data.resource_response.data.results) {
+    if (res.data?.resource_response?.data?.results) {
       return res.data.resource_response.data.results.map(item => {
         if (item.images) {
+          // Priorizar la imagen más grande disponible
+          const imageUrl = item.images.orig?.url || 
+                          item.images['736x']?.url || 
+                          item.images['564x']?.url || 
+                          item.images['236x']?.url;
+          
+          if (!imageUrl) return null;
+          
           return {
+            image_hd_url: imageUrl,
             image_large_url: item.images.orig?.url || null,
             image_medium_url: item.images['564x']?.url || null,
             image_small_url: item.images['236x']?.url || null
@@ -126,20 +135,33 @@ let handler = async (m, { conn, text }) => {
     const medias = [];
 
     for (let i = 0; i < maxImages; i++) {
+      // Usar siempre la URL HD si está disponible
+      const imageUrl = results[i].image_hd_url || 
+                      results[i].image_large_url || 
+                      results[i].image_medium_url || 
+                      results[i].image_small_url;
+      
+      if (!imageUrl) continue;
+
       medias.push({
         type: 'image',
-        data: { url: results[i].image_large_url || results[i].image_medium_url || results[i].image_small_url }
+        data: { url: imageUrl }
       });
     }
 
+    if (medias.length < 2) {
+      return conn.reply(m.chat, 'No se encontraron suficientes imágenes en HD para crear un álbum.', m);
+    }
+
     await sendAlbumMessage(m.chat, medias, {
-      caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"\n≡ 📄 \`Resultados :\` ${maxImages}`,
+      caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"\n≡ 📄 \`Resultados :\` ${medias.length}`,
       quoted: m
     });
 
     await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
 
   } catch (error) {
+    console.error(error);
     conn.reply(m.chat, 'Error al obtener imágenes de Pinterest.', m);
   }
 };
