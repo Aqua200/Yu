@@ -1,112 +1,107 @@
-/*
-• @David-Chian
-- https://github.com/David-Chian
-*/
-
-import fetch from 'node-fetch';
-import { generateWAMessageFromContent, generateWAMessage, delay } from '@whiskeysockets/baileys';
-
-async function sendAlbumMessage(conn, jid, medias, options = {}) {
-    if (typeof jid !== "string") throw new TypeError(`jid must be string, received: ${jid}`);
-    if (!Array.isArray(medias) || medias.length < 2) throw new RangeError("Se necesitan al menos 2 imágenes para un álbum");
-
-    const caption = options.text || options.caption || "";
-    const msgDelay = !isNaN(options.delay) ? options.delay : 500;
-    delete options.text;
-    delete options.caption;
-    delete options.delay;
-
-    const album = generateWAMessageFromContent(
-        jid,
-        { 
-            messageContextInfo: {}, 
-            albumMessage: { 
-                title: caption,
-                description: '',
-                expectedMediaCount: medias.length 
-            } 
+import _0x36ae01 from 'axios';
+const {
+  generateWAMessageContent,
+  generateWAMessageFromContent,
+  proto
+} = (await import("@whiskeysockets/baileys"))["default"];
+let handler = async (_0x10bd40, {
+  conn: _0x9c7141,
+  text: _0x27db11,
+  usedPrefix: _0x55e61b,
+  command: _0x5ad406
+}) => {
+  if (!_0x27db11) {
+    return _0x9c7141.reply(_0x10bd40.chat, "🍬 Por favor, ingresa lo que deseas buscar en pinterest.", _0x10bd40, rcanal);
+  }
+    await _0x10bd40.react(rwait);
+ _0x9c7141.reply(_0x10bd40.chat, '🍭 Descargando su imagen, espere un momento...', _0x10bd40, {
+ contextInfo: { externalAdReply :{ mediaUrl: null, mediaType: 1, showAdAttribution: true,
+ title: packname,
+ body: dev,
+ previewType: 0, thumbnail: icons,
+ sourceUrl: channel }}})
+  async function _0x3f3fc7(_0x5f4723) {
+    const {
+      imageMessage: _0x14a396
+    } = await generateWAMessageContent({
+      'image': {
+        'url': _0x5f4723
+      }
+    }, {
+      'upload': _0x9c7141.waUploadToServer
+    });
+    return _0x14a396;
+  }
+  function _0x2af019(_0x27693a) {
+    for (let _0x5ce07a = _0x27693a.length - 1; _0x5ce07a > 0; _0x5ce07a--) {
+      const _0x4d6146 = Math.floor(Math.random() * (_0x5ce07a + 1));
+      [_0x27693a[_0x5ce07a], _0x27693a[_0x4d6146]] = [_0x27693a[_0x4d6146], _0x27693a[_0x5ce07a]];
+    }
+  }
+  let _0x51323f = [];
+  let {
+    data: _0x4fc489
+  } = await _0x36ae01.get("https://www.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D" + _0x27db11 + "&data=%7B%22options%22%3A%7B%22isPrefetch%22%3Afalse%2C%22query%22%3A%22" + _0x27db11 + "%22%2C%22scope%22%3A%22pins%22%2C%22no_fetch_context_on_resource%22%3Afalse%7D%2C%22context%22%3A%7B%7D%7D&_=1619980301559");
+  let _0x5f34cb = _0x4fc489.resource_response.data.results.map(_0x33ba1c => _0x33ba1c.images.orig.url);
+  _0x2af019(_0x5f34cb);
+  let _0x3b2637 = _0x5f34cb.splice(0, 5);
+  let _0x2913ed = 1;
+  for (let _0x47c48a of _0x3b2637) {
+    _0x51323f.push({
+      'body': proto.Message.InteractiveMessage.Body.fromObject({
+        'text': "Imagen -" + (" " + _0x2913ed++)
+      }),
+      'footer': proto.Message.InteractiveMessage.Footer.fromObject({
+        'text': dev
+      }),
+      'header': proto.Message.InteractiveMessage.Header.fromObject({
+        'title': '',
+        'hasMediaAttachment': true,
+        'imageMessage': await _0x3f3fc7(_0x47c48a)
+      }),
+      'nativeFlowMessage': proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        'buttons': [{
+          'name': "cta_url",
+          'buttonParamsJson': "{\"display_text\":\"url 🍬\",\"Url\":\"https://www.pinterest.com/search/pins/?rs=typed&q=" + _0x27db11 + "\",\"merchant_url\":\"https://www.pinterest.com/search/pins/?rs=typed&q=" + _0x27db11 + "\"}"
+        }]
+      })
+    });
+  }
+  const _0x1ca5c6 = generateWAMessageFromContent(_0x10bd40.chat, {
+    'viewOnceMessage': {
+      'message': {
+        'messageContextInfo': {
+          'deviceListMetadata': {},
+          'deviceListMetadataVersion': 0x2
         },
-        { upload: conn.waUploadToServer }
-    );
-
-    await conn.relayMessage(jid, album.message, { messageId: album.key.id });
-
-    for (let i = 0; i < medias.length; i++) {
-        const media = medias[i];
-        const msg = await generateWAMessage(
-            jid,
-            { 
-                [media.type]: await conn.getFile(media.url), 
-                caption: i === 0 ? caption : undefined,
-                mimetype: media.mimetype 
-            },
-            { upload: conn.waUploadToServer }
-        );
-        
-        msg.message.messageContextInfo = {
-            deviceListMetadata: {},
-            messageAssociation: { 
-                associationType: 1, 
-                parentMessageKey: album.key 
-            },
-        };
-        
-        await conn.relayMessage(jid, msg.message, { messageId: msg.key.id });
-        await delay(msgDelay);
+        'interactiveMessage': proto.Message.InteractiveMessage.fromObject({
+          'body': proto.Message.InteractiveMessage.Body.create({
+            'text': "🍭 Resultado de: " + _0x27db11
+          }),
+          'footer': proto.Message.InteractiveMessage.Footer.create({
+            'text': "⪛✰ Pinterest - Busquedas ✰⪜"
+          }),
+          'header': proto.Message.InteractiveMessage.Header.create({
+            'hasMediaAttachment': false
+          }),
+          'carouselMessage': proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+            'cards': [..._0x51323f]
+          })
+        })
+      }
     }
-    return album;
-}
-
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-    if (!text) throw `*📌 Ejemplo de uso:* ${usedPrefix + command} Megumin`;
-
-    await m.react('⏳');
-    await conn.sendMessage(m.chat, {
-        text: '📌 *Descargando imágenes de Pinterest...*',
-        contextInfo: {
-            externalAdReply: {
-                title: global.packname,
-                body: global.wm,
-                thumbnailUrl: global.icons,
-                sourceUrl: global.channel,
-                mediaType: 1,
-                showAdAttribution: true
-            }
-        }
-    }, { quoted: m });
-
-    try {
-        const apiUrl = `https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(text)}`;
-        const { data } = await fetch(apiUrl).then(res => res.json());
-
-        if (!Array.isArray(data) || data.length < 2) {
-            await m.react('❌');
-            return conn.reply(m.chat, '❌ No se encontraron suficientes imágenes para crear un álbum.', m);
-        }
-
-        const images = data.slice(0, 3).map(img => ({
-            type: 'image',
-            url: img.image_large_url,
-            mimetype: 'image/jpeg'
-        }));
-
-        await sendAlbumMessage(conn, m.chat, images, {
-            caption: `📌 *Resultados para:* ${text}`,
-            quoted: m
-        });
-        await m.react('✅');
-    } catch (error) {
-        console.error('Error en comando pinterest:', error);
-        await m.react('❌');
-        await conn.reply(m.chat, '⚠️ Ocurrió un error al procesar tu solicitud.', m);
-    }
+  }, {
+    'quoted': _0x10bd40
+  });
+  await _0x10bd40.react(done);
+  await _0x9c7141.relayMessage(_0x10bd40.chat, _0x1ca5c6.message, {
+    'messageId': _0x1ca5c6.key.id
+  });
 };
-
 handler.help = ["pinterest"];
 handler.tags = ["descargas"];
 handler.coin = 1;
 handler.group = true;
 handler.register = true
 handler.command = ['pinterest', 'pin'];
-
 export default handler;
