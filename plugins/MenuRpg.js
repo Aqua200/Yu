@@ -74,7 +74,7 @@ ${leerMas}
 »⊹˚୨ *2B* ⊹
 `.trim()
 
-    let pp = 'https://files.catbox.moe/rt7ivf.jpg'
+    let pp = 'https://files.catbox.moe/qzbknq.jpg'
     await conn.sendFile(m.chat, pp, 'thumbnail.jpg', menuText, m)
 
   } catch (e) {
