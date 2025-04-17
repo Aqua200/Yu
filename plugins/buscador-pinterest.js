@@ -19,14 +19,16 @@ let handler = async (m, { conn, text, args }) => {
 
       const medias = results.slice(0, 10).map(img => ({ type: 'image', data: { url: img.image_large_url } }));
 
-      await conn.sendSylphy(m.chat, medias, {
-        caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"\n≡ 📄 \`Resultados :\` ${medias.length}`,
-        quoted: m
-      });
+      for (let media of medias) {
+        await conn.sendMessage(m.chat, {
+          image: { url: media.data.url },
+          caption: `◜ Pinterest Search ◞\n\n≡ 🔎 \`Búsqueda :\` "${text}"`
+        }, { quoted: m });
+      }
 
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } });
     }
-  } catch(e) {
+  } catch (e) {
     conn.reply(m.chat, 'Error al obtener imágenes de Pinterest :\n\n' + e, m);
   }
 };
