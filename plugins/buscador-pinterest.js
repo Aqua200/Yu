@@ -1,55 +1,37 @@
-import axios from 'axios';
+/* 
 
-const handler = async (m, { conn, text }) => {
-    try {
-        if (!text) {
-            await conn.sendMessage(m.chat, { text: '✎ Por favor proporciona un término de búsqueda.' }, { quoted: m, rcanal });
-            return;
-        }
+*❀ By JTxs*
 
-        const response = await axios.get(`https://api.siputzx.my.id/api/s/pinterest?query=${encodeURIComponent(text)}`);
-        const data = response.data.data;
+[ Canal Principal ] :
+https://whatsapp.com/channel/0029VaeQcFXEFeXtNMHk0D0n
 
-        if (data.length === 0) {
-            await conn.sendMessage(m.chat, { text: `❌ No se encontraron imágenes para "${text}".` }, { quoted: m });
-            return;
-        }
+[ Canal Rikka Takanashi Bot ] :
+https://whatsapp.com/channel/0029VaksDf4I1rcsIO6Rip2X
 
-        const randomImage = data[Math.floor(Math.random() * data.length)];
-        const imageUrl = randomImage.images_url;
-        const title = randomImage.grid_title || `¡Aquí tienes una imagen de ${text}!`;
+[ Canal StarlightsTeam] :
+https://whatsapp.com/channel/0029VaBfsIwGk1FyaqFcK91S
 
-        await m.react('🕓');
+[ HasumiBot FreeCodes ] :
+https://whatsapp.com/channel/0029Vanjyqb2f3ERifCpGT0W
+*/
 
-        await conn.sendMessage(
-            m.chat,
-            { 
-                image: { url: imageUrl },
-                caption: `\t\t⚘ *${title}*\n ${global.dev}`,
-                buttons: [
-                    { 
-                        buttonId: `.pinterest ${text}`, 
-                        buttonText: { displayText: 'ᯓsiguente' },
-                        type: 1  
-                    }
-                ],
-                viewOnce: true,
-                headerType: 4
-            },
-            { quoted: m }
-        );
+// *[ ❀ PINTEREST SEARCH ]*
+import axios from 'axios'
 
-        await m.react('✅');
-    } catch (error) {
-        await m.react('✖️');
-        console.error('Error al obtener la imagen:', error);
-        await conn.sendMessage(m.chat, { text: '❌ Ocurrió un error al intentar obtener la imagen. Inténtalo nuevamente.' }, { quoted: m });
-    }
-};
+let handler = async (m, { conn, text, usedPrefix, command }) => {
+if (!text) return conn.reply(m.chat, `❀ Ingresa el texto de lo que quieras buscar`, m)
 
-handler.help = ['pinterest <término>'];
-handler.tags = ['img'];
-handler.register = true;
-handler.command = ['pinterest'];
 
-export default handler;
+try {
+let api = await axios.get(`https://restapi.apibotwa.biz.id/api/search-pinterest?message=${text}`)
+let json = api.data
+
+await conn.sendFile(m.chat, json.data.response, 'HasumiBotFreeCodes.jpg', `❀ Resultado de : *${text}*`, m)
+
+} catch (error) {
+console.error(error)    
+}}    
+
+handler.command = ['pinterest', 'pinterestsearch']
+
+export default handler
