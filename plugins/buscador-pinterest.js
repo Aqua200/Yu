@@ -1,127 +1,88 @@
-let fetch = require('node-fetch');
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@adiwajshing/baileys');
+/*
+• @David-Chian
+- https://github.com/David-Chian
+*/
 
-let handler = async (m, { usedPrefix, command, conn, args }) => {
-  if (!args[0]) throw `*🚩 Example:* ${usedPrefix}${command} Zhao Lusi`;
-  m.reply('Please wait...');
+import fetch from 'node-fetch';
+import baileys from '@whiskeysockets/baileys';
 
-  try {
-    const q = encodeURIComponent(args.join(' '));
-    let response = await fetch(`https://api.betabotz.eu.org/api/search/pinterest?text1=${q}&apikey=${lann}`);
-    let data = await response.json();
-    let res = data.result;
-    let nem = await conn.getName(m.sender);
+async function sendAlbumMessage(jid, medias, options = {}) {
+    if (typeof jid !== "string") throw new TypeError(`jid must be string, received: ${jid}`);
+    if (medias.length < 2) throw new RangeError("Se necesitan al menos 2 imágenes para un álbum");
 
-    if (res.length < 1) return m.reply("Error, Foto Tidak Ditemukan");
+    const caption = options.text || options.caption || "";
+    const delay = !isNaN(options.delay) ? options.delay : 500;
+    delete options.text;
+    delete options.caption;
+    delete options.delay;
 
-    let limit = Math.min(10, res.length);
-    let images = res.slice(0, limit);
-    let videos = res.slice(0, limit);
+    const album = baileys.generateWAMessageFromContent(
+        jid,
+        { messageContextInfo: {}, albumMessage: { expectedImageCount: medias.length } },
+        {}
+    );
 
-    let push = [];
-    let i = 1;
+    await conn.relayMessage(album.key.remoteJid, album.message, { messageId: album.key.id });
 
-    async function createImage(url) {
-      const { imageMessage } = await generateWAMessageContent({
-        image: { url }
-      }, {
-        upload: conn.waUploadToServer
-      });
-      return imageMessage;
+    for (let i = 0; i < medias.length; i++) {
+        const { type, data } = medias[i];
+        const img = await baileys.generateWAMessage(
+            album.key.remoteJid,
+            { [type]: data, ...(i === 0 ? { caption } : {}) },
+            { upload: conn.waUploadToServer }
+        );
+        img.message.messageContextInfo = {
+            messageAssociation: { associationType: 1, parentMessageKey: album.key },
+        };
+        await conn.relayMessage(img.key.remoteJid, img.message, { messageId: img.key.id });
+        await baileys.delay(delay);
     }
+    return album;
+}
 
-    for (let pus of images) {
-      push.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({
-          text: `${pus}`
-        }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({
-          text: global.footer
-        }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({
-          title: '',
-          hasMediaAttachment: true,
-          imageMessage: await createImage(pus)
-        }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-        })
-      });
-    }
+const pinterest = async (m, { conn, text, usedPrefix, command }) => {
+    if (!text) return conn.reply(m.chat, `*📌 Uso Correcto: ${usedPrefix + command} Megumin*`, m);
 
-    async function createVideo(url) {
-      const { videoMessage } = await generateWAMessageContent({
-        video: { url }
-      }, {
-        upload: conn.waUploadToServer
-      });
-      return videoMessage;
-    }
-
-    for (let pus of videos) {
-      push.push({
-        body: proto.Message.InteractiveMessage.Body.fromObject({
-          text: `${pus}`
-        }),
-        footer: proto.Message.InteractiveMessage.Footer.fromObject({
-          text: global.footer
-        }),
-        header: proto.Message.InteractiveMessage.Header.fromObject({
-          title: '',
-          hasMediaAttachment: true,
-          videoMessage: await createVideo(pus)
-        }),
-        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
-          buttons: [
-            {
-              name: "cta_url",
-              buttonParamsJson: `{"display_text":"Lihat Video","cta_type":"1","url":"${pus}"}`
+    await m.react('⏳');
+    conn.reply(m.chat, '📌 *Descargando imágenes de Pinterest...*', m, {
+        contextInfo: {
+            externalAdReply: {
+                mediaUrl: null,
+                mediaType: 1,
+                showAdAttribution: true,
+                title: packname,
+                body: wm,
+                previewType: 0,
+                thumbnail: icons,
+                sourceUrl: channel
             }
-          ]
-        })
-      });
-    }
-
-    const msg = generateWAMessageFromContent(m.chat, {
-      viewOnceMessage: {
-        message: {
-          messageContextInfo: {
-            deviceListMetadata: {},
-            deviceListMetadataVersion: 2
-          },
-          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
-            body: proto.Message.InteractiveMessage.Body.create({
-              text: `total result: ${limit}`
-            }),
-            footer: proto.Message.InteractiveMessage.Footer.create({
-              text: `Hai\nDibawah ini Adalah hasil dari Pencarian Dari:\n${nem}`
-            }),
-            header: proto.Message.InteractiveMessage.Header.create({
-              hasMediaAttachment: false
-            }),
-            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
-              cards: [
-                ...push
-              ]
-            })
-          })
         }
-      }
-    }, { quoted: m });
-
-    await conn.relayMessage(m.chat, msg.message, {
-      messageId: msg.key.id
     });
-  } catch (e) {
-    throw `Error: ${e.message}`;
-  }
+
+    try {
+        const res = await fetch(`https://api.dorratz.com/v2/pinterest?q=${encodeURIComponent(text)}`);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length < 2) {
+            return conn.reply(m.chat, '❌ No se encontraron suficientes imágenes para un álbum.', m);
+        }
+
+        const images = data.slice(0, 10).map(img => ({ type: "image", data: { url: img.image_large_url } }));
+
+        const caption = `📌 *Resultados de búsqueda para:* ${text}`;
+        await sendAlbumMessage(m.chat, images, { caption, quoted: m });
+
+        await m.react('✅');
+    } catch (error) {
+        console.error(error);
+        await m.react('❌');
+        conn.reply(m.chat, '⚠️ Hubo un error al obtener las imágenes de Pinterest.', m);
+    }
 };
 
-handler.help = ['pinterest <keyword>'];
-handler.tags = ['internet', 'downloader'];
-handler.command = /^(pinterest|pin)$/i;
+pinterest.help = ['pinterest <query>'];
+pinterest.tags = ['buscador', 'descargas'];
+pinterest.command = /^(pinterest|pin)$/i;
+pinterest.register = true;
 
-module.exports = handler;
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+export default pinterest;
