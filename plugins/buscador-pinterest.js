@@ -1,37 +1,127 @@
-/* 
+let fetch = require('node-fetch');
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = require('@adiwajshing/baileys');
 
-*❀ By JTxs*
+let handler = async (m, { usedPrefix, command, conn, args }) => {
+  if (!args[0]) throw `*🚩 Example:* ${usedPrefix}${command} Zhao Lusi`;
+  m.reply('Please wait...');
 
-[ Canal Principal ] :
-https://whatsapp.com/channel/0029VaeQcFXEFeXtNMHk0D0n
+  try {
+    const q = encodeURIComponent(args.join(' '));
+    let response = await fetch(`https://api.betabotz.eu.org/api/search/pinterest?text1=${q}&apikey=${lann}`);
+    let data = await response.json();
+    let res = data.result;
+    let nem = await conn.getName(m.sender);
 
-[ Canal Rikka Takanashi Bot ] :
-https://whatsapp.com/channel/0029VaksDf4I1rcsIO6Rip2X
+    if (res.length < 1) return m.reply("Error, Foto Tidak Ditemukan");
 
-[ Canal StarlightsTeam] :
-https://whatsapp.com/channel/0029VaBfsIwGk1FyaqFcK91S
+    let limit = Math.min(10, res.length);
+    let images = res.slice(0, limit);
+    let videos = res.slice(0, limit);
 
-[ HasumiBot FreeCodes ] :
-https://whatsapp.com/channel/0029Vanjyqb2f3ERifCpGT0W
-*/
+    let push = [];
+    let i = 1;
 
-// *[ ❀ PINTEREST SEARCH ]*
-import axios from 'axios'
+    async function createImage(url) {
+      const { imageMessage } = await generateWAMessageContent({
+        image: { url }
+      }, {
+        upload: conn.waUploadToServer
+      });
+      return imageMessage;
+    }
 
-let handler = async (m, { conn, text, usedPrefix, command }) => {
-if (!text) return conn.reply(m.chat, `❀ Ingresa el texto de lo que quieras buscar`, m)
+    for (let pus of images) {
+      push.push({
+        body: proto.Message.InteractiveMessage.Body.fromObject({
+          text: `${pus}`
+        }),
+        footer: proto.Message.InteractiveMessage.Footer.fromObject({
+          text: global.footer
+        }),
+        header: proto.Message.InteractiveMessage.Header.fromObject({
+          title: '',
+          hasMediaAttachment: true,
+          imageMessage: await createImage(pus)
+        }),
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+        })
+      });
+    }
 
+    async function createVideo(url) {
+      const { videoMessage } = await generateWAMessageContent({
+        video: { url }
+      }, {
+        upload: conn.waUploadToServer
+      });
+      return videoMessage;
+    }
 
-try {
-let api = await axios.get(`https://restapi.apibotwa.biz.id/api/search-pinterest?message=${text}`)
-let json = api.data
+    for (let pus of videos) {
+      push.push({
+        body: proto.Message.InteractiveMessage.Body.fromObject({
+          text: `${pus}`
+        }),
+        footer: proto.Message.InteractiveMessage.Footer.fromObject({
+          text: global.footer
+        }),
+        header: proto.Message.InteractiveMessage.Header.fromObject({
+          title: '',
+          hasMediaAttachment: true,
+          videoMessage: await createVideo(pus)
+        }),
+        nativeFlowMessage: proto.Message.InteractiveMessage.NativeFlowMessage.fromObject({
+          buttons: [
+            {
+              name: "cta_url",
+              buttonParamsJson: `{"display_text":"Lihat Video","cta_type":"1","url":"${pus}"}`
+            }
+          ]
+        })
+      });
+    }
 
-await conn.sendFile(m.chat, json.data.response, 'HasumiBotFreeCodes.jpg', `❀ Resultado de : *${text}*`, m)
+    const msg = generateWAMessageFromContent(m.chat, {
+      viewOnceMessage: {
+        message: {
+          messageContextInfo: {
+            deviceListMetadata: {},
+            deviceListMetadataVersion: 2
+          },
+          interactiveMessage: proto.Message.InteractiveMessage.fromObject({
+            body: proto.Message.InteractiveMessage.Body.create({
+              text: `total result: ${limit}`
+            }),
+            footer: proto.Message.InteractiveMessage.Footer.create({
+              text: `Hai\nDibawah ini Adalah hasil dari Pencarian Dari:\n${nem}`
+            }),
+            header: proto.Message.InteractiveMessage.Header.create({
+              hasMediaAttachment: false
+            }),
+            carouselMessage: proto.Message.InteractiveMessage.CarouselMessage.fromObject({
+              cards: [
+                ...push
+              ]
+            })
+          })
+        }
+      }
+    }, { quoted: m });
 
-} catch (error) {
-console.error(error)    
-}}    
+    await conn.relayMessage(m.chat, msg.message, {
+      messageId: msg.key.id
+    });
+  } catch (e) {
+    throw `Error: ${e.message}`;
+  }
+};
 
-handler.command = ['pinterest', 'pinterestsearch']
+handler.help = ['pinterest <keyword>'];
+handler.tags = ['internet', 'downloader'];
+handler.command = /^(pinterest|pin)$/i;
 
-export default handler
+module.exports = handler;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
