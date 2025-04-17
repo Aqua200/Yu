@@ -80,9 +80,11 @@ const pinterest = async (m, { conn, text, usedPrefix, command }) => {
     }
 };
 
-pinterest.help = ['pinterest <query>'];
-pinterest.tags = ['buscador', 'descargas'];
-pinterest.command = /^(pinterest|pin)$/i;
-pinterest.register = true;
+handler.help = ["pinterest"];
+handler.tags = ["descargas"];
+handler.coin = 1;
+handler.group = true;
+handler.register = true
+handler.command = ['pinterest', 'pin'];
 
 export default pinterest;
