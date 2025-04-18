@@ -2,13 +2,11 @@ const handler = async (m, { conn }) => {
     const user = global.db.data.users[m.sender];
     if (!user) return conn.reply(m.chat, '❌ No estás registrado en la base de datos.', m);
 
-    // Verificar estado de la picota con mensaje más descriptivo
     if (!user.pickaxedurability || user.pickaxedurability <= 0) {
         return conn.reply(m.chat, '🔨 *¡Pico inutilizable!*\n\n⚒️ Tu pico está roto (0% de durabilidad).\n💡 Usa *!reparar* para arreglarlo o *!tienda* para comprar uno nuevo.', m);
     }
 
-    // Cooldown mejorado con progreso visual
-    const cooldownTime = 600000; // 10 minutos
+    const cooldownTime = 600000;
     const lastMining = user.lastmining || 0;
     const remainingTime = cooldownTime - (Date.now() - lastMining);
     
@@ -16,13 +14,11 @@ const handler = async (m, { conn }) => {
         const progressBar = createProgressBar(cooldownTime, remainingTime);
         const remaining = formatCooldown(remainingTime);
         return conn.reply(m.chat, 
-            `⏳ *¡Espera para minar!*\n\n` +
-            `${progressBar}\n` +
+            `⏳ *¡Espera para minar!*\n\n${progressBar}\n` +
             `⏱️ Tiempo restante: *${remaining}*\n\n` +
             `💡 El cooldown es de 10 minutos. Puedes ver tu progreso con *!cdminar*`, m);
     }
 
-    // Sistema de ubicaciones mejorado
     const miningLocations = [
         { 
             name: "🏔️ Cueva Profunda", 
@@ -101,39 +97,25 @@ const handler = async (m, { conn }) => {
         }
     ];
 
-    // Selección de ubicación con probabilidades ajustadas
     const location = selectByProbability(miningLocations);
-    
-    // Cálculo de recursos con bonificación por pico
     const pickaxeBonus = user.pickaxe ? (user.pickaxe.tier * 0.15) + 1 : 1;
     const resources = calculateResources(location, pickaxeBonus);
-
-    // Experiencia basada en dificultad
     const expMultipliers = { "Fácil": 1, "Medio": 1.5, "Difícil": 2 };
     const baseExp = Math.floor(Math.random() * 100) + 50;
     const experience = Math.floor(baseExp * expMultipliers[location.difficulty] * pickaxeBonus);
-
-    // Durabilidad y eventos
     const durabilityLoss = calculateDurabilityLoss(location.difficulty);
     const randomEvent = getRandomEvent();
     const newDurability = Math.max(0, user.pickaxedurability - durabilityLoss);
     const durabilityPercentage = Math.floor((newDurability / 100) * 100);
+    const resultMessage = buildResultMessage(location, resources, experience, durabilityPercentage, randomEvent, user);
 
-    // Construir mensaje mejorado
-    const resultMessage = buildResultMessage(location, resources, experience, durabilityPercentage, randomEvent);
-
-    // Enviar resultados
     await conn.sendFile(m.chat, location.image, 'mining.jpg', resultMessage, m);
     await m.react('⛏️');
 
-    // Actualizar datos del usuario
     updateUserData(user, resources, experience, newDurability, randomEvent);
-
-    // Notificaciones sobre el estado del pico
     handlePickaxeNotifications(conn, m, newDurability, durabilityPercentage);
 }
 
-// Funciones auxiliares mejoradas
 function calculateResources(location, bonusMultiplier) {
     const resources = {
         coin: Math.floor(getRandomInRange(location.resources.coin) * bonusMultiplier),
@@ -155,7 +137,7 @@ function calculateDurabilityLoss(difficulty) {
     return Math.floor(baseLoss * difficultyFactors[difficulty]);
 }
 
-function buildResultMessage(location, resources, exp, durability, event) {
+function buildResultMessage(location, resources, exp, durability, event, user) {
     let message = `✨ *${location.name}* (${location.difficulty}) ${location.emoji}\n\n`;
     message += `📊 *Resultados de minería*\n`;
     message += `▸ 🌟 *Experiencia*: ${exp} XP\n`;
@@ -169,7 +151,6 @@ function buildResultMessage(location, resources, exp, durability, event) {
     message += `\n⚒️ *Estado del pico*: ${durability}%\n\n`;
     message += `🎲 *Evento especial*: ${event.text}\n\n`;
     message += `💡 *Consejo*: Picos de mayor nivel (${user.pickaxe ? `actual: ${user.pickaxe.tier}` : 'ninguno'}) dan mejores recompensas!`;
-    
     return message;
 }
 
@@ -186,21 +167,17 @@ function updateUserData(user, resources, exp, newDurability, event) {
     user.lastmining = Date.now();
     
     if (event.effect.reduceCooldown) {
-        user.lastmining -= 180000; // Reduce 3 minutos del cooldown
+        user.lastmining -= 180000;
     }
 }
 
 function handlePickaxeNotifications(conn, m, durability, percentage) {
     if (durability <= 0) {
         conn.reply(m.chat, 
-            '🔨 *¡Pico destruido!*\n\n' +
-            'Tu pico se ha roto completamente.\n' +
-            'Usa *!reparar* para arreglarlo o *!tienda* para comprar uno mejor.', m);
+            '🔨 *¡Pico destruido!*\n\nTu pico se ha roto completamente.\nUsa *!reparar* para arreglarlo o *!tienda* para comprar uno mejor.', m);
     } else if (percentage <= 20) {
         conn.reply(m.chat, 
-            `⚠️ *¡Atención!*\n\n` +
-            `Tu pico está a punto de romperse (${percentage}% de durabilidad).\n` +
-            `Usa *!reparar* para arreglarlo antes de que sea demasiado tarde.`, m);
+            `⚠️ *¡Atención!*\n\nTu pico está a punto de romperse (${percentage}% de durabilidad).\nUsa *!reparar* para arreglarlo antes de que sea demasiado tarde.`, m);
     }
 }
 
@@ -209,7 +186,6 @@ function createProgressBar(total, remaining) {
     return `[${'█'.repeat(progress)}${'░'.repeat(10 - progress)}]`;
 }
 
-// Funciones existentes (optimizadas)
 function getRandomInRange([min, max]) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -230,7 +206,6 @@ function formatCooldown(ms) {
     return `${minutes}m ${seconds}s`;
 }
 
-// Eventos mejorados
 function getRandomEvent() {
     const events = [
         { text: "🎉 ¡Tesoro escondido! +100 monedas", effect: { coins: 100 } },
