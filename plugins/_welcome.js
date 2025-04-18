@@ -1,61 +1,26 @@
-import { WAMessageStubType } from '@whiskeysockets/baileys';
+import { WAMessageStubType } from '@whiskeysockets/baileys'
+import fetch from 'node-fetch'
 
 export async function before(m, { conn, participants, groupMetadata }) {
-  if (!m.messageStubType || !m.isGroup) return;
-
-  const chatId = m.chat;
-  const userJid = m.messageStubParameters?.[0];
-  const user = userJid?.split('@')[0] || 'Usuario';
-  const groupName = groupMetadata.subject || 'Sin nombre';
-  
-  global.db.data.chats ??= {};
-  global.db.data.chats[chatId] ??= {};
-  const chat = global.db.data.chats[chatId];
-
-  let groupSize = participants.length;
-  if (m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_JOIN) groupSize++;
-  if ([WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType)) groupSize--;
-
-  if (!chat.welcome || !userJid) return;
-
-  const isJoin = m.messageStubType === WAMessageStubType.GROUP_PARTICIPANT_JOIN;
-  const isLeave = [WAMessageStubType.GROUP_PARTICIPANT_LEAVE, WAMessageStubType.GROUP_PARTICIPANT_REMOVE].includes(m.messageStubType);
-  if (!isJoin && !isLeave) return;
-
-  const message = isJoin
-    ? `
-*¡BIENVENIDO/A!* 
-
-✧ @${user}  
-✧ Al grupo: *${groupName}*  
-✧ Miembros: *${groupSize}*  
-
-📜 *Normas:*  
-✔ Respeto a todos  
-✔ No spam  
-✔ Disfruta el grupo  
-
-Usa *#menu* para ver comandos`.trim()
-    : `
-*Adiós* 
-
-✦ @${user}  
-✦ Ha dejado: *${groupName}*  
-✦ Miembros restantes: *${groupSize}*  
-
-*¡Esperamos verte de vuelta!*`.trim();
-
-  try {
-    await conn.sendMessage(chatId, {
-      image: { url: 'https://files.catbox.moe/acf346.jpg' },
-      caption: message,
-      mentions: [userJid]
-    });
-  } catch (e) {
-    console.error(`Error en ${isJoin ? 'bienvenida' : 'despedida'}:`, e);
-    await conn.sendMessage(chatId, {
-      text: message,
-      mentions: [userJid]
-    });
+  if (!m.messageStubType || !m.isGroup) return !0;
+  let pp = await conn.profilePictureUrl(m.messageStubParameters[0], 'image').catch(_ => 'https://files.catbox.moe/xr2m6u.jpg')
+  let img = await (await fetch(`${pp}`)).buffer()
+  let chat = global.db.data.chats[m.chat]
+  let txt = 'ゲ◜៹ New Member ៹◞ゲ'
+  let txt1 = 'ゲ◜៹ Bye Member ៹◞ゲ'
+  let groupSize = participants.length
+  if (m.messageStubType == 27) {
+    groupSize++;
+  } else if (m.messageStubType == 28 || m.messageStubType == 32) {
+    groupSize--;
   }
-}
+
+  if (chat.welcome && m.messageStubType == 27) {
+    let bienvenida = `❀ *Bienvenido* a ${groupMetadata.subject}\n✰ @${m.messageStubParameters[0].split`@`[0]}\n${global.welcom1}\n✦ Ahora somos ${groupSize} Miembros.\n•(=^●ω●^=)• Disfruta tu estadía en el grupo!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`    
+    await conn.sendMini(m.chat, txt, dev, bienvenida, img, img, redes, fkontak)
+  }
+  
+  if (chat.welcome && (m.messageStubType == 28 || m.messageStubType == 32)) {
+    let bye = `❀ *Adiós* de ${groupMetadata.subject}\n✰ @${m.messageStubParameters[0].split`@`[0]}\n${global.welcom2}\n✦ Ahora somos ${groupSize} Miembros.\n•(=^●ω●^=)• Te esperamos pronto!\n> ✐ Puedes usar *#help* para ver la lista de comandos.`
+    await conn.sendMini(m.chat, txt1, dev, bye, img, img, redes, fkontak)
+  }}
