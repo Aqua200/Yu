@@ -1,4 +1,3 @@
-// Anime search, detail & download scraper
 import axios from "axios";
 import * as cheerio from "cheerio";
 
@@ -11,12 +10,15 @@ async function download(url) {
     if (match) title = match[1];
     const result = { title };
     const types = {};
+    
     $('.border-line.border-b').each((i, section) => {
       const langType = $(section).find('span').first().text().trim();
       types[langType] = true;
     });
+    
     const iframes = $('iframe');
     let iframeIndex = 0;
+    
     for (const type of Object.keys(types)) {
       let iframe = $(iframes[iframeIndex]).attr('src');
       if (iframe) {
@@ -28,6 +30,7 @@ async function download(url) {
       }
       iframeIndex++;
     }
+    
     return result;
   } catch (err) {
     return { error: 'Failed to fetch or parse page', details: err.message };
@@ -66,7 +69,8 @@ async function detail(url) {
       episodes.push({ ep: epNum, img, link });
     });
     
-    let total = episodes.length;
+    const total = episodes.length;
+    
     return {
       creator: "I'm Fz ~",
       title,
@@ -86,33 +90,35 @@ async function detail(url) {
 }
 
 async function search(query) {
-  let base = "https://animeav1.com";
-  const res = await fetch(`https://animeav1.com/catalogo?search=${encodeURIComponent(query)}`, {
-    headers: {
-      "User-Agent": "Mozilla/5.0"
-    }
-  });
+  const base = "https://animeav1.com";
+  try {
+    const res = await axios.get(`${base}/catalogo?search=${encodeURIComponent(query)}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0"
+      }
+    });
 
-  const html = await res.text();
-  const $ = cheerio.load(html);
+    const $ = cheerio.load(res.data);
+    const results = [];
 
-  const results = [];
+    $("article").each((i, el) => {
+      const title = $(el).find("h3").text().trim();
+      const link = base + $(el).find("a").attr("href");
+      const img = $(el).find("img").attr("src");
+      results.push({ title, link, img });
+    });
 
-  $("article").each((i, el) => {
-    const title = $(el).find("h3").text().trim();
-    const link = base + $(el).find("a").attr("href");
-    const img = $(el).find("img").attr("src");
-    const desc = $(el).find("p").text().trim();
-
-    results.push({ title, link, img });
-  });
-
-  return results;
+    return results;
+  } catch (err) {
+    return { error: err.message };
+  }
 }
 
-handler.help = ['anime'];
-handler.tags = ['main'];
-handler.command = ['anime'];
+const handler = {
+  help: ['anime'],
+  tags: ['main'],
+  command: ['anime']
+};
 
 export { download, detail, search };
 export default handler;
