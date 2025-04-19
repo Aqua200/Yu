@@ -69,6 +69,9 @@ ${leerMas}
 > ✦ Explorar mazmorras para ganar ${moneda}.
 ᰔᩚ *#kurogane*
 > ✦ para ganar yenes
+ᰔᩚ *#venderm*
+> ✦ para vender materiales y ganar yenes
+
 
  
 »⊹˚୨ *2B* ⊹
