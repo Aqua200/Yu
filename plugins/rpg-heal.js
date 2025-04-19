@@ -58,10 +58,18 @@ let handler = async (m, { conn }) => {
         }, {});
     }
     
-    // Mensaje final
-    let finalInfo = `❤️ *Te has curado ${healAmount} puntos de salud.*\n`;
-    finalInfo += createHealthBar(user.health) + '\n\n';
-    finalInfo += `💸 *${moneda} restantes:* ${user.coin}`;
+    // Mensaje final con verificación de vida al 100%
+    let finalInfo;
+    if (user.health === 100) {
+        finalInfo = `✨ *¡Vida al máximo!* ✨\n`;
+        finalInfo += `❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️ 100/100\n\n`;
+        finalInfo += `🏆 *¡Felicidades! Tu salud está completamente restaurada.*\n`;
+        finalInfo += `💸 *${moneda} restantes:* ${user.coin}`;
+    } else {
+        finalInfo = `❤️ *Te has curado ${healAmount} puntos de salud.*\n`;
+        finalInfo += createHealthBar(user.health) + '\n\n';
+        finalInfo += `💸 *${moneda} restantes:* ${user.coin}`;
+    }
     
     await conn.relayMessage(m.chat, {
         protocolMessage: {
