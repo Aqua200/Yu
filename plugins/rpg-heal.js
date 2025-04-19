@@ -3,8 +3,20 @@ let handler = async (m, { conn }) => {
     if (!user) {
         return conn.reply(m.chat, `${emoji} El usuario no se encuentra en la base de Datos.`, m);
     }
+
+    // Verificar si ya tiene vida máxima
+    if (user.health >= 100) {
+        const healthBar = '❤️'.repeat(10) + ' 100/100';
+        return conn.reply(m.chat, 
+            `✨ *¡Vida al máximo!* ✨\n` +
+            `${healthBar}\n\n` +
+            `🏆 ¡Ya tienes toda tu salud al 100%!\n` +
+            `No necesitas curarte ahora.`, 
+        m);
+    }
+
     if (user.coin < 50) {
-        return conn.reply(m.chat, `💔 Su saldó fue insuficiente para curarte. Necesitas al menos 20.`, m);
+        return conn.reply(m.chat, `💔 Su saldo es insuficiente para curarte. Necesitas al menos 50 ${moneda}.`, m);
     }
     
     let healAmount = 50;
@@ -39,14 +51,13 @@ let handler = async (m, { conn }) => {
     const increment = (user.health - initialHealth) / steps;
     
     for (let i = 1; i <= steps; i++) {
-        await new Promise(resolve => setTimeout(resolve, 500)); // Espera medio segundo entre pasos
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         const currentStepHealth = Math.min(initialHealth + (increment * i), user.health);
         let stepInfo = `*Curando... (${i}/${steps})*\n`;
         stepInfo += createHealthBar(currentStepHealth) + '\n\n';
         stepInfo += `💸 *${moneda} restantes:* ${user.coin}`;
         
-        // Editamos el mensaje para mostrar el progreso
         await conn.relayMessage(m.chat, {
             protocolMessage: {
                 key: loadingMsg.key,
@@ -58,17 +69,17 @@ let handler = async (m, { conn }) => {
         }, {});
     }
     
-    // Mensaje final con verificación de vida al 100%
+    // Mensaje final
     let finalInfo;
     if (user.health === 100) {
-        finalInfo = `✨ *¡Vida al máximo!* ✨\n`;
-        finalInfo += `❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️ 100/100\n\n`;
-        finalInfo += `🏆 *¡Felicidades! Tu salud está completamente restaurada.*\n`;
-        finalInfo += `💸 *${moneda} restantes:* ${user.coin}`;
+        finalInfo = `✨ *¡Vida al máximo alcanzada!* ✨\n` +
+                   `❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️ 100/100\n\n` +
+                   `🏆 ¡Felicidades! Tu salud está completamente restaurada.\n` +
+                   `💸 *${moneda} restantes:* ${user.coin}`;
     } else {
-        finalInfo = `❤️ *Te has curado ${healAmount} puntos de salud.*\n`;
-        finalInfo += createHealthBar(user.health) + '\n\n';
-        finalInfo += `💸 *${moneda} restantes:* ${user.coin}`;
+        finalInfo = `❤️ *Te has curado ${healAmount} puntos de salud.*\n` +
+                   `${createHealthBar(user.health)}\n\n` +
+                   `💸 *${moneda} restantes:* ${user.coin}`;
     }
     
     await conn.relayMessage(m.chat, {
@@ -84,7 +95,7 @@ let handler = async (m, { conn }) => {
 
 handler.help = ['heal'];
 handler.tags = ['rpg'];
-handler.command = ['heal', 'curar']
+handler.command = ['heal', 'curar'];
 handler.group = true;
 handler.register = true;
 
